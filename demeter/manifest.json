@@ -1,0 +1,24 @@
+{
+  "manifest_version": 2,
+
+  "name": "Demeter",
+  "version": "1.0.0",
+  "description": "Collect data from facebook to use in NLP studies. This plugin has academic purposes.",
+
+  "icons": {
+    "128" : "icon_128.png",
+    "180" : "icon_180.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [ "https://*.facebook.com/*" ],
+      "js": [ "contentscript.js" ]
+    }
+  ],
+
+  "permissions": [ "tabs", "https://*.facebook.com/*", "https://*.wikipedia.org/*", "http://localhost/*" ],
+
+  "web_accessible_resources": [ "contentscript.js" ]
+
+}
