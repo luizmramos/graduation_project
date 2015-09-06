@@ -120,8 +120,39 @@ NewsFeed.prototype.getStories = function() {
 
 function NewsFeedStory(/* jQueryObject */ newsFeedStoryDom) {
 	this.super(newsFeedStoryDom);
+
+	/*
+	 * Somtimes in facebook there are story contents inside story contents.
+	 * For example, when a user likes a post, the outer story content is
+	 * John likes Mary's post and the inner content is the actual post.
+	 * We always want the text from the most inner content
+	 */
+	var currentDom = newsFeedStoryDom;
+	var contentDom;
+	var nUserContent = 1;
+	while(currentDom.length > 0) {
+		contentDom = currentDom;
+		var selector = Array(nUserContent).join(' .userContentWrapper');
+		nUserContent++;
+		selector = selector + ':not(' + selector + ' .userContentWrapper)';
+		currentDom = currentDom.find(selector);
+	}
+
+	this._contentWrapper = new NewsFeedStoryContentWrapper(contentDom);
 }
 
 inherits(NewsFeedStory, DomElement);
 
-// TODO: create NewsFeedStoryContent -> .userContentWrapper:not(.userContentWrapper .userContentWrapper)
+NewsFeedStory.prototype.getContentWrapper = function() {
+	return this._contentWrapper;
+}
+
+// class NewsFeedStoryContentWrapper
+
+function NewsFeedStoryContentWrapper(/* jQueryObject */ newsFeedStoryContentWrapperDom) {
+	this.super(newsFeedStoryContentWrapperDom);
+}
+
+inherits(NewsFeedStoryContentWrapper, DomElement);
+
+// TODO: create NewsFeedStoryContent -> .userContent
