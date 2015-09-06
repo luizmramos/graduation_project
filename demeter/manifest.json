@@ -13,12 +13,12 @@
   "content_scripts": [
     {
       "matches": [ "https://*.facebook.com/*" ],
-      "js": ["jquery-1.11.3.min.js", "contentscript.js"]
+      "js": [ "jquery-1.11.3.min.js", "poo_utilities.js", "contentscript.js" ]
     }
   ],
 
   "permissions": [ "tabs", "https://*.facebook.com/*", "https://*.wikipedia.org/*", "http://localhost/*" ],
 
-  "web_accessible_resources": [ "contentscript.js", "jquery-1.11.3.min" ]
+  "web_accessible_resources": [ "contentscript.js", "jquery-1.11.3.min", "poo_utilities.js" ]
 
 }
