@@ -13,12 +13,29 @@
   "content_scripts": [
     {
       "matches": [ "https://*.facebook.com/*" ],
-      "js": [ "jquery-1.11.3.min.js", "poo_utilities.js", "facebook_tree.js", "contentscript.js" ]
+      "js": [ 
+        "jquery-1.11.3.min.js", 
+        "poo_utilities.js",
+        "facebook_tree.js",
+        "demeter_dom.js",
+        "story_classification.js",
+        "contentscript.js" 
+      ],
+      "css": [ "demeter.css" ]
     }
   ],
 
   "permissions": [ "tabs", "https://*.facebook.com/*", "https://*.wikipedia.org/*", "http://localhost/*" ],
 
-  "web_accessible_resources": [ "contentscript.js", "jquery-1.11.3.min.js", "poo_utilities.js", "facebook_tree.js" ]
+  "web_accessible_resources": [ 
+    "contentscript.js", 
+    "jquery-1.11.3.min.js", 
+    "poo_utilities.js", 
+    "facebook_tree.js",
+    "story_classification.js",
+    "demeter_dom.js",
+    "demeter.css",
+    "three-dots.png"
+  ]
 
 }

@@ -45,7 +45,7 @@ StreamPagelet.prototype.getPageletComposer= function() {
 	return this._pageletComposer;
 }
 
-StreamPagelet.getNewsFeed = function() {
+StreamPagelet.prototype.getNewsFeed = function() {
 	return this._newsFeed;
 }
 
@@ -68,18 +68,27 @@ function updateNewsFeedStories(
 	/*jQueryObject */ feedStreamDom, 
 	/* Array<NewsFeedStory> */ stories, 
 	/* Map<String, NewsFeedStory> */ storiesMap, 
-	/* Map<String, jQueryObject> */ substreams
+	/* Map<String, jQueryObject> */ substreams,
+	/* Array<Function> */ storyMutators
 ) {
 	var allSubstreams = feedStreamDom.find('div[id*="substream"]').get();
 	allSubstreams.forEach(function(substream) {
 		if (substreams[substream.id] === undefined) {
 			substreams[substream.id] = $(substream);
-			$(substream).find('div[id*="hyperfeed_story_id"]').get().forEach(function(story) {
-				if (storiesMap[story.id] === undefined) {
-					storiesMap[story.id] = $(story);
-					stories.push(new NewsFeedStory($(story)));	
-				}
-			});
+			// The substream gets rendered before its hyperfeed_story's, which means that
+			// we might lose some stories. This timeout reduces this problem
+			setTimeout(function() {
+				$(substream).find('div[id*="hyperfeed_story_id"]').get().forEach(function(story) {
+					if (storiesMap[story.id] === undefined) {
+						storiesMap[story.id] = $(story);
+						var newsFeedStory = new NewsFeedStory($(story));
+						stories.push(newsFeedStory);	
+						storyMutators.forEach(function(mutator) {
+							mutator(newsFeedStory);
+						});
+					}
+				});
+			}, 500);
 		}
 	});
 }
@@ -90,8 +99,15 @@ function NewsFeed(/* jQueryObject */ newsFeedDom) {
 	this._stories = [];
 	this._storiesMap = {};
 	this._substreams = {};
+	this._storyMutators = [];
 	this._documentHeight = $(document).height();
-	updateNewsFeedStories(this._feedStreamDom, this._stories, this._storiesMap, this._substreams);
+	updateNewsFeedStories(
+		this._feedStreamDom, 
+		this._stories, 
+		this._storiesMap, 
+		this._substreams, 
+		this._storyMutators
+	);
 	var WINDOW_SCROLL_DEBOUNCE = 100;
 	$(window).scroll(function() {
 		var documentHeight = $(document).height();
@@ -104,7 +120,13 @@ function NewsFeed(/* jQueryObject */ newsFeedDom) {
 		}
 
 		this._windowScrollTimeout = setTimeout(function() {
-			updateNewsFeedStories(this._feedStreamDom, this._stories, this._storiesMap, this._substreams);
+			updateNewsFeedStories(
+				this._feedStreamDom, 
+				this._stories, 
+				this._storiesMap, 
+				this._substreams, 
+				this._storyMutators
+			);
 		}.bind(this), WINDOW_SCROLL_DEBOUNCE);
 
 	}.bind(this));
@@ -114,6 +136,13 @@ inherits(NewsFeed, DomElement);
 
 NewsFeed.prototype.getStories = function() {
 	return this._stories;
+}
+
+NewsFeed.prototype.forEachStory = function(/* Function */ mutator) {
+	this._stories.forEach(function(story) {
+		mutator(story);
+	});
+	this._storyMutators.push(mutator);
 }
 
 // class NewsFeedStory
@@ -145,6 +174,11 @@ inherits(NewsFeedStory, DomElement);
 
 NewsFeedStory.prototype.getContentWrapper = function() {
 	return this._contentWrapper;
+}
+
+NewsFeedStory.prototype.prependToStoryCard = function(/* jQueryObject */ dom) {
+	var storyCard = this._dom.find('.userContentWrapper:not(.userContentWrapper .userContentWrapper)');
+	storyCard.prepend(dom);
 }
 
 // class NewsFeedStoryContentWrapper
