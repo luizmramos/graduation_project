@@ -25,7 +25,8 @@ var classesList = [
 	"Celebridades", 
 	"Filmes", 
 	"Curiosidades",
-	"Propaganda", 
+	"Propaganda",
+	"Turismo",
 	"Outros"]
 
 function StoryClassesListDom() {
