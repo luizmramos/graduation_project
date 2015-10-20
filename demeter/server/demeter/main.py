@@ -46,18 +46,19 @@ class AddStoryHandler(webapp2.RequestHandler):
         	previousClassification = query[0].classification
         	story = query[0]
 
-        if classifications:
-            for classification in classifications.split(','):
-                if not classification in previousClassification:
-                    previousClassification[classification] = 0
-                previousClassification[classification] = previousClassification[classification] + 1
-        
         if remove_classifications:
             for classification in remove_classifications.split(','):
                 if not classification in previousClassification:
                     continue
                 if previousClassification[classification] > 0:
                     previousClassification[classification] = previousClassification[classification] - 1
+                    
+        if classifications:
+            for classification in classifications.split(','):
+                if not classification in previousClassification:
+                    previousClassification[classification] = 0
+                previousClassification[classification] = previousClassification[classification] + 1
+        
         
         story = story or Story(id=id, classification=previousClassification, content=content)
         story.put()
