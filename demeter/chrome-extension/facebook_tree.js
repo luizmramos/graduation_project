@@ -149,24 +149,8 @@ NewsFeed.prototype.forEachStory = function(/* Function */ mutator) {
 
 function NewsFeedStory(/* jQueryObject */ newsFeedStoryDom) {
 	this.super(newsFeedStoryDom);
-
-	/*
-	 * Somtimes in facebook there are story contents inside story contents.
-	 * For example, when a user likes a post, the outer story content is
-	 * John likes Mary's post and the inner content is the actual post.
-	 * We always want the text from the most inner content
-	 */
 	var currentDom = newsFeedStoryDom;
-	var contentDom;
-	var nUserContent = 1;
-	while(currentDom.length > 0) {
-		contentDom = currentDom;
-		var selector = Array(nUserContent).join(' .userContentWrapper');
-		nUserContent++;
-		selector = selector + ':not(' + selector + ' .userContentWrapper)';
-		currentDom = currentDom.find(selector);
-	}
-
+	var contentDom = currentDom.find('.userContentWrapper:not(.userContentWrapper .userContentWrapper)');
 	this._contentWrapper = new NewsFeedStoryContentWrapper(contentDom);
 }
 
@@ -181,6 +165,17 @@ NewsFeedStory.prototype.prependToStoryCard = function(/* jQueryObject */ dom) {
 	storyCard.prepend(dom);
 }
 
+NewsFeedStory.prototype.getJSONContent = function() {
+	var jsonContent = {};
+	console.log(this._contentWrapper);
+	jsonContent.text = this._contentWrapper.getContent();
+	jsonContent.links = this._contentWrapper.getLinks();
+	var idAndTimestamp = this._contentWrapper.getIdAndTimestamp();
+	jsonContent.id = idAndTimestamp.id;
+	jsonContent.timestamp = idAndTimestamp.timestamp;
+	return jsonContent;
+}
+
 // class NewsFeedStoryContentWrapper
 
 function NewsFeedStoryContentWrapper(/* jQueryObject */ newsFeedStoryContentWrapperDom) {
@@ -188,5 +183,62 @@ function NewsFeedStoryContentWrapper(/* jQueryObject */ newsFeedStoryContentWrap
 }
 
 inherits(NewsFeedStoryContentWrapper, DomElement);
+
+NewsFeedStoryContentWrapper.prototype.getContent = function() {
+	var ps = this.getDomNode().find('p');
+	var ans = '';
+	for (var i = 0; i < ps.length; i++) {
+		if (ps[i].textContent) {
+			ans = ans + ps[i].textContent + ' ';
+		}
+	}
+	return ans;
+}
+
+NewsFeedStoryContentWrapper.prototype.getLinks = function() {
+	var as = this.getDomNode().find('a');
+	var ans = [];
+	var outros = [];
+	for (var i = 0; i < as.length; i++) {
+		var href = as[i].href;
+		if (href && href.startsWith('http')) {
+			if (href.indexOf('.facebook.com') == -1) {
+				ans.push(href);	
+			} else if (href.indexOf('l.php?u=') !== -1) {
+				var args = href.substr(href.indexOf('l.php?u=') + 8);
+				var link = args.split('&')[0];
+				var decoded = decodeURIComponent(link);
+				outros.push(decoded);
+			}
+			
+		}
+	}
+	if (ans.length === 0) {
+		ans = outros;
+	}
+	// Remove repetition
+	return ans.filter(function (e, i, ans) { 
+	    return ans.lastIndexOf(e) === i;
+	});
+}
+
+NewsFeedStoryContentWrapper.prototype.getIdAndTimestamp = function() {
+	var as = this.getDomNode().find('a');
+	for (var i = 0; i < as.length; i++) {
+		if (as[i].classList.contains('uiStreamSponsoredLink')) {
+			return {
+				'id': as[i].href
+			};
+		}
+		else if ($(as[i]).find('span.timestampContent').length > 0) {
+			var timestamp = $(as[i]).find('abbr')[0].getAttribute('data-utime');
+			return {
+				'id': as[i].href,
+				'timestamp': timestamp
+			};
+		}
+	}
+	return undefined;
+}
 
 // TODO: create NewsFeedStoryContent -> .userContent

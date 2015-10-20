@@ -150,7 +150,7 @@ StoryClassSelectedDom.prototype.onRemoveClasses = function(/* Function */ callba
 
 // class StoryHeaderDom
 
-function StoryHeaderDom() {
+function StoryHeaderDom(/* Function */ onChangeSelection) {
 	this._storyClassesList = new StoryClassesListDom();
 	this._selectedClasses = [];
 	this._dom = $('<div class="story-header"><div id="story-header-content"></div><div class="divisor-line"/></div>');
@@ -172,11 +172,14 @@ function StoryHeaderDom() {
 	this._storyClassesList.onSelect(function(selectedClass) {
 		this._selectedClasses.push(selectedClass);
 		this._selectedClasses = $.unique(this._selectedClasses);
+		onChangeSelection(this._selectedClasses);
 		this._renderSelectedStories();
 	}.bind(this));
+
 	this._storyClassesSelectedDom.onAddNewClass(function() {
 		this._renderStoryClassesList();
 	}.bind(this));
+
 	this._storyClassesSelectedDom.onRemoveClasses(function() {
 		this._selectedClasses = [];
 		this._renderStoryClassesList();
