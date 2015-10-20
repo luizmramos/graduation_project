@@ -16,17 +16,16 @@ StoryClassDom.prototype.onClick = function(/* Function */ callback) {
 // class StoryClassesListDom
 
 var classesList = [
-	"Politica", 
-	"Economia", 
+	"Politica / Economia", 
+	"Propaganda", 
+	"Filme", 
+	"Humor", 
+	"Celebridade", 
 	"Esporte", 
-	"Pessoal", 
-	"Ciencia", 
-	"Educacao", 
-	"Celebridades", 
-	"Filmes", 
 	"Curiosidades",
-	"Propaganda",
+	"Pessoal",
 	"Turismo",
+	"Ciencia / Tecnologia",
 	"Outros"]
 
 function StoryClassesListDom() {
