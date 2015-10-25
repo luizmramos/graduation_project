@@ -26,7 +26,11 @@ var classesList = [
 	"Pessoal",
 	"Turismo",
 	"Ciencia / Tecnologia",
-	"Outros"]
+	"Minorias",
+	"Educacao",
+	"Noticias",
+	"Bebes / Animais"
+]
 
 function StoryClassesListDom() {
 	this._storyClassesList = classesList.map(function(className) {
