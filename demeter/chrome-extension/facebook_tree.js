@@ -184,6 +184,9 @@ NewsFeedStory.prototype.getJSONContent = function() {
 	var idAndTimestamp = this._contentWrapper.getIdAndTimestamp();
 	jsonContent.id = idAndTimestamp.id;
 	jsonContent.timestamp = idAndTimestamp.timestamp;
+	jsonContent.shareType = this._contentWrapper.getShareType();
+	jsonContent.hasTaggedFriends = this._contentWrapper.getHasTaggedFriends();
+	jsonContent.hasLocation = this._contentWrapper.getHasLocation();
 	return jsonContent;
 }
 
@@ -204,6 +207,20 @@ NewsFeedStoryContentWrapper.prototype.getContent = function() {
 		}
 	}
 	return ans;
+}
+
+NewsFeedStoryContentWrapper.prototype.getHasTaggedFriends = function() {
+	if (this.getDomNode().find(':header > span > span:contains(" with ")').length > 0) {
+		return true;
+	}
+	return false;
+}
+
+NewsFeedStoryContentWrapper.prototype.getHasLocation = function() {
+	if (this.getDomNode().find(':header > span > span:contains(" at ")').length > 0) {
+		return true;
+	}
+	return false;
 }
 
 NewsFeedStoryContentWrapper.prototype.getLinks = function() {
@@ -231,6 +248,19 @@ NewsFeedStoryContentWrapper.prototype.getLinks = function() {
 	return ans.filter(function (e, i, ans) { 
 	    return ans.lastIndexOf(e) === i;
 	});
+}
+
+NewsFeedStoryContentWrapper.prototype.getShareType = function() {
+	if (this.getDomNode().find('a.profileLink:contains("video")').length > 0) {
+		return 'video';
+	} 
+	if (this.getDomNode().find('a.profileLink:contains("photo")').length > 0) {
+		return 'photo';
+	}
+	if (this.getDomNode().find('span > a:contains("link")').length > 0) {
+		return 'link';
+	}
+	return 'update';
 }
 
 NewsFeedStoryContentWrapper.prototype.getIdAndTimestamp = function() {
