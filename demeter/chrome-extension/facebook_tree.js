@@ -78,14 +78,26 @@ function updateNewsFeedStories(
 			// The substream gets rendered before its hyperfeed_story's, which means that
 			// we might lose some stories. This timeout reduces this problem
 			setTimeout(function() {
-				$(substream).find('div[id*="hyperfeed_story_id"]').get().forEach(function(story) {
-					if (storiesMap[story.id] === undefined) {
-						storiesMap[story.id] = $(story);
-						var newsFeedStory = new NewsFeedStory($(story));
-						stories.push(newsFeedStory);	
-						storyMutators.forEach(function(mutator) {
-							mutator(newsFeedStory);
-						});
+				$(substream).find('div[id*="hyperfeed_story_id"]').get().forEach(function(hyperfeed_story) {
+					var stories = [];
+					if ($(hyperfeed_story).find('.uiCollapsedList').length > 0) { // several stories inside an hyperfeed story
+						stories = $(hyperfeed_story).find('.uiCollapsedList > li').get();	
+						for (var i = 0; i < stories.length; i++) {
+							stories[i].id = hyperfeed_story.id + '##' + i;
+						}
+					} else { // only one story in the hyperfeed (most cases)
+						stories.push(hyperfeed_story);
+					}
+					for (var i = 0; i < stories.length; i++) {
+						var story = stories[i];
+						if (storiesMap[story.id] === undefined) {
+							storiesMap[story.id] = $(story);
+							var newsFeedStory = new NewsFeedStory($(story));
+							stories.push(newsFeedStory);	
+							storyMutators.forEach(function(mutator) {
+								mutator(newsFeedStory);
+							});
+						}
 					}
 				});
 			}, 500);
