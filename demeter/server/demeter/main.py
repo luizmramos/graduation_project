@@ -29,7 +29,7 @@ class MainHandler(webapp2.RequestHandler):
         self.response.write('Hello world!')
 
 class AddStoryHandler(webapp2.RequestHandler):
-    def get(self):
+    def post(self):
         id = self.request.get('id')
       	content = self.request.get('content')
         classifications = self.request.get('classifications')
