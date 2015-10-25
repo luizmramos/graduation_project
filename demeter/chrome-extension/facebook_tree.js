@@ -167,7 +167,6 @@ NewsFeedStory.prototype.prependToStoryCard = function(/* jQueryObject */ dom) {
 
 NewsFeedStory.prototype.getJSONContent = function() {
 	var jsonContent = {};
-	console.log(this._contentWrapper);
 	jsonContent.text = this._contentWrapper.getContent();
 	jsonContent.links = this._contentWrapper.getLinks();
 	var idAndTimestamp = this._contentWrapper.getIdAndTimestamp();
