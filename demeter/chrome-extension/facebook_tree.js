@@ -10,8 +10,8 @@ DomElement.prototype.getDomNode = function() {
 
 // class FacebookPage
 
-function FacebookPage() {
-	this._mainContainer = new MainContainer($('#mainContainer'));
+function FacebookPage(/* Function */ onReload) {
+	this._mainContainer = new MainContainer($('#mainContainer'), onReload);
 }
 
 FacebookPage.prototype.getMainContainer = function() {
@@ -20,9 +20,9 @@ FacebookPage.prototype.getMainContainer = function() {
 
 // class MainContainer
 
-function MainContainer(/* jQueryObject */ mainContainerDom) {
+function MainContainer(/* jQueryObject */ mainContainerDom, /* Function */ reload) {
 	this.super(mainContainerDom);
-	this._streamPagelet = new StreamPagelet(mainContainerDom.find('#stream_pagelet'));
+	this._streamPagelet = new StreamPagelet(mainContainerDom.find('#stream_pagelet'), reload);
 }
 
 inherits(MainContainer, DomElement);
@@ -33,10 +33,10 @@ MainContainer.prototype.getStreamPagelet = function() {
 
 // class StreamPagelet
 
-function StreamPagelet(/* jQueryObject */ streamPageletDom) {
+function StreamPagelet(/* jQueryObject */ streamPageletDom, /* Function */ reload) {
 	this.super(streamPageletDom);
 	this._pageletComposer = new PageletComposer(streamPageletDom.find('#pagelet_composer'));
-	this._newsFeed = new NewsFeed(streamPageletDom.find('div[id*="topnews_main_stream"]'));
+	this._newsFeed = new NewsFeed(streamPageletDom.find('div[id*="topnews_main_stream"]'), reload);
 }
 
 inherits(StreamPagelet, DomElement);
@@ -105,7 +105,7 @@ function updateNewsFeedStories(
 	});
 }
 
-function NewsFeed(/* jQueryObject */ newsFeedDom) {
+function NewsFeed(/* jQueryObject */ newsFeedDom, /* Function */ reload) {
 	this.super(newsFeedDom);
 	this._feedStreamDom = newsFeedDom.find('div[id*="feed_stream"]');
 	this._stories = [];
@@ -121,7 +121,12 @@ function NewsFeed(/* jQueryObject */ newsFeedDom) {
 		this._storyMutators
 	);
 	var WINDOW_SCROLL_DEBOUNCE = 100;
-	$(window).scroll(function() {
+	$(window).bind('scroll.demeter', function(evnt) {
+		if ($('#mainContainer').find(newsFeedDom).length === 0) { // page has been reloaded
+			$(window).unbind(evnt);
+			reload();
+			return;
+		}
 		var documentHeight = $(document).height();
 		if (documentHeight <= this._documentHeight) { return; }
 		this._documentHeight = documentHeight;

@@ -1,7 +1,7 @@
 // onload
 
-window.onload = function() {
-	var facebookPage = new FacebookPage();
+function onLoad() {
+	var facebookPage = new FacebookPage(onLoad);
 	facebookPage.getMainContainer().getStreamPagelet().getNewsFeed().forEachStory(function(story) {
 		var previousSelectedClasses = [];
 		story.prependToStoryCard((new StoryHeaderDom(function(selectedClasses) {
@@ -18,4 +18,6 @@ window.onload = function() {
 			previousSelectedClasses = selectedClasses.slice();
 		})).getDom());
 	});
-};
+}
+
+window.onload = onLoad;
