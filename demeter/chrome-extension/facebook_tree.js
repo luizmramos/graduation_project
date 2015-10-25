@@ -71,14 +71,14 @@ function updateNewsFeedStories(
 	/* Map<String, jQueryObject> */ substreams,
 	/* Array<Function> */ storyMutators
 ) {
-	var allSubstreams = feedStreamDom.find('div[id*="substream"]').get();
+	var allSubstreams = feedStreamDom.find('> div').get();
 	allSubstreams.forEach(function(substream) {
 		if (substreams[substream.id] === undefined) {
 			substreams[substream.id] = $(substream);
 			// The substream gets rendered before its hyperfeed_story's, which means that
 			// we might lose some stories. This timeout reduces this problem
 			setTimeout(function() {
-				$(substream).find('div[id*="hyperfeed_story_id"]').get().forEach(function(hyperfeed_story) {
+				$(substream).find('div[data-ft]').get().forEach(function(hyperfeed_story) {
 					var stories = [];
 					if ($(hyperfeed_story).find('.uiCollapsedList').length > 0) { // several stories inside an hyperfeed story
 						stories = $(hyperfeed_story).find('.uiCollapsedList > li').get();	

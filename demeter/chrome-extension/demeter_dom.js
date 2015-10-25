@@ -29,7 +29,8 @@ var classesList = [
 	"Minorias",
 	"Educacao",
 	"Noticias",
-	"Bebes / Animais"
+	"Bebes / Animais",
+	"Medicina"
 ]
 
 function StoryClassesListDom() {
