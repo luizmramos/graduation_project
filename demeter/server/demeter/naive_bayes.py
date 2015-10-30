@@ -240,11 +240,94 @@ def mockStories(data):
         stories.append(st)
     return stories
 
+
+class Document:
+    def __init__(self, tokens, classification):
+        self.tokens = tokens
+        self.classification = classification
+
+from collections import defaultdict
+import math
+
+class NaiveBayes:
+    def __init__(self):
+        self.nDocsPerClassificationPerToken = defaultdict(lambda: defaultdict(lambda: 0))
+        self.nDocumentsPerClassification = defaultdict(lambda: 0)
+        self.classifications = set()
+        self.vocabulary = set()
+
+    def increment(self, document):
+        self.classifications.add(document.classification)
+        self.nDocumentsPerClassification[document.classification] += 1
+        for token in document.tokens:
+            self.nDocsPerClassificationPerToken[document.classification][token] += 1
+            self.vocabulary.add(token)
+
+    def train(self, documents):
+        for document in documents:
+            self.increment(document) 
+
+    def load(self, nDocsPerClassificationPerToken, nDocumentsPerClassification, classifications, vocabulary):
+        self.nDocsPerClassificationPerToken = nDocsPerClassificationPerToken
+        self.nDocumentsPerClassification = nDocumentsPerClassification
+        self.classifications = classifications
+        self.vocabulary = vocabulary
+
+    def write(self):
+        naiveBayesJson = {
+            'nDocsPerClassificationPerToken': self.nDocsPerClassificationPerToken,
+            'nDocumentsPerClassification': self.nDocumentsPerClassification,
+            'classifications': self.classifications,
+            'vocabulary': self.vocabulary
+        }
+        print(json.dumps(naiveBayesJson))
+
+    def classify(self, tokens):
+        maxClassification = (-float('inf'), None)
+        ndocs = sum(self.nDocumentsPerClassification.values())
+        V = len(self.vocabulary)
+        for classification in self.classifications:
+            logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
+            logpLikelihood = 0
+            for token in tokens:
+                n = self.nDocsPerClassificationPerToken[classification][token]
+                logp = math.log(float(n + 1) / (self.nDocumentsPerClassification[classification] + V + 1))
+                logpLikelihood += logp
+                
+            logpClassifiation = logpPrior + logpLikelihood
+            maxClassification = max(maxClassification, (logpClassifiation, classification))
+        logpClassifiation, classification = maxClassification
+        
+        return classification
+
+
 import json
 
 data = raw_input()
 stories = mockStories(json.loads(data))
 
-tokensPerClassification = {}
+from random import shuffle
+
+shuffle(stories)
+
+documents = []
+testData = []
 for story in stories:
-    print extractTokensFromStory(story)
+    storyTokens = extractTokensFromStory(story)
+    bestCount = max(story.classification.values())
+    for classification, count in story.classification.items():
+        if count > bestCount/2:
+            if len(documents) < 120:
+                documents.append(Document(storyTokens, classification))
+            elif count == bestCount:
+                testData.append(Document(storyTokens, classification))
+
+naiveBayes = NaiveBayes()
+naiveBayes.train(documents)
+
+for document in testData:
+    if document.classification != naiveBayes.classify(document.tokens):
+        print '[WRONG]',
+    print('Deveria ser ' + str(document.classification) + ' e foi ' + str(naiveBayes.classify(document.tokens)))
+
+
