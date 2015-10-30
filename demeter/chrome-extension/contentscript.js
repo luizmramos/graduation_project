@@ -14,8 +14,13 @@ function onLoad() {
 				    'data': {
 				       	'remove-classifications': previousSelectedClasses.join(','),
 						'classifications': selectedClasses.join(','),
-						'content': JSON.stringify(content),
-						'id': content.id
+						'text': content.text,
+						'id': content.id,
+						'links': content.links.join(','),
+						'share-type': content.shareType,
+						'timestamp': content.timestamp,
+						'has-tagged-friends': content.hasTaggedFriends,
+						'has-location': content.hasLocation
 			    	},
 			    	'dataType': 'json'
 			    }

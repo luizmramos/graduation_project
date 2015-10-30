@@ -21,8 +21,12 @@ from google.appengine.ext import ndb
 class Story(ndb.Model):
     id = ndb.StringProperty(indexed=True)
     classification = ndb.JsonProperty(indexed=False)
-    content = ndb.TextProperty(indexed=False)
-    
+    text = ndb.TextProperty(indexed=False)
+    links = ndb.TextProperty(indexed=False)
+    shareType = ndb.StringProperty(indexed=False)
+    hasTaggedFriends = ndb.StringProperty(indexed=False)
+    hasLocation = ndb.StringProperty(indexed=False)
+    timestamp = ndb.StringProperty(indexed=False)
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
@@ -31,11 +35,27 @@ class MainHandler(webapp2.RequestHandler):
 class AddStoryHandler(webapp2.RequestHandler):
     def post(self):
         id = self.request.get('id')
-      	content = self.request.get('content')
         classifications = self.request.get('classifications')
         remove_classifications = self.request.get('remove-classifications')
+        hasLocation = self.request.get('has-location')
+        hasTaggedFriends = self.request.get('has-tagged-friends')
+        timestamp = self.request.get('timestamp')
+        shareType = self.request.get('share-type')
+        links = self.request.get('links')
+        text = self.request.get('text')
 
-        if not id or not content:
+        if not links:
+            links = ''
+        if not hasLocation:
+            hasLocation = "false"
+        if not timestamp:
+            timestamp = "undefined"
+        if not hasTaggedFriends:
+            hasTaggedFriends = "false"
+        if not shareType:
+            shareType = "update"
+
+        if not id or not text:
         	self.response.write('invalid')
         	return
 
@@ -59,21 +79,28 @@ class AddStoryHandler(webapp2.RequestHandler):
                     previousClassification[classification] = 0
                 previousClassification[classification] = previousClassification[classification] + 1
         
-        
-        story = story or Story(id=id, classification=previousClassification, content=content)
+        story = story or Story(id=id, classification=previousClassification, text=text, links=links, shareType=shareType, hasTaggedFriends=hasTaggedFriends, hasLocation=hasLocation, timestamp=timestamp)
         story.put()
 
 
 class AllStoriesHandler(webapp2.RequestHandler):
     def get(self):
         all = Story.query()
+        jsonAll = []
         for story in all:
-        	self.response.write(story.id)
-        	self.response.write(' / ')
-        	self.response.write(story.content)
-        	self.response.write(' / ')
-        	self.response.write(story.classification)
-        	self.response.write('<br>')
+            json = {
+                'id': story.id,
+                'classification': story.classification,
+                'text': story.text,
+                'links': story.links,
+                'shareType':  story.shareType,
+                'hasTaggedFriends': story.hasTaggedFriends,
+                'hasLocation': story.hasLocation,
+                'timestamp': story.timestamp
+            }
+            jsonAll.append(json)
+    	self.response.write(jsonAll)
+    	self.response.write('<br>')
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
