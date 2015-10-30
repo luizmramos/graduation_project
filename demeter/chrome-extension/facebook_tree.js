@@ -225,6 +225,9 @@ NewsFeedStoryContentWrapper.prototype.getHasLocation = function() {
 	if (this.getDomNode().find(':header > span > span:contains(" at ")').length > 0) {
 		return true;
 	}
+	if (this.getDomNode().find(':header > span > span:contains(" in ")').length > 0) {
+		return true;
+	}
 	return false;
 }
 
