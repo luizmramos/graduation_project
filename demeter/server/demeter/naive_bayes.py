@@ -259,7 +259,7 @@ def getTextSizeToken(text):
 
 def extractTokensFromStory(story):
     tokens = extractTokensFromText(story.text)
-    tokens.append(extractUserTokenFromId(story.id))
+    """tokens.append(extractUserTokenFromId(story.id))
     linksToken = getLinksToken(story.links)
     for linkToken in linksToken:
         tokens.append(linkToken)
@@ -273,7 +273,7 @@ def extractTokensFromStory(story):
     isSponsor = getIsSponsor(story.timestamp)
     if isSponsor:
         tokens.append(isSponsor)
-    tokens.append(getTextSizeToken(story.text))
+    tokens.append(getTextSizeToken(story.text))"""
     return tokens
 
 
