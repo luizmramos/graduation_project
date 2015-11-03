@@ -72,7 +72,7 @@ class AllStoriesHandler(webapp2.RequestHandler):
         all = Story.query()
         jsonAll = []
         for story in all:
-            json = {
+            js = {
                 'id': story.id,
                 'classification': story.classification,
                 'text': story.text,
@@ -82,8 +82,8 @@ class AllStoriesHandler(webapp2.RequestHandler):
                 'hasLocation': story.hasLocation,
                 'timestamp': story.timestamp
             }
-            jsonAll.append(json)
-    	self.response.write(jsonAll)
+            jsonAll.append(js)
+    	self.response.write(json.dumps(jsonAll))
     	self.response.write('<br>')
 
 app = webapp2.WSGIApplication([
