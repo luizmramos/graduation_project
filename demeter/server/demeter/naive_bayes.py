@@ -309,6 +309,7 @@ class NaiveBayes:
     def __init__(self):
         self.nDocsPerClassificationPerToken = defaultdict(lambda: defaultdict(lambda: 0))
         self.nDocumentsPerClassification = defaultdict(lambda: 0)
+        self.nwordsPerClassification = defaultdict(lambda: 0)
         self.classifications = set()
         self.vocabulary = set()
 
@@ -317,7 +318,9 @@ class NaiveBayes:
         self.nDocumentsPerClassification[document.classification] += 1
         for token in document.tokens:
             self.nDocsPerClassificationPerToken[document.classification][token] += 1
+            self.nwordsPerClassification[document.classification] += 1
             self.vocabulary.add(token)
+
 
     def train(self, documents):
         for document in documents:
@@ -342,15 +345,17 @@ class NaiveBayes:
         maxClassification = (-float('inf'), None)
         ndocs = sum(self.nDocumentsPerClassification.values())
         V = len(self.vocabulary)
+        alpha = 1
         for classification in self.classifications:
             logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
             logpLikelihood = 0
             for token in tokens:
                 n = self.nDocsPerClassificationPerToken[classification][token]
-                logp = math.log(float(n + 1) / (self.nDocumentsPerClassification[classification] + V + 1))
+                logp = math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
                 logpLikelihood += logp
                 
             logpClassifiation = logpPrior + logpLikelihood
+            #print classification + " -> " + str(logpClassifiation)
             maxClassification = max(maxClassification, (logpClassifiation, classification))
         logpClassifiation, classification = maxClassification
         
