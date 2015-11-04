@@ -353,21 +353,38 @@ class NaiveBayes:
         }
         print(json.dumps(naiveBayesJson))
 
+    def getWeight(self, token):
+        if not token in self.vocabulary:
+            return 0.01
+        w = 0
+        ndocs = sum(self.nDocumentsPerClassification.values())
+        L = len(self.classifications)
+        for classification in self.classifications:
+            pcGivenT = (self.nDocsPerClassificationPerToken[classification][token] + 1) * 1.0 / (sum([self.nDocsPerClassificationPerToken[c][token] for c in self.classifications]) + L)
+            pc = float(self.nDocumentsPerClassification[classification] + 1) / (ndocs + L)
+            w += pcGivenT * math.log(pcGivenT / pc)
+        pToken = (sum([self.nDocsPerClassificationPerToken[c][token] for c in self.classifications]) + 1) * 1.0 / (sum([self.nwordsPerClassification[c] for c in self.classifications]) + L)
+        return -w/(pToken * math.log(pToken))
+
     def classify(self, tokens):
         maxClassification = (-float('inf'), None)
         ndocs = sum(self.nDocumentsPerClassification.values())
         V = len(self.vocabulary)
         alpha = 1
         for classification in self.classifications:
+            print '-------------------------------'
+            print classification
             logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
             logpLikelihood = 0
             for token in tokens:
                 n = self.nDocsPerClassificationPerToken[classification][token]
-                logp = math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
+                w = self.getWeight(token)
+                logp = w * math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
                 logpLikelihood += logp
-                
+                print token + ': '  + str(n) + ' / ' + str(self.nwordsPerClassification[classification]) + ' peso ' + str(w)
+
             logpClassifiation = logpPrior + logpLikelihood
-            #print classification + " -> " + str(logpClassifiation)
+            print classification + " -> " + str(logpClassifiation)
             maxClassification = max(maxClassification, (logpClassifiation, classification))
         logpClassifiation, classification = maxClassification
         
@@ -387,8 +404,9 @@ class NaiveBayes:
             for token in tokens:
                 n = self.nDocsPerClassificationPerToken[classification][token]
                 nOther = sum([self.nDocsPerClassificationPerToken[c][token] if c != classification else 0 for c in self.classifications])
-                logp = math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
-                logpOther = math.log(float(nOther + alpha*1) / (nwords - self.nwordsPerClassification[classification] + alpha*V + alpha*1))
+                w = self.getWeight(token)
+                logp = w * math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
+                logpOther = w * math.log(float(nOther + alpha*1) / (nwords - self.nwordsPerClassification[classification] + alpha*V + alpha*1))
                 logpLikelihood += logp
                 logpLikelihoodOther += logpOther
                 
