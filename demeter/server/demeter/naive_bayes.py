@@ -1,7 +1,7 @@
 import re
 import unicodedata
 
-def parseAcronyms(text):
+def parse_acronyms(text):
     s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
     while s:
         acronym = s.group(2)
@@ -13,7 +13,7 @@ def parseAcronyms(text):
     return text
 
 
-def parseInTextTokens(text):
+def parse_in_text_tokens(text):
     text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', '{link}', text)
     text = re.sub('(^|\s)#[^\s]+', ' {hashtag}', text)
     text = re.sub('(^|\s)@[^\s]+', ' {tag}', text)
@@ -23,28 +23,28 @@ def parseInTextTokens(text):
     text = re.sub('(r|(us?))?\${number}', '{money}', text)
     return text
 
-def removeUnicodeCharacters(text):
+def remove_unicode_characters(text):
     unicode = text.decode('utf-8')
     unicode = unicodedata.normalize('NFD', unicode)
     ascii = unicode.encode('ascii', 'ignore') # ignore or substitute by {unicode}
     return ascii
 
-def removeDoubleLetters(text):
+def remove_double_letters(text):
     for letter in 'abcdefghijklmnopqrstuvwxyz':
         text = re.sub(letter + '+', letter, text)
     return text
 
-def removeNonLetters(text):
+def remove_non_letters(text):
     text = re.sub("\s+", " ", text)
     text = re.sub("[^\w\s{}:]", " ", text)
     return text
 
 spaces = re.compile(r'[\s\n]')
 
-def splitText(text):
+def split_text(text):
     return filter(lambda l: l!='', spaces.split(text))
 
-def parseLaughter(word):
+def parse_laughter(word):
     countH = 0
     countA = 0
     countS = 0
@@ -102,7 +102,7 @@ acronyms = {
 def normalize(words):
     return map(lambda w: acronyms[w] if w in acronyms else w, words)
 
-unwantedWords = set([
+unwanted_words = set([
     # preposicoes
     'por',
     'para',
@@ -214,52 +214,52 @@ unwantedWords = set([
     'estou',
 ])
 
-def filterWords(words):
-    return filter(lambda w: not w in unwantedWords, words)
+def filter_words(words):
+    return filter(lambda w: not w in unwanted_words, words)
 
 def tokenize(words):
     return map(lambda w: w if re.match('^{.+}$', w) else '{w:' + w + '}', words)
 
-def extractTokensFromText(text):
-    text = removeUnicodeCharacters(text)
-    text = parseAcronyms(text)
+def extract_tokens_from_text(text):
+    text = remove_unicode_characters(text)
+    text = parse_acronyms(text)
     text = text.lower()
-    text = parseInTextTokens(text)
-    text = removeNonLetters(text)
-    words = splitText(text)
-    words = list(map(parseLaughter, words))
-    words = list(map(removeDoubleLetters, words))
+    text = parse_in_text_tokens(text)
+    text = remove_non_letters(text)
+    words = split_text(text)
+    words = list(map(parse_laughter, words))
+    words = list(map(remove_double_letters, words))
     words = normalize(words)
-    words = filterWords(words) 
+    words = filter_words(words) 
     tokens = tokenize(words)
     return tokens
 
-def extractUserTokenFromId(id):
+def extract_user_token_from_id(id):
     s = re.search("^https://www.facebook.com/(.+?)(/|.php)", id)
     return '{id:' + (s.group(1) if s else 'unknown') + '}'
 
-def getLinksToken(links):
+def get_links_token(links):
     return []
 
-def getShareTypeToken(shareType):
-    return '{shareType:' + shareType + '}'
+def get_share_type_token(share_type):
+    return '{shareType:' + share_type + '}'
 
-def getHasLocationToken(hasLocation):
-    if hasLocation == 'true': 
+def get_has_location_token(has_location):
+    if has_location == 'true': 
         return '{hasLoc}'
     return None
 
-def getHasTaggedFriendsToken(hasTaggedFriends):
-    if hasTaggedFriends == 'true': 
+def get_has_tagged_friends_token(has_tagged_friends):
+    if has_tagged_friends == 'true': 
         return '{hasTaggedFr}'
     return None
 
-def getIsSponsor(timestamp):
+def get_is_sponsor(timestamp):
     if timestamp == 'undefined': 
         return '{sponsor}'
     return None
 
-def getTextSizeToken(text):
+def get_text_size_token(text):
     length = len(text)
     if length < 30:
         return '{size:tiny}'
@@ -269,30 +269,30 @@ def getTextSizeToken(text):
         return '{size:medium}'
     return '{size:large}'
 
-def extractTokensFromStory(story):
-    tokens = extractTokensFromText(story.text)
-    tokens.append(extractUserTokenFromId(story.id))
-    linksToken = getLinksToken(story.links)
-    for linkToken in linksToken:
-        tokens.append(linkToken)
-    tokens.append(getShareTypeToken(story.shareType))
-    hasLocation = getHasLocationToken(story.hasLocation)
-    if hasLocation:
-        tokens.append(hasLocation)
-    hasTaggedFriends = getHasTaggedFriendsToken(story.hasTaggedFriends)
-    if hasTaggedFriends:
-        tokens.append(hasTaggedFriends)
-    isSponsor = getIsSponsor(story.timestamp)
-    if isSponsor:
-        tokens.append(isSponsor)
-    tokens.append(getTextSizeToken(story.text))
+def extract_tokens_from_story(story):
+    tokens = extract_tokens_from_text(story.text)
+    tokens.append(extract_user_token_from_id(story.id))
+    links_token = get_links_token(story.links)
+    for link_token in links_token:
+        tokens.append(link_token)
+    tokens.append(get_share_type_token(story.shareType))
+    has_location = get_has_location_token(story.hasLocation)
+    if has_location:
+        tokens.append(has_location)
+    has_tagged_friends = get_has_tagged_friends_token(story.hasTaggedFriends)
+    if has_tagged_friends:
+        tokens.append(has_tagged_friends)
+    is_sponsor = get_is_sponsor(story.timestamp)
+    if is_sponsor:
+        tokens.append(is_sponsor)
+    tokens.append(get_text_size_token(story.text))
     return tokens
 
 
 class Story:
     pass
 
-def mockStories(data):
+def mock_stories(data):
     stories = []
     for d in data:
         st = Story()
@@ -319,18 +319,18 @@ import math
 
 class NaiveBayes:
     def __init__(self):
-        self.nWordsPerClassificationPerToken = defaultdict(lambda: defaultdict(lambda: 0))
-        self.nDocumentsPerClassification = defaultdict(lambda: 0)
-        self.nwordsPerClassification = defaultdict(lambda: 0)
+        self.n_words_per_classification_per_token = defaultdict(lambda: defaultdict(lambda: 0))
+        self.n_documents_per_classification = defaultdict(lambda: 0)
+        self.n_words_per_classification = defaultdict(lambda: 0)
         self.classifications = set()
         self.vocabulary = set()
 
     def increment(self, document):
         self.classifications.add(document.classification)
-        self.nDocumentsPerClassification[document.classification] += 1
+        self.n_documents_per_classification[document.classification] += 1
         for token in document.tokens:
-            self.nWordsPerClassificationPerToken[document.classification][token] += 1
-            self.nwordsPerClassification[document.classification] += 1
+            self.n_words_per_classification_per_token[document.classification][token] += 1
+            self.n_words_per_classification[document.classification] += 1
             self.vocabulary.add(token)
 
 
@@ -338,82 +338,82 @@ class NaiveBayes:
         for document in documents:
             self.increment(document) 
 
-    def load(self, nWordsPerClassificationPerToken, nDocumentsPerClassification, classifications, vocabulary):
-        self.nWordsPerClassificationPerToken = nWordsPerClassificationPerToken
-        self.nDocumentsPerClassification = nDocumentsPerClassification
+    def load(self, n_words_per_classification_per_token, n_documents_per_classification, classifications, vocabulary):
+        self.n_words_per_classification_per_token = n_words_per_classification_per_token
+        self.n_documents_per_classification = n_documents_per_classification
         self.classifications = classifications
         self.vocabulary = vocabulary
 
     def write(self):
-        naiveBayesJson = {
+        naive_bayes_json = {
             'nWordsPerClassificationPerToken': self.nWordsPerClassificationPerToken,
             'nDocumentsPerClassification': self.nDocumentsPerClassification,
             'classifications': self.classifications,
             'vocabulary': self.vocabulary
         }
-        #print(json.dumps(naiveBayesJson))
+        #print(json.dumps(naive_bayes_json))
 
-    def getWeight(self, token):
+    def get_weight(self, token):
         return 1
         if not token in self.vocabulary:
             return 0.01
         w = 0
-        ndocs = sum(self.nDocumentsPerClassification.values())
+        ndocs = sum(self.n_documents_per_classification.values())
         L = len(self.classifications)
         for classification in self.classifications:
-            pcGivenT = (self.nWordsPerClassificationPerToken[classification][token] + 1) * 1.0 / (sum([self.nWordsPerClassificationPerToken[c][token] for c in self.classifications]) + L)
-            pc = float(self.nDocumentsPerClassification[classification] + 1) / (ndocs + L)
-            w += pcGivenT * math.log(pcGivenT / pc)
-        pToken = (sum([self.nWordsPerClassificationPerToken[c][token] for c in self.classifications]) + 1) * 1.0 / (sum([self.nwordsPerClassification[c] for c in self.classifications]) + L)
-        return -w/(pToken * math.log(pToken))
+            pc_given_t = (self.n_words_per_classification_per_token[classification][token] + 1) * 1.0 / (sum([self.n_words_per_classification_per_token[c][token] for c in self.classifications]) + L)
+            pc = float(self.n_documents_per_classification[classification] + 1) / (ndocs + L)
+            w += pc_given_t * math.log(pc_given_t / pc)
+        p_token = (sum([self.n_words_per_classification_per_token[c][token] for c in self.classifications]) + 1) * 1.0 / (sum([self.n_words_per_classification[c] for c in self.classifications]) + L)
+        return -w/(p_token * math.log(p_token))
 
     def classify(self, tokens):
-        maxClassification = (-float('inf'), None)
-        ndocs = sum(self.nDocumentsPerClassification.values())
+        max_classification = (-float('inf'), None)
+        ndocs = sum(self.n_documents_per_classification.values())
         V = len(self.vocabulary)
         alpha = 1
         for classification in self.classifications:
             #print '-------------------------------'
             #print classification
-            logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
-            logpLikelihood = 0
+            logp_prior = math.log(float(self.n_documents_per_classification[classification]) / ndocs)
+            logp_likelihood = 0
             for token in tokens:
-                n = self.nWordsPerClassificationPerToken[classification][token]
-                w = self.getWeight(token)
-                logp = w * math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
-                logpLikelihood += logp
-                #print token + ': '  + str(n) + ' / ' + str(self.nwordsPerClassification[classification]) + ' peso ' + str(w)
+                n = self.n_words_per_classification_per_token[classification][token]
+                w = self.get_weight(token)
+                logp = w * math.log(float(n + alpha*1) / (self.n_words_per_classification[classification] + alpha*V + alpha*1))
+                logp_likelihood += logp
+                #print token + ': '  + str(n) + ' / ' + str(self.n_words_per_classification[classification]) + ' peso ' + str(w)
 
-            logpClassifiation = logpPrior + logpLikelihood
-            #print classification + " -> " + str(logpClassifiation)
-            maxClassification = max(maxClassification, (logpClassifiation, classification))
-        logpClassifiation, classification = maxClassification
+            logp_classifiation = logp_prior + logp_likelihood
+            #print classification + " -> " + str(logp_classifiation)
+            max_classification = max(max_classification, (logp_classifiation, classification))
+        logp_classifiation, classification = max_classification
         
         return classification
 
     def classifyMulti(self, tokens):
         classes =[]
-        ndocs = sum(self.nDocumentsPerClassification.values())
-        nwords = sum(self.nwordsPerClassification.values())
+        ndocs = sum(self.n_documents_per_classification.values())
+        nwords = sum(self.n_words_per_classification.values())
         V = len(self.vocabulary)
         alpha = 1
         for classification in self.classifications:
-            logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
-            logpPriorOther = math.log(float(ndocs - self.nDocumentsPerClassification[classification]) / ndocs)
-            logpLikelihood = 0
-            logpLikelihoodOther = 0
+            logp_prior = math.log(float(self.n_documents_per_classification[classification]) / ndocs)
+            logp_prior_other = math.log(float(ndocs - self.n_documents_per_classification[classification]) / ndocs)
+            logp_likelihood = 0
+            logp_likelihood_other = 0
             for token in tokens:
-                n = self.nWordsPerClassificationPerToken[classification][token]
-                nOther = sum([self.nWordsPerClassificationPerToken[c][token] if c != classification else 0 for c in self.classifications])
-                w = self.getWeight(token)
-                logp = w * math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
-                logpOther = w * math.log(float(nOther + alpha*1) / (nwords - self.nwordsPerClassification[classification] + alpha*V + alpha*1))
-                logpLikelihood += logp
-                logpLikelihoodOther += logpOther
+                n = self.n_words_per_classification_per_token[classification][token]
+                n_other = sum([self.n_words_per_classification_per_token[c][token] if c != classification else 0 for c in self.classifications])
+                w = self.get_weight(token)
+                logp = w * math.log(float(n + alpha*1) / (self.n_words_per_classification[classification] + alpha*V + alpha*1))
+                logp_other = w * math.log(float(n_other + alpha*1) / (nwords - self.n_words_per_classification[classification] + alpha*V + alpha*1))
+                logp_likelihood += logp
+                logp_likelihood_other += logp_other
                 
-            logpClassifiation = logpPrior + logpLikelihood
-            logpClassifiationOther = logpPriorOther + logpLikelihoodOther
-            if logpClassifiation > logpClassifiationOther:
+            logp_classifiation = logp_prior + logp_likelihood
+            logp_classifiation_other = logp_prior_other + logp_likelihood_other
+            if logp_classifiation > logp_classifiation_other:
                 classes.append(classification)
         
         return classes
@@ -424,131 +424,131 @@ from random import shuffle
 
 data = raw_input()
 
-stories = mockStories(json.loads(data))
-for xxx in range(20,len(stories), 20):
-    globalPrecision = defaultdict(lambda: 0)
-    globalRecall = defaultdict(lambda: 0)
-    globalAccuracy = defaultdict(lambda: 0)
-    globalF1 = defaultdict(lambda: 0)
-    globalCount = 0
-    globalExactMatch = 0
-    globalKappa = 0
-    for tatata in range(0,25):
-        confusionMatrix = defaultdict(lambda: defaultdict(lambda: 0))
-        exactMatch = 0
+stories = mock_stories(json.loads(data))
+for n_stories in range(20,len(stories), 20):
+    global_precision = defaultdict(lambda: 0)
+    global_recall = defaultdict(lambda: 0)
+    global_accuracy = defaultdict(lambda: 0)
+    global_f1 = defaultdict(lambda: 0)
+    global_count = 0
+    global_exact_match = 0
+    global_kappa = 0
+    for tries in range(0,25):
+        confusion_matrix = defaultdict(lambda: defaultdict(lambda: 0))
+        exact_match = 0
         done=0
 
         shuffle(stories)
 
         documents = []
-        testData = []
-        countLinks = 0
-        countTotal = 0
+        test_data = []
+        count_links = 0
+        count_total = 0
         i = 0
         for story in stories:
-            if i > xxx:
+            if i > n_stories:
                 break
             i += 1
-            storyTokens = extractTokensFromStory(story)
-            if len(storyTokens) < 5:
+            story_tokens = extract_tokens_from_story(story)
+            if len(story_tokens) < 5:
                 continue
-            bestCount = max(story.classification.values())
+            best_count = max(story.classification.values())
             classification = max(story.classification, key=story.classification.get)
-            countTotal += 1
+            count_total += 1
             if len(story.links):
-                countLinks += 1
-            if len(documents) < xxx*2.0/4:
-                documents.append(Document(storyTokens, classification))
+                count_links += 1
+            if len(documents) < n_stories*2.0/4:
+                documents.append(Document(story_tokens, classification))
             else:
-                testData.append(Document(storyTokens, classification))
-                testData[len(testData)-1].textoCompleto = story.text
+                test_data.append(Document(story_tokens, classification))
+                test_data[len(test_data)-1].texto_completo = story.text
 
-        naiveBayes = NaiveBayes()
-        naiveBayes.train(documents)
+        naive_bayes = NaiveBayes()
+        naive_bayes.train(documents)
 
-        truePositives = defaultdict(lambda: 0)
-        trueNegatives = defaultdict(lambda: 0)
-        falsePositives = defaultdict(lambda: 0)
-        falseNegatives = defaultdict(lambda: 0)
+        true_positives = defaultdict(lambda: 0)
+        true_negatives = defaultdict(lambda: 0)
+        false_positives = defaultdict(lambda: 0)
+        false_negatives = defaultdict(lambda: 0)
 
-        for document in testData:
-            chosen = [naiveBayes.classify(document.tokens)]
-            confusionMatrix[document.classification][chosen[0]] += 1
+        for document in test_data:
+            chosen = [naive_bayes.classify(document.tokens)]
+            confusion_matrix[document.classification][chosen[0]] += 1
             #print '<divisor>'
             #print chosen
             #print document.textoCompleto
             #print '</divisor>'
             if document.classification in chosen:
-                exactMatch += 1
+                exact_match += 1
             #else:
                 #print '[WRONG] Deveria ser ' +  document.classification + ' mas foi ' + str(chosen)
-            for classification in naiveBayes.classifications:
+            for classification in naive_bayes.classifications:
                 if document.classification == classification and classification in chosen:
-                    truePositives[classification] += 1
+                    true_positives[classification] += 1
                 elif document.classification == classification and not classification in chosen:
-                    falseNegatives[classification] += 1
+                    false_negatives[classification] += 1
                 elif document.classification != classification and not classification in chosen:
-                    trueNegatives[classification] += 1
+                    true_negatives[classification] += 1
                 elif document.classification != classification and classification in chosen:
-                    falsePositives[classification] += 1
+                    false_positives[classification] += 1
             
-        done += 1.0*len(testData)
-        globalCount += 1
-        for classification in naiveBayes.classifications:
-            if truePositives[classification] + falsePositives[classification] == 0:
+        done += 1.0*len(test_data)
+        global_count += 1
+        for classification in naive_bayes.classifications:
+            if true_positives[classification] + false_positives[classification] == 0:
                 precision = 1
             else:
-                precision = (truePositives[classification]) * 1.0 / (truePositives[classification] + falsePositives[classification])
-            if truePositives[classification] + falseNegatives[classification] == 0:
+                precision = (true_positives[classification]) * 1.0 / (true_positives[classification] + false_positives[classification])
+            if true_positives[classification] + false_negatives[classification] == 0:
                 recall = 1
             else:
-                recall = (truePositives[classification]) * 1.0 / (truePositives[classification] + falseNegatives[classification])
+                recall = (true_positives[classification]) * 1.0 / (true_positives[classification] + false_negatives[classification])
             if precision + recall != 0:
                 f1 = 2 * precision * recall / (precision + recall)
             else:
                 f1 = 0
 
-            accuracy = (truePositives[classification] + trueNegatives[classification]) * 1.0 / (truePositives[classification] + trueNegatives[classification] + falsePositives[classification] + falseNegatives[classification])
-            globalPrecision[classification] += precision
-            globalRecall[classification] += recall
-            globalF1[classification] += f1
-            globalAccuracy[classification] += accuracy
+            accuracy = (true_positives[classification] + true_negatives[classification]) * 1.0 / (true_positives[classification] + true_negatives[classification] + false_positives[classification] + false_negatives[classification])
+            global_precision[classification] += precision
+            global_recall[classification] += recall
+            global_f1[classification] += f1
+            global_accuracy[classification] += accuracy
             
             ##print classification + ' TP: ' + str(truePositives[classification]) + ' / ' + str(total[classification]) + ' TN: ' + str(trueNegatives[classification]) + ' / '  + str(nDocs - total[classification]) 
             ##print classification + ': Precision: ' + str(precision),
             ##print ' # Recall: ' + str(recall),   
             ##print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
     
-        exactMatch = exactMatch * 1.0/ done
-        globalExactMatch += exactMatch
+        exact_match = exact_match * 1.0/ done
+        global_exact_match += exact_match
         #print str(exactMatch * 100)
-        #print str(xxx) + ' - Exact match: ' + str(exactMatch*100)
+        #print str(n_stories) + ' - Exact match: ' + str(exactMatch*100)
         #for classification in naiveBayes.classifications:
             #print classification
         #for classification in naiveBayes.classifications:
          #   for predicted in naiveBayes.classifications:
                 #print "%5d" % confusionMatrix[classification][predicted],
             #print
-        expectedAccuracy = 0
+        expected_accuracy = 0
         total = 0
-        for line in confusionMatrix:
+        for line in confusion_matrix:
             #for column in confusionMatrix:
             #    print '%5d' % confusionMatrix[line][column],
             #print
-            sumColumn = sum([confusionMatrix[l][line] for l in confusionMatrix])
-            sumLine = sum(confusionMatrix[line].values())
-            expectedAccuracy += sumColumn*sumLine
-            total += sumLine
+            sum_column = sum([confusion_matrix[l][line] for l in confusion_matrix])
+            sum_line = sum(confusion_matrix[line].values())
+            expected_accuracy += sum_column*sum_line
+            total += sum_line
         
-        expectedAccuracy = expectedAccuracy * 1.0 / (total ** 2)
+        expected_accuracy = expected_accuracy * 1.0 / (total ** 2)
         #print str(expectedAccuracy * 100)
 
-        kappa = (exactMatch - expectedAccuracy) / (1 - expectedAccuracy)
-        globalKappa += kappa
+        kappa = (exact_match - expected_accuracy) / (1 - expected_accuracy)
+        global_kappa += kappa
         #print kappa
     
     #print str(globalExactMatch * 1.0 / globalCount)
-    print str(globalKappa * 1.0 / globalCount)
+    print str(global_kappa * 1.0 / global_count)
 
 
     """
