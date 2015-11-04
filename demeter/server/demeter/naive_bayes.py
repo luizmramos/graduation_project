@@ -1,6 +1,18 @@
 import re
 import unicodedata
 
+def parseAcronyms(text):
+    s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
+    while s:
+        acronym = s.group(2)
+        if len(acronym) > 1:
+            text = re.sub(acronym,'{acronym:' + acronym + '}', text)
+        else:
+            text = re.sub(acronym, acronym.lower(), text)
+        s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
+    return text
+
+
 def parseInTextTokens(text):
     text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', '{link}', text)
     text = re.sub('(^|\s)#[^\s]+', ' {hashtag}', text)
@@ -15,7 +27,6 @@ def removeUnicodeCharacters(text):
     unicode = text.decode('utf-8')
     unicode = unicodedata.normalize('NFD', unicode)
     ascii = unicode.encode('ascii', 'ignore') # ignore or substitute by {unicode}
-    ascii = ascii.lower()
     return ascii
 
 def removeDoubleLetters(text):
@@ -25,7 +36,7 @@ def removeDoubleLetters(text):
 
 def removeNonLetters(text):
     text = re.sub("\s+", " ", text)
-    text = re.sub("[^\w\s{}]", " ", text)
+    text = re.sub("[^\w\s{}:]", " ", text)
     return text
 
 spaces = re.compile(r'[\s\n]')
@@ -211,6 +222,7 @@ def tokenize(words):
 
 def extractTokensFromText(text):
     text = removeUnicodeCharacters(text)
+    text = parseAcronyms(text)
     text = text.lower()
     text = parseInTextTokens(text)
     text = removeNonLetters(text)
@@ -259,7 +271,7 @@ def getTextSizeToken(text):
 
 def extractTokensFromStory(story):
     tokens = extractTokensFromText(story.text)
-    """tokens.append(extractUserTokenFromId(story.id))
+    tokens.append(extractUserTokenFromId(story.id))
     linksToken = getLinksToken(story.links)
     for linkToken in linksToken:
         tokens.append(linkToken)
@@ -273,7 +285,7 @@ def extractTokensFromStory(story):
     isSponsor = getIsSponsor(story.timestamp)
     if isSponsor:
         tokens.append(isSponsor)
-    tokens.append(getTextSizeToken(story.text))"""
+    tokens.append(getTextSizeToken(story.text))
     return tokens
 
 
