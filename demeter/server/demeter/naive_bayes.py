@@ -430,7 +430,9 @@ globalF1 = defaultdict(lambda: 0)
 globalCount = 0
 globalExactMatch = 0
 
-for xxx in range(0,10):
+for xxx in range(0,1):
+    confusionMatrix = defaultdict(lambda: defaultdict(lambda: 0))
+
     stories = mockStories(json.loads(data))
 
     shuffle(stories)
@@ -442,12 +444,13 @@ for xxx in range(0,10):
         if len(storyTokens) < 5:
             continue
         bestCount = max(story.classification.values())
-        for classification, count in story.classification.items():
-            if count == bestCount:
-                if len(documents) < len(stories)*3.0/4:
-                    documents.append(Document(storyTokens, classification))
-                else:
-                    testData.append(Document(storyTokens, classification))
+        classification = max(story.classification, key=story.classification.get)
+
+        if len(documents) < len(stories)*2.0/4:
+            documents.append(Document(storyTokens, classification))
+        else:
+            testData.append(Document(storyTokens, classification))
+            testData[len(testData)-1].textoCompleto = story.text
 
     naiveBayes = NaiveBayes()
     naiveBayes.train(documents)
@@ -460,8 +463,15 @@ for xxx in range(0,10):
 
     for document in testData:
         chosen = [naiveBayes.classify(document.tokens)]
-        if document.classification == chosen[0]:
+        confusionMatrix[document.classification][chosen[0]] += 1
+        print '<divisor>'
+        print chosen
+        print document.textoCompleto
+        print '</divisor>'
+        if document.classification in chosen:
             exactMatch += 1
+        else:
+            print '[WRONG] Deveria ser ' +  document.classification + ' mas foi ' + str(chosen)
         for classification in naiveBayes.classifications:
             if document.classification == classification and classification in chosen:
                 truePositives[classification] += 1
@@ -498,6 +508,12 @@ for xxx in range(0,10):
         #print classification + ': Precision: ' + str(precision),
         #print ' # Recall: ' + str(recall),   
         #print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
+    for classification in naiveBayes.classifications:
+        print classification
+    for classification in naiveBayes.classifications:
+        for predicted in naiveBayes.classifications:
+            print "%5d" % confusionMatrix[classification][predicted],
+        print
 
 
     """
@@ -531,3 +547,4 @@ for classification in naiveBayes.classifications:
     print ' / ' + str(globalF1[classification]*1.0/globalCount),
     print ' / ' + str(globalAccuracy[classification]*1.0/globalCount)
 print 'Exact match: ' + str(globalExactMatch * 1.0 / globalCount)
+
