@@ -319,7 +319,7 @@ import math
 
 class NaiveBayes:
     def __init__(self):
-        self.nDocsPerClassificationPerToken = defaultdict(lambda: defaultdict(lambda: 0))
+        self.nWordsPerClassificationPerToken = defaultdict(lambda: defaultdict(lambda: 0))
         self.nDocumentsPerClassification = defaultdict(lambda: 0)
         self.nwordsPerClassification = defaultdict(lambda: 0)
         self.classifications = set()
@@ -329,7 +329,7 @@ class NaiveBayes:
         self.classifications.add(document.classification)
         self.nDocumentsPerClassification[document.classification] += 1
         for token in document.tokens:
-            self.nDocsPerClassificationPerToken[document.classification][token] += 1
+            self.nWordsPerClassificationPerToken[document.classification][token] += 1
             self.nwordsPerClassification[document.classification] += 1
             self.vocabulary.add(token)
 
@@ -338,32 +338,33 @@ class NaiveBayes:
         for document in documents:
             self.increment(document) 
 
-    def load(self, nDocsPerClassificationPerToken, nDocumentsPerClassification, classifications, vocabulary):
-        self.nDocsPerClassificationPerToken = nDocsPerClassificationPerToken
+    def load(self, nWordsPerClassificationPerToken, nDocumentsPerClassification, classifications, vocabulary):
+        self.nWordsPerClassificationPerToken = nWordsPerClassificationPerToken
         self.nDocumentsPerClassification = nDocumentsPerClassification
         self.classifications = classifications
         self.vocabulary = vocabulary
 
     def write(self):
         naiveBayesJson = {
-            'nDocsPerClassificationPerToken': self.nDocsPerClassificationPerToken,
+            'nWordsPerClassificationPerToken': self.nWordsPerClassificationPerToken,
             'nDocumentsPerClassification': self.nDocumentsPerClassification,
             'classifications': self.classifications,
             'vocabulary': self.vocabulary
         }
-        print(json.dumps(naiveBayesJson))
+        #print(json.dumps(naiveBayesJson))
 
     def getWeight(self, token):
+        return 1
         if not token in self.vocabulary:
             return 0.01
         w = 0
         ndocs = sum(self.nDocumentsPerClassification.values())
         L = len(self.classifications)
         for classification in self.classifications:
-            pcGivenT = (self.nDocsPerClassificationPerToken[classification][token] + 1) * 1.0 / (sum([self.nDocsPerClassificationPerToken[c][token] for c in self.classifications]) + L)
+            pcGivenT = (self.nWordsPerClassificationPerToken[classification][token] + 1) * 1.0 / (sum([self.nWordsPerClassificationPerToken[c][token] for c in self.classifications]) + L)
             pc = float(self.nDocumentsPerClassification[classification] + 1) / (ndocs + L)
             w += pcGivenT * math.log(pcGivenT / pc)
-        pToken = (sum([self.nDocsPerClassificationPerToken[c][token] for c in self.classifications]) + 1) * 1.0 / (sum([self.nwordsPerClassification[c] for c in self.classifications]) + L)
+        pToken = (sum([self.nWordsPerClassificationPerToken[c][token] for c in self.classifications]) + 1) * 1.0 / (sum([self.nwordsPerClassification[c] for c in self.classifications]) + L)
         return -w/(pToken * math.log(pToken))
 
     def classify(self, tokens):
@@ -372,19 +373,19 @@ class NaiveBayes:
         V = len(self.vocabulary)
         alpha = 1
         for classification in self.classifications:
-            print '-------------------------------'
-            print classification
+            #print '-------------------------------'
+            #print classification
             logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
             logpLikelihood = 0
             for token in tokens:
-                n = self.nDocsPerClassificationPerToken[classification][token]
+                n = self.nWordsPerClassificationPerToken[classification][token]
                 w = self.getWeight(token)
                 logp = w * math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
                 logpLikelihood += logp
-                print token + ': '  + str(n) + ' / ' + str(self.nwordsPerClassification[classification]) + ' peso ' + str(w)
+                #print token + ': '  + str(n) + ' / ' + str(self.nwordsPerClassification[classification]) + ' peso ' + str(w)
 
             logpClassifiation = logpPrior + logpLikelihood
-            print classification + " -> " + str(logpClassifiation)
+            #print classification + " -> " + str(logpClassifiation)
             maxClassification = max(maxClassification, (logpClassifiation, classification))
         logpClassifiation, classification = maxClassification
         
@@ -402,8 +403,8 @@ class NaiveBayes:
             logpLikelihood = 0
             logpLikelihoodOther = 0
             for token in tokens:
-                n = self.nDocsPerClassificationPerToken[classification][token]
-                nOther = sum([self.nDocsPerClassificationPerToken[c][token] if c != classification else 0 for c in self.classifications])
+                n = self.nWordsPerClassificationPerToken[classification][token]
+                nOther = sum([self.nWordsPerClassificationPerToken[c][token] if c != classification else 0 for c in self.classifications])
                 w = self.getWeight(token)
                 logp = w * math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
                 logpOther = w * math.log(float(nOther + alpha*1) / (nwords - self.nwordsPerClassification[classification] + alpha*V + alpha*1))
