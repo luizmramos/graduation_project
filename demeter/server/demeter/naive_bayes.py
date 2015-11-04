@@ -361,34 +361,143 @@ class NaiveBayes:
         
         return classification
 
+    def classifyMulti(self, tokens):
+        classes =[]
+        ndocs = sum(self.nDocumentsPerClassification.values())
+        nwords = sum(self.nwordsPerClassification.values())
+        V = len(self.vocabulary)
+        alpha = 1
+        for classification in self.classifications:
+            logpPrior = math.log(float(self.nDocumentsPerClassification[classification]) / ndocs)
+            logpPriorOther = math.log(float(ndocs - self.nDocumentsPerClassification[classification]) / ndocs)
+            logpLikelihood = 0
+            logpLikelihoodOther = 0
+            for token in tokens:
+                n = self.nDocsPerClassificationPerToken[classification][token]
+                nOther = sum([self.nDocsPerClassificationPerToken[c][token] if c != classification else 0 for c in self.classifications])
+                logp = math.log(float(n + alpha*1) / (self.nwordsPerClassification[classification] + alpha*V + alpha*1))
+                logpOther = math.log(float(nOther + alpha*1) / (nwords - self.nwordsPerClassification[classification] + alpha*V + alpha*1))
+                logpLikelihood += logp
+                logpLikelihoodOther += logpOther
+                
+            logpClassifiation = logpPrior + logpLikelihood
+            logpClassifiationOther = logpPriorOther + logpLikelihoodOther
+            if logpClassifiation > logpClassifiationOther:
+                classes.append(classification)
+        
+        return classes
+
 
 import json
-
-data = raw_input()
-stories = mockStories(json.loads(data))
-
 from random import shuffle
 
-shuffle(stories)
+data = raw_input()
 
-documents = []
-testData = []
-for story in stories:
-    storyTokens = extractTokensFromStory(story)
-    bestCount = max(story.classification.values())
-    for classification, count in story.classification.items():
-        if count > bestCount/2:
-            if len(documents) < 120:
-                documents.append(Document(storyTokens, classification))
-            elif count == bestCount:
-                testData.append(Document(storyTokens, classification))
+globalPrecision = defaultdict(lambda: 0)
+globalRecall = defaultdict(lambda: 0)
+globalAccuracy = defaultdict(lambda: 0)
+globalF1 = defaultdict(lambda: 0)
+globalCount = 0
+globalExactMatch = 0
 
-naiveBayes = NaiveBayes()
-naiveBayes.train(documents)
+for xxx in range(0,10):
+    stories = mockStories(json.loads(data))
 
-for document in testData:
-    if document.classification != naiveBayes.classify(document.tokens):
-        print '[WRONG]',
-    print('Deveria ser ' + str(document.classification) + ' e foi ' + str(naiveBayes.classify(document.tokens)))
+    shuffle(stories)
+
+    documents = []
+    testData = []
+    for story in stories:
+        storyTokens = extractTokensFromStory(story)
+        if len(storyTokens) < 5:
+            continue
+        bestCount = max(story.classification.values())
+        for classification, count in story.classification.items():
+            if count == bestCount:
+                if len(documents) < len(stories)*3.0/4:
+                    documents.append(Document(storyTokens, classification))
+                else:
+                    testData.append(Document(storyTokens, classification))
+
+    naiveBayes = NaiveBayes()
+    naiveBayes.train(documents)
+
+    truePositives = defaultdict(lambda: 0)
+    trueNegatives = defaultdict(lambda: 0)
+    falsePositives = defaultdict(lambda: 0)
+    falseNegatives = defaultdict(lambda: 0)
+    exactMatch = 0
+
+    for document in testData:
+        chosen = [naiveBayes.classify(document.tokens)]
+        if document.classification == chosen[0]:
+            exactMatch += 1
+        for classification in naiveBayes.classifications:
+            if document.classification == classification and classification in chosen:
+                truePositives[classification] += 1
+            elif document.classification == classification and not classification in chosen:
+                falseNegatives[classification] += 1
+            elif document.classification != classification and not classification in chosen:
+                trueNegatives[classification] += 1
+            elif document.classification != classification and classification in chosen:
+                falsePositives[classification] += 1
+        
+    exactMatch /= 1.0*len(testData)
+    globalExactMatch += exactMatch
+    globalCount += 1
+    for classification in naiveBayes.classifications:
+        if truePositives[classification] + falsePositives[classification] == 0:
+            precision = 1
+        else:
+            precision = (truePositives[classification]) * 1.0 / (truePositives[classification] + falsePositives[classification])
+        if truePositives[classification] + falseNegatives[classification] == 0:
+            recall = 1
+        else:
+            recall = (truePositives[classification]) * 1.0 / (truePositives[classification] + falseNegatives[classification])
+        if precision + recall != 0:
+            f1 = 2 * precision * recall / (precision + recall)
+        else:
+            f1 = 0
+
+        accuracy = (truePositives[classification] + trueNegatives[classification]) * 1.0 / (truePositives[classification] + trueNegatives[classification] + falsePositives[classification] + falseNegatives[classification])
+        globalPrecision[classification] += precision
+        globalRecall[classification] += recall
+        globalF1[classification] += f1
+        globalAccuracy[classification] += accuracy
+        #print classification + ' TP: ' + str(truePositives[classification]) + ' / ' + str(total[classification]) + ' TN: ' + str(trueNegatives[classification]) + ' / '  + str(nDocs - total[classification]) 
+        #print classification + ': Precision: ' + str(precision),
+        #print ' # Recall: ' + str(recall),   
+        #print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
 
 
+    """
+    temasErrados = defaultdict(lambda: 0)
+    temasTotal = defaultdict(lambda: 0)
+
+    for document in testData:
+        temasTotal[document.classification] += 1
+        print '-----------------------'
+        chosenClassification = naiveBayes.classify(document.tokens)
+        if document.classification != chosenClassification:
+            print '[WRONG]',
+            temasErrados[document.classification] += 1
+        print('Deveria ser ' + str(document.classification) + ' e foi ' + str(chosenClassification))
+        if document.classification == 'Minorias':
+            for token in document.tokens:
+                print str(token) + ': ' + str(chosenClassification) + '(' + str(naiveBayes.nDocsPerClassificationPerToken[str(chosenClassification)][str(token)]) + ') vs ' + str(document.classification) + '(' + str(naiveBayes.nDocsPerClassificationPerToken[str(document.classification)][str(token)]) + ')'
+
+    acertosPercentuais = 0
+
+    for tema in temasTotal:
+        print(tema + ': ' + str(temasTotal[tema] - temasErrados[tema]) + '/' + str(temasTotal[tema])) + ' ',
+        print str((temasTotal[tema] - temasErrados[tema])*1.0/temasTotal[tema]*100) + '%'
+        acertosPercentuais += (temasTotal[tema] - temasErrados[tema])*1.0
+    print str(acertosPercentuais*1.0/sum(temasTotal.values()))
+    """
+
+for classification in naiveBayes.classifications:
+    print classification + ' ' + str(globalPrecision[classification]*1.0/globalCount),
+    print ' / ' + str(globalRecall[classification]*1.0/globalCount),
+    print ' / ' + str(globalF1[classification]*1.0/globalCount),
+    print ' / ' + str(globalAccuracy[classification]*1.0/globalCount)
+print 'Exact match: ' + str(globalExactMatch * 1.0 / globalCount)
