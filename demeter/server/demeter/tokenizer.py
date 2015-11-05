@@ -239,6 +239,8 @@ def extract_user_token_from_id(id):
     return '{id:' + (s.group(1) if s else 'unknown') + '}'
 
 def get_links_token(links):
+    # TODO: Return a list of tokens that represent the tag of each link
+    # The tokens should be something like '{link:tag}'
     return []
 
 def get_share_type_token(share_type):
