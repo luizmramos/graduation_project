@@ -27,13 +27,17 @@ def mock_stories(data):
 data = raw_input()
 
 stories = mock_stories(json.loads(data))
-for n_stories in range(20,len(stories), 20):
+INITIAL_DOCUMENTS_SIZE = 50
+DOCUMENTS_INCREASE_STEP = 50
+N_TRIES_PER_STEP = 1
+
+for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
     global_recall = defaultdict(lambda: 0)
     global_accuracy = 0
     global_count = 0
     global_kappa = 0
-    for tries in range(0,25):
+    for tries in range(0, N_TRIES_PER_STEP):
         confusion_matrix = defaultdict(lambda: defaultdict(lambda: 0))
         accuracy = 0
         shuffle(stories)
