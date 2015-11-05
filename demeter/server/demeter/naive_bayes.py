@@ -428,15 +428,11 @@ for n_stories in range(20,len(stories), 20):
     global_precision = defaultdict(lambda: 0)
     global_recall = defaultdict(lambda: 0)
     global_accuracy = defaultdict(lambda: 0)
-    global_f1 = defaultdict(lambda: 0)
     global_count = 0
-    global_exact_match = 0
     global_kappa = 0
     for tries in range(0,25):
         confusion_matrix = defaultdict(lambda: defaultdict(lambda: 0))
-        exact_match = 0
-        done=0
-
+        accuracy = 0
         shuffle(stories)
 
         documents = []
@@ -478,7 +474,7 @@ for n_stories in range(20,len(stories), 20):
             #print document.textoCompleto
             #print '</divisor>'
             if document.tag in chosen:
-                exact_match += 1
+                accuracy += 1
             #else:
                 #print '[WRONG] Deveria ser ' +  document.tag + ' mas foi ' + str(chosen)
             for tag in naive_bayes.tags:
@@ -491,15 +487,15 @@ for n_stories in range(20,len(stories), 20):
                 elif document.tag != tag and tag in chosen:
                     false_positives[tag] += 1
             
-        done += 1.0*len(test_data)
+        n_test_documents += 1.0*len(test_data)
         global_count += 1
         for tag in naive_bayes.tags:
             if true_positives[tag] + false_positives[tag] == 0:
-                precision = 1
+                precision = 1 # check corner cases
             else:
                 precision = (true_positives[tag]) * 1.0 / (true_positives[tag] + false_positives[tag])
             if true_positives[tag] + false_negatives[tag] == 0:
-                recall = 1
+                recall = 1 # check corner cases
             else:
                 recall = (true_positives[tag]) * 1.0 / (true_positives[tag] + false_negatives[tag])
             if precision + recall != 0:
@@ -507,32 +503,24 @@ for n_stories in range(20,len(stories), 20):
             else:
                 f1 = 0
 
-            accuracy = (true_positives[tag] + true_negatives[tag]) * 1.0 / (true_positives[tag] + true_negatives[tag] + false_positives[tag] + false_negatives[tag])
             global_precision[tag] += precision
             global_recall[tag] += recall
-            global_f1[tag] += f1
-            global_accuracy[tag] += accuracy
             
-            ##print tag + ' TP: ' + str(truePositives[tag]) + ' / ' + str(total[tag]) + ' TN: ' + str(trueNegatives[tag]) + ' / '  + str(nDocs - total[tag]) 
-            ##print tag + ': Precision: ' + str(precision),
-            ##print ' # Recall: ' + str(recall),   
-            ##print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
+            #print tag + ' TP: ' + str(true_positives[tag]) + ' / ' + str(total[tag]) + ' TN: ' + str(true_negatives[tag]) + ' / '  + str(nDocs - total[tag]) 
+            #print tag + ': Precision: ' + str(precision),
+            #print ' # Recall: ' + str(recall),   
+            #print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
     
-        exact_match = exact_match * 1.0/ done
-        global_exact_match += exact_match
-        #print str(exactMatch * 100)
-        #print str(n_stories) + ' - Exact match: ' + str(exactMatch*100)
-        #for tag in naiveBayes.tags:
-            #print tag
-        #for tag in naiveBayes.tags:
-         #   for predicted in naiveBayes.tags:
-                #print "%5d" % confusionMatrix[tag][predicted],
-            #print
+        accuracy = accuracy * 1.0/ n_test_documents
+        global_accuracy += accuracy
+        #print str(accuracy * 100)
+        #print str(n_stories) + ' - Accuracy: ' + str(accuracy*100)
+       
         expected_accuracy = 0
         total = 0
         for line in confusion_matrix:
-            #for column in confusionMatrix:
-            #    print '%5d' % confusionMatrix[line][column],
+            #for column in confusion_matrix:
+            #    print '%5d' % confusion_matrix[line][column],
             #print
             sum_column = sum([confusion_matrix[l][line] for l in confusion_matrix])
             sum_line = sum(confusion_matrix[line].values())
@@ -540,43 +528,11 @@ for n_stories in range(20,len(stories), 20):
             total += sum_line
         
         expected_accuracy = expected_accuracy * 1.0 / (total ** 2)
-        #print str(expectedAccuracy * 100)
+        #print str(expected_accuracy * 100)
 
-        kappa = (exact_match - expected_accuracy) / (1 - expected_accuracy)
+        kappa = (accuracy - expected_accuracy) / (1 - expected_accuracy)
         global_kappa += kappa
         #print kappa
     
-    #print str(globalExactMatch * 1.0 / globalCount)
+    #print str(global_accuracay * 1.0 / global_count)
     print str(global_kappa * 1.0 / global_count)
-
-
-    """
-    temasErrados = defaultdict(lambda: 0)
-    temasTotal = defaultdict(lambda: 0)
-
-    for document in testData:
-        temasTotal[document.tag] += 1
-        #print '-----------------------'
-        chosentag = naiveBayes.classify(document.tokens)
-        if document.tag != chosentag:
-            #print '[WRONG]',
-            temasErrados[document.tag] += 1
-        #print('Deveria ser ' + str(document.tag) + ' e foi ' + str(chosentag))
-        if document.tag == 'Minorias':
-            for token in document.tokens:
-                #print str(token) + ': ' + str(chosentag) + '(' + str(naiveBayes.nWordsPertagPerToken[str(chosentag)][str(token)]) + ') vs ' + str(document.tag) + '(' + str(naiveBayes.nWordsPertagPerToken[str(document.tag)][str(token)]) + ')'
-
-    acertosPercentuais = 0
-
-    for tema in temasTotal:
-        #print(tema + ': ' + str(temasTotal[tema] - temasErrados[tema]) + '/' + str(temasTotal[tema])) + ' ',
-        #print str((temasTotal[tema] - temasErrados[tema])*1.0/temasTotal[tema]*100) + '%'
-        acertosPercentuais += (temasTotal[tema] - temasErrados[tema])*1.0
-    #print str(acertosPercentuais*1.0/sum(temasTotal.values()))
-    """
-
-#for tag in naiveBayes.tags:
-    #print tag + ' ' + str(globalPrecision[tag]*1.0/globalCount),
-    #print ' / ' + str(globalRecall[tag]*1.0/globalCount),
-    #print ' / ' + str(globalF1[tag]*1.0/globalCount),
-    #print ' / ' + str(globalAccuracy[tag]*1.0/globalCount)
