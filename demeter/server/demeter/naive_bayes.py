@@ -310,27 +310,27 @@ def mock_stories(data):
 
 
 class Document:
-    def __init__(self, tokens, classification):
+    def __init__(self, tokens, tag):
         self.tokens = tokens
-        self.classification = classification
+        self.tag = tag
 
 from collections import defaultdict
 import math
 
 class NaiveBayes:
     def __init__(self):
-        self.n_words_per_classification_per_token = defaultdict(lambda: defaultdict(lambda: 0))
-        self.n_documents_per_classification = defaultdict(lambda: 0)
-        self.n_words_per_classification = defaultdict(lambda: 0)
-        self.classifications = set()
+        self.n_words_per_tag_per_token = defaultdict(lambda: defaultdict(lambda: 0))
+        self.n_documents_per_tag = defaultdict(lambda: 0)
+        self.n_words_per_tag = defaultdict(lambda: 0)
+        self.tags = set()
         self.vocabulary = set()
 
     def increment(self, document):
-        self.classifications.add(document.classification)
-        self.n_documents_per_classification[document.classification] += 1
+        self.tags.add(document.tag)
+        self.n_documents_per_tag[document.tag] += 1
         for token in document.tokens:
-            self.n_words_per_classification_per_token[document.classification][token] += 1
-            self.n_words_per_classification[document.classification] += 1
+            self.n_words_per_tag_per_token[document.tag][token] += 1
+            self.n_words_per_tag[document.tag] += 1
             self.vocabulary.add(token)
 
 
@@ -338,83 +338,82 @@ class NaiveBayes:
         for document in documents:
             self.increment(document) 
 
-    def load(self, n_words_per_classification_per_token, n_documents_per_classification, classifications, vocabulary):
-        self.n_words_per_classification_per_token = n_words_per_classification_per_token
-        self.n_documents_per_classification = n_documents_per_classification
-        self.classifications = classifications
+    def load(self, n_words_per_tag_per_token, n_documents_per_tag, tags, vocabulary):
+        self.n_words_per_tag_per_token = n_words_per_tag_per_token
+        self.n_documents_per_tag = n_documents_per_tag
+        self.tags = tags
         self.vocabulary = vocabulary
 
     def write(self):
         naive_bayes_json = {
-            'nWordsPerClassificationPerToken': self.nWordsPerClassificationPerToken,
-            'nDocumentsPerClassification': self.nDocumentsPerClassification,
-            'classifications': self.classifications,
+            'nWordsPerTagPerToken': self.n_words_per_tag_per_token,
+            'nDocumentsPerTag': self.n_documents_per_tag,
+            'tags': self.tags,
             'vocabulary': self.vocabulary
         }
         #print(json.dumps(naive_bayes_json))
 
-    def get_weight(self, token):
-        return 1
+    def get_weight(self, token): 
         if not token in self.vocabulary:
             return 0.01
         w = 0
-        ndocs = sum(self.n_documents_per_classification.values())
-        L = len(self.classifications)
-        for classification in self.classifications:
-            pc_given_t = (self.n_words_per_classification_per_token[classification][token] + 1) * 1.0 / (sum([self.n_words_per_classification_per_token[c][token] for c in self.classifications]) + L)
-            pc = float(self.n_documents_per_classification[classification] + 1) / (ndocs + L)
+        ndocs = sum(self.n_documents_per_tag.values())
+        L = len(self.tags)
+        for tag in self.tags:
+            pc_given_t = (self.n_words_per_tag_per_token[tag][token] + 1) * 1.0 / (sum([self.n_words_per_tag_per_token[c][token] for c in self.tags]) + L)
+            pc = float(self.n_documents_per_tag[tag] + 1) / (ndocs + L)
             w += pc_given_t * math.log(pc_given_t / pc)
-        p_token = (sum([self.n_words_per_classification_per_token[c][token] for c in self.classifications]) + 1) * 1.0 / (sum([self.n_words_per_classification[c] for c in self.classifications]) + L)
+        p_token = (sum([self.n_words_per_tag_per_token[c][token] for c in self.tags]) + 1) * 1.0 / (sum([self.n_words_per_tag[c] for c in self.tags]) + L)
         return -w/(p_token * math.log(p_token))
 
     def classify(self, tokens):
-        max_classification = (-float('inf'), None)
-        ndocs = sum(self.n_documents_per_classification.values())
+        max_tag = (-float('inf'), None)
+        ndocs = sum(self.n_documents_per_tag.values())
         V = len(self.vocabulary)
         alpha = 1
-        for classification in self.classifications:
+        for tag in self.tags:
             #print '-------------------------------'
-            #print classification
-            logp_prior = math.log(float(self.n_documents_per_classification[classification]) / ndocs)
+            #print tag
+            logp_prior = math.log(float(self.n_documents_per_tag[tag]) / ndocs)
             logp_likelihood = 0
             for token in tokens:
-                n = self.n_words_per_classification_per_token[classification][token]
+                n = self.n_words_per_tag_per_token[tag][token]
                 w = self.get_weight(token)
-                logp = w * math.log(float(n + alpha*1) / (self.n_words_per_classification[classification] + alpha*V + alpha*1))
+                logp = w * math.log(float(n + alpha*1) / (self.n_words_per_tag[tag] + alpha*V + alpha*1))
                 logp_likelihood += logp
-                #print token + ': '  + str(n) + ' / ' + str(self.n_words_per_classification[classification]) + ' peso ' + str(w)
+                #print token + ': '  + str(n) + ' / ' + str(self.n_words_per_tag[tag]) + ' peso ' + str(w)
 
             logp_classifiation = logp_prior + logp_likelihood
-            #print classification + " -> " + str(logp_classifiation)
-            max_classification = max(max_classification, (logp_classifiation, classification))
-        logp_classifiation, classification = max_classification
+            #print tag + " -> " + str(logp_classifiation)
+            max_tag = max(max_tag, (logp_classifiation, tag))
+        logp_classifiation, tag = max_tag
         
-        return classification
+        return tag
 
     def classifyMulti(self, tokens):
         classes =[]
-        ndocs = sum(self.n_documents_per_classification.values())
-        nwords = sum(self.n_words_per_classification.values())
+        ndocs = sum(self.n_documents_per_tag.values())
+        nwords = sum(self.n_words_per_tag.values())
         V = len(self.vocabulary)
         alpha = 1
-        for classification in self.classifications:
-            logp_prior = math.log(float(self.n_documents_per_classification[classification]) / ndocs)
-            logp_prior_other = math.log(float(ndocs - self.n_documents_per_classification[classification]) / ndocs)
+        for tag in self.tags:
+            logp_prior = math.log(float(self.n_documents_per_tag[tag]) / ndocs)
+            logp_prior_other = math.log(float(ndocs - self.n_documents_per_tag[tag]) / ndocs)
             logp_likelihood = 0
             logp_likelihood_other = 0
             for token in tokens:
-                n = self.n_words_per_classification_per_token[classification][token]
-                n_other = sum([self.n_words_per_classification_per_token[c][token] if c != classification else 0 for c in self.classifications])
+                n = self.n_words_per_tag_per_token[tag][token]
+                n_other = sum([self.n_words_per_tag_per_token[c][token] if c != tag else 0 for c in self.tags])
                 w = self.get_weight(token)
-                logp = w * math.log(float(n + alpha*1) / (self.n_words_per_classification[classification] + alpha*V + alpha*1))
-                logp_other = w * math.log(float(n_other + alpha*1) / (nwords - self.n_words_per_classification[classification] + alpha*V + alpha*1))
+                logp = w * math.log(float(n + alpha*1) / (self.n_words_per_tag[tag] + alpha*V + alpha*1))
+                logp_other = w * math.log(float(n_other + alpha*1) / (nwords - self.n_words_per_tag[tag] + alpha*V + alpha*1))
                 logp_likelihood += logp
                 logp_likelihood_other += logp_other
                 
             logp_classifiation = logp_prior + logp_likelihood
             logp_classifiation_other = logp_prior_other + logp_likelihood_other
             if logp_classifiation > logp_classifiation_other:
-                classes.append(classification)
+                classes.append(tag)
         
         return classes
 
@@ -453,14 +452,14 @@ for n_stories in range(20,len(stories), 20):
             if len(story_tokens) < 5:
                 continue
             best_count = max(story.classification.values())
-            classification = max(story.classification, key=story.classification.get)
+            tag = max(story.classification, key=story.classification.get)
             count_total += 1
             if len(story.links):
                 count_links += 1
             if len(documents) < n_stories*2.0/4:
-                documents.append(Document(story_tokens, classification))
+                documents.append(Document(story_tokens, tag))
             else:
-                test_data.append(Document(story_tokens, classification))
+                test_data.append(Document(story_tokens, tag))
                 test_data[len(test_data)-1].texto_completo = story.text
 
         naive_bayes = NaiveBayes()
@@ -473,49 +472,49 @@ for n_stories in range(20,len(stories), 20):
 
         for document in test_data:
             chosen = [naive_bayes.classify(document.tokens)]
-            confusion_matrix[document.classification][chosen[0]] += 1
+            confusion_matrix[document.tag][chosen[0]] += 1
             #print '<divisor>'
             #print chosen
             #print document.textoCompleto
             #print '</divisor>'
-            if document.classification in chosen:
+            if document.tag in chosen:
                 exact_match += 1
             #else:
-                #print '[WRONG] Deveria ser ' +  document.classification + ' mas foi ' + str(chosen)
-            for classification in naive_bayes.classifications:
-                if document.classification == classification and classification in chosen:
-                    true_positives[classification] += 1
-                elif document.classification == classification and not classification in chosen:
-                    false_negatives[classification] += 1
-                elif document.classification != classification and not classification in chosen:
-                    true_negatives[classification] += 1
-                elif document.classification != classification and classification in chosen:
-                    false_positives[classification] += 1
+                #print '[WRONG] Deveria ser ' +  document.tag + ' mas foi ' + str(chosen)
+            for tag in naive_bayes.tags:
+                if document.tag == tag and tag in chosen:
+                    true_positives[tag] += 1
+                elif document.tag == tag and not tag in chosen:
+                    false_negatives[tag] += 1
+                elif document.tag != tag and not tag in chosen:
+                    true_negatives[tag] += 1
+                elif document.tag != tag and tag in chosen:
+                    false_positives[tag] += 1
             
         done += 1.0*len(test_data)
         global_count += 1
-        for classification in naive_bayes.classifications:
-            if true_positives[classification] + false_positives[classification] == 0:
+        for tag in naive_bayes.tags:
+            if true_positives[tag] + false_positives[tag] == 0:
                 precision = 1
             else:
-                precision = (true_positives[classification]) * 1.0 / (true_positives[classification] + false_positives[classification])
-            if true_positives[classification] + false_negatives[classification] == 0:
+                precision = (true_positives[tag]) * 1.0 / (true_positives[tag] + false_positives[tag])
+            if true_positives[tag] + false_negatives[tag] == 0:
                 recall = 1
             else:
-                recall = (true_positives[classification]) * 1.0 / (true_positives[classification] + false_negatives[classification])
+                recall = (true_positives[tag]) * 1.0 / (true_positives[tag] + false_negatives[tag])
             if precision + recall != 0:
                 f1 = 2 * precision * recall / (precision + recall)
             else:
                 f1 = 0
 
-            accuracy = (true_positives[classification] + true_negatives[classification]) * 1.0 / (true_positives[classification] + true_negatives[classification] + false_positives[classification] + false_negatives[classification])
-            global_precision[classification] += precision
-            global_recall[classification] += recall
-            global_f1[classification] += f1
-            global_accuracy[classification] += accuracy
+            accuracy = (true_positives[tag] + true_negatives[tag]) * 1.0 / (true_positives[tag] + true_negatives[tag] + false_positives[tag] + false_negatives[tag])
+            global_precision[tag] += precision
+            global_recall[tag] += recall
+            global_f1[tag] += f1
+            global_accuracy[tag] += accuracy
             
-            ##print classification + ' TP: ' + str(truePositives[classification]) + ' / ' + str(total[classification]) + ' TN: ' + str(trueNegatives[classification]) + ' / '  + str(nDocs - total[classification]) 
-            ##print classification + ': Precision: ' + str(precision),
+            ##print tag + ' TP: ' + str(truePositives[tag]) + ' / ' + str(total[tag]) + ' TN: ' + str(trueNegatives[tag]) + ' / '  + str(nDocs - total[tag]) 
+            ##print tag + ': Precision: ' + str(precision),
             ##print ' # Recall: ' + str(recall),   
             ##print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
     
@@ -523,11 +522,11 @@ for n_stories in range(20,len(stories), 20):
         global_exact_match += exact_match
         #print str(exactMatch * 100)
         #print str(n_stories) + ' - Exact match: ' + str(exactMatch*100)
-        #for classification in naiveBayes.classifications:
-            #print classification
-        #for classification in naiveBayes.classifications:
-         #   for predicted in naiveBayes.classifications:
-                #print "%5d" % confusionMatrix[classification][predicted],
+        #for tag in naiveBayes.tags:
+            #print tag
+        #for tag in naiveBayes.tags:
+         #   for predicted in naiveBayes.tags:
+                #print "%5d" % confusionMatrix[tag][predicted],
             #print
         expected_accuracy = 0
         total = 0
@@ -556,16 +555,16 @@ for n_stories in range(20,len(stories), 20):
     temasTotal = defaultdict(lambda: 0)
 
     for document in testData:
-        temasTotal[document.classification] += 1
+        temasTotal[document.tag] += 1
         #print '-----------------------'
-        chosenClassification = naiveBayes.classify(document.tokens)
-        if document.classification != chosenClassification:
+        chosentag = naiveBayes.classify(document.tokens)
+        if document.tag != chosentag:
             #print '[WRONG]',
-            temasErrados[document.classification] += 1
-        #print('Deveria ser ' + str(document.classification) + ' e foi ' + str(chosenClassification))
-        if document.classification == 'Minorias':
+            temasErrados[document.tag] += 1
+        #print('Deveria ser ' + str(document.tag) + ' e foi ' + str(chosentag))
+        if document.tag == 'Minorias':
             for token in document.tokens:
-                #print str(token) + ': ' + str(chosenClassification) + '(' + str(naiveBayes.nWordsPerClassificationPerToken[str(chosenClassification)][str(token)]) + ') vs ' + str(document.classification) + '(' + str(naiveBayes.nWordsPerClassificationPerToken[str(document.classification)][str(token)]) + ')'
+                #print str(token) + ': ' + str(chosentag) + '(' + str(naiveBayes.nWordsPertagPerToken[str(chosentag)][str(token)]) + ') vs ' + str(document.tag) + '(' + str(naiveBayes.nWordsPertagPerToken[str(document.tag)][str(token)]) + ')'
 
     acertosPercentuais = 0
 
@@ -576,8 +575,8 @@ for n_stories in range(20,len(stories), 20):
     #print str(acertosPercentuais*1.0/sum(temasTotal.values()))
     """
 
-#for classification in naiveBayes.classifications:
-    #print classification + ' ' + str(globalPrecision[classification]*1.0/globalCount),
-    #print ' / ' + str(globalRecall[classification]*1.0/globalCount),
-    #print ' / ' + str(globalF1[classification]*1.0/globalCount),
-    #print ' / ' + str(globalAccuracy[classification]*1.0/globalCount)
+#for tag in naiveBayes.tags:
+    #print tag + ' ' + str(globalPrecision[tag]*1.0/globalCount),
+    #print ' / ' + str(globalRecall[tag]*1.0/globalCount),
+    #print ' / ' + str(globalF1[tag]*1.0/globalCount),
+    #print ' / ' + str(globalAccuracy[tag]*1.0/globalCount)
