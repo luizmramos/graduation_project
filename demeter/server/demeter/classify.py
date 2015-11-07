@@ -27,9 +27,15 @@ def mock_stories(data):
 data = raw_input()
 
 stories = mock_stories(json.loads(data))
-INITIAL_DOCUMENTS_SIZE = 50
-DOCUMENTS_INCREASE_STEP = 50
-N_TRIES_PER_STEP = 1
+
+storyMap = {}
+for story in stories:
+    storyMap[story.text] = story
+stories = storyMap.values()
+
+INITIAL_DOCUMENTS_SIZE = 20
+DOCUMENTS_INCREASE_STEP = 20
+N_TRIES_PER_STEP = 25
 
 for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
@@ -59,7 +65,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_S
             count_total += 1
             if len(story.links):
                 count_links += 1
-            if len(documents) < n_stories*2.0/4:
+            if len(documents) < n_stories*3.0/4:
                 documents.append(Document(story_tokens, tag))
             else:
                 test_data.append(Document(story_tokens, tag))
@@ -142,4 +148,4 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_S
         #print kappa
     
     #print str(global_accuracay * 1.0 / global_count)
-    print str(global_kappa * 1.0 / global_count)
+    print str(global_kappa * 1.0 / global_count) + ' / '  + str(global_accuracy * 1.0 / global_count) 
