@@ -1,0 +1,167 @@
+\section{USARSim}
+
+\ac{USARSim} é um simulador de Robótica de alta fidelidade. A versão atual é baseada no \ac{UDK} \cite{udk}, kit de desenvolvimento da \emph{engine} de jogos Unreal. A Unreal usa como engine de Física a Nvidia PhysX \cite{physx}, uma das mais avançadas \emph{engines} de Física de tempo real. Com isso, é possível simular interações mecânicas, tais como colisão e atrito, com boa precisão. Inclusive, consegue-se modelar com boa fidelidade o comportamento de robôs humanóides com grande número de graus de liberdade, como demonstra \cite{sander_2012}.
+
+O simulador já possui diversos modelos de robôs, sensores e atuadores. Além disso, a implementação de novos modelos é muito facilitada pelas ferramentas providas pelo \ac{UDK}, em especial uma ferramenta de edição chamada \ac{UDK} Editor e uma linguagem de \emph{script} de alto nível denominada UnrealScript. A seguir, são apresentados os conceitos da \ac{UDK} e do \ac{USARSim} relevantes para o entendimento deste trabalho.
+
+\subsection{Nvidia PhysX}
+
+A simulação de Física da PhysX mantém uma cena em que os objetos são atualizados iterativamente, em que a cada iteração injeta-se um passo de simulação (no caso de tempo real, o intervalo de tempo desde a última atualização). Este comportamento discreto introduz erros de Física quando comparado ao que seria uma simulação contínua, logo deseja-se que o passo de simulação seja o menor possível para permitir uma maior fidelidade.
+
+Em simulações em que a Física é crítica, como a simulação de um robô humanóide, a qualidade da simulação degrada muito com a redução da taxa de atualização da Física, como mostra \cite{sander_2012}. Observe que a simulação na Unreal ocorre em tempo real, o que torna o passo limitado pela capacidade de processamento disponível.
+
+Uma cena de PhysX contém três importantes aspectos: \emph{actors} (atores), \emph{materials} (materiais) e \emph{joints} (juntas). \emph{Actors} definem objetos físicos capazes de interagir com o mundo e com outros objetos. \emph{Actors} podem ser estáticos (fixos no mundo; geralmente usados para partes do cenário) ou corpos rígidos dinâmicos (usados para objetos móveis).
+
+A cada \emph{actor} pode estar associado um formato (modelo) físico. Note que este é desvinculado do modelo gráfico que é renderizado pela \emph{engine} gráfica. Na realidade, para um dado objeto, em geral convém utilizar um modelo físico mais simples que o gráfico, pois cálculos de Física consomem bastante processamento; usar o modelo gráfico para Física é impraticável na maioria dos casos. Ademais, um \emph{actor} também possui um tensor de inércia \(I_{body}\) e uma massa \(M\) localizada em seu centro de massa \(C_M\).
+
+\emph{Materials} descrevem as propriedades de uma superfície (e.g. coeficiente de atrito) de um \emph{actor}. Essas propriedades ditam o que ocorre quando dois \emph{actors} colidem. \emph{Joints} conectam dois corpos rígidos e limitam o movimento entre estes. PhysX possui diversos tipos de juntas (classificadas conforme as restrições aplicados aos corpos que unem). Neste trabalho, a única junta utilizada é a \emph{revolute joint} (junta de revolução), que conecta dois corpos por um eixo como mostra a Figura \ref{fig:junta_revolucao}.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{Revolute_Joint.png}
+  \caption{Junta de revolução.}
+	\label{fig:junta_revolucao}
+\end{figure}
+
+Uma das tarefas mais importantes de uma engine Física é detectar quais colisões ocorrem em um dado momento eficientemente. Há dois desafios principais a serem superados nisso: detecção de colisão polígono por polígono (extremamente custosa) e dado \(n\) objetos presentes em uma cena, precisa-se, a princípio, testar colisão entre \(\dbinom{n}{2}\) pares de objetos.
+
+Para resolver o primeiro problema, a \emph{engine} mantém uma caixa delimitadora (\emph{bounding box}) para cada modelo físico. Essa caixa é formada pelos limites mínimos e máximos do modelo em cada uma das coordenadas. Assim, para verificar se dois modelos colidem, o algoritmo verifica primeiro se as caixas delimitadores se sobrepõem; se isso não ocorre, pode-se afirmar que os modelos certamente não colidem e evita-se o custoso teste polígono por polígono.
+
+Para evitar testar colisão entre todos os pares de modelos de uma cena, PhysX divide o espaço em partições, de modo que há necessidade de verificar colisões apenas com outros objetos presente na mesma partição ou no máximo em partições vizinhas.
+
+\subsection{UDK Editor}
+
+O \ac{UDK} Editor é a ferramenta principal de edição do \ac{UDK}. Por ser uma ferramenta do UDK, ela é voltada à criação de jogos. Assim, possui diversas funcionalidades para este fim, como manipulação de modelos 3D, criação de cenários etc.
+
+Para esse trabalho, a funcionalidade mais importante é a auto-geração de modelos físicos a partir de modelos gráficos 3D. Para isso, o editor provê diversos métodos. Um dos mais convenientes é o K-DOF. O algoritmo do K-DOF basicamente toma K planos alinhados com K eixos passando pelo centro da malha gráfica e aproxima esses planos o máximo possível da malha sem que ocorra intersecção com esta. Pode-se escolher K dentre as seguintes opções:
+
+\begin{itemize}
+	\item 6: caixa alinhada com os eixos principais (X, Y e Z);
+	\item 10: caixa com 4 arestas chanfradas -- pode-se escolher dentre arestas alinhadas com os eixos X, Y ou Z;
+	\item 18: caixa com todas as arestas chanfradas;
+	\item 26: caixa com todas as arestas e cantos chanfrados.
+\end{itemize}
+
+A Figura \ref{fig:kdof} exibe as diferenças entre as opções de K-DOF para a peça do peito do Robonova.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{kdof.png}
+  \caption{Diferenças entre modelos físicos gerados com K-DOF (os modelos físicos são apresentados em \emph{wireframe}).}
+	\label{fig:kdof}
+\end{figure}
+
+\subsection{UnrealScript}
+A UnrealScript é uma linguagem de \emph{script} proprietária da \emph{engine} Unreal. Foi projetada por Tim Sweeney especificamente para desenvolvimento de jogos. As principais características da UnrealScript são:
+
+\begin{itemize}
+	\item Orientada a objetos;
+	\item Não há suporte a herança múltipla, ou seja, uma classe só poder herdar de no máximo uma outra classe;
+	\item Não existe o conceito de ponteiro. Trabalha-se com referências, assim como em Java;
+	\item Programador não precisa se preocupar com desalocação de memória dinâmica, pois há um \emph{garbage collector};
+	\item Forte detecção de erros durante tempo de compilação;
+	\item Estilo de sintaxe similar a C/C++/Java;
+	\item Suporte a sobrecarga de operadores;
+	\item Não há suporte a sobrecarga de métodos;
+	\item Suporte nativo a conceitos importantes para desenvolvimento de jogos: tempo, estados, eventos, propriedades, rede etc.
+\end{itemize}
+Como pode-se perceber pelas características listadas, muitas das decisões de projeto da UnrealScript foram inspiradas pela linguagem Java. Inclusive, Tim Sweeney experimentou usar Java para a Unreal antes de decidir criar uma linguagem própria. Por fim, destaca-se que a UnrealScript é usada apenas para programar a parte de alto nível. O baixo nível, como as partes de renderização gráfica e de simulação de Física, que exigem mais desempenho, é programado em C++.
+
+\subsection{Implementação de Robôs em USARSim}
+A implementação de modelos novos de robôs em USARSim envolve basicamente os passos:
+
+\begin{enumerate}
+	\item Construção de modelos \acs{CAD} que representam o robô;
+	\item Geração dos modelos físicos a partir dos modelos \acs{CAD};
+	\item Programação do modelo do robô em UnrealScript;
+	\item Definição de partes extras, como sensores e atuadores.
+\end{enumerate}
+
+%O anexo \ref{} apresenta um \emph{tutorial} detalhando o processo.
+
+\subsection{Comunicação entre Agentes e USARSim}
+
+A comunicação entre agentes e o simulador é feita através de trocas de mensagens \acs{TCP/IP} seguindo protocolo próprio do \ac{USARSim}. Todas as mensagens trocadas contêm um tipo e uma lista de segmentos seguindo o formato ``TIPO {segmento1} {segmento2}...'', em que:
+
+\begin{itemize}
+	\item TIPO: refere-se ao tipo da mensagem e deve ser escrito em letras maíusculas. O protocolo define 5 tipos de mensagens: INIT, STA, SEN, DRIVE e CONF;
+	\item Segmentos: são pares nome-valor escritos da forma ``{nome valor}'' que representam os dados da mensagem em si. Por exemplo, no caso do segmento ``{Orientation 0.0,0.0,0.0}'', ``Orientation'' é o nome e ``0.0,0.0,0.0'' é o valor. 
+\end{itemize}
+
+Note que o tipo e a lista de segmentos são separados por um espaço. Os segmentos são também separados entre si por um espaço. Dentro de um segmento, o nome e valor também são separados por um espaço, assim espaços dentro do nome ou do valor não são permitidos. Com isso, o segmento ``{Orientation 0.0, 0.0, 0.0}'' é inválido. Para indicar fim de mensagem, deve-se adicionar ``$\backslash$r$\backslash$n'' no final da cadeia de caracteres.
+
+\section{Robonova-I}
+\label{sec:robonova}
+
+O Robonova-I é um modelo de robô humanóide de baixo custo desenvolvido pela empresa japonesa Hitec Robotics \cite{robonova_manual}. A Figura \ref{fig:robonova} exibe o robô visto de costas e de frente. O Robonova-I é dotado de 16 graus de liberdade, distribuídos da seguinte forma: 3 em cada braço (2 no ombro e 1 no cotovelo) e 5 em cada perna (2 na coxa, 1 no joelho e 2 no pé). A Figura \ref{fig:juntas_robonova} mostra a disposição das juntas, assim como o eixo de rotação de cada uma.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{robonova.jpg}
+  \caption{Robonova-I. Extraído de \cite{robonova_manual}.}
+	\label{fig:robonova}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{juntas_robonova.png}
+  \caption{Juntas do Robonova-I. Extraído de \cite{robonova_manual}.}
+	\label{fig:juntas_robonova}
+\end{figure}
+
+Cada junta é implementada por um servomotor Hitec HSR-8498HB, apresentado na Figura \ref{fig:servos}. Tratam-se de servomotores especificamente desenvolvidos para o Robonova-I e são relativamente baratos, o que garante o baixo custo do robô. A Tabela \ref{tab:servos} apresenta as principais características do HSR-8498HB.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.5\textwidth]{servos.png}
+  \caption{Servomotores Hitec HSR-8498HB. Extraído de \cite{robonova_manual}.}
+	\label{fig:servos}
+\end{figure}
+
+\begin{table}[ht!]
+  \begin{center}
+    \begin{tabular}{| l r |}
+    \hline
+    Interface & Protocolo \acs{HMI}, \acs{PWM} \\
+    Voltagem & 6,0 V \\
+    Velocidade Máxima & 60\(^{\circ}\) em 0,20 s @ 6,0 V \\
+    Torque & 10 kg\(\cdotp\)cm \\
+    Ângulo de Operação & Máximo de 180\(^{\circ}\) \\
+    Peso & 55 g \\
+    Dimensão & 40 x 20 x 47 mm \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Especificação dos servomotores Hitec HSR-8498HB. Extraído de \cite{robonova_manual}.}
+  \label{tab:servos}
+\end{table}
+
+O único sensor que vem juntamente com o kit é um sensor infravermelho, que é instalado na cabeça do robô, para receber comandos de um controle remoto, que também faz parte do kit. Porém, o fabricante produzia alguns tipos de sensores compatíveis, como sensor de toque, girômetro e sensor de luz.
+
+O controle do robô é feito por uma placa MR-C3024, que fica instalada nas costas do robô, conforme mostra a Figura \ref{fig:costas_robonova}. A CPU da placa é um Atmel ATMEGA128, o que é uma limitação caso se deseje ter um robô humanóide completamente autônomo. O ponto forte da MR-C3024 é ter uma capacidade de \acs{E/S} razoável, principalmente suporte a 24 \acsp{PWM}, o que é suficiente para controlar todos os 16 servomotores do kit e ainda permite a adição de mais 8. A Tabela \ref{tab:mr-c3024} resume as características da MR-C3024.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{costas_robonova.png}
+  \caption{Detalhe das costas do Robonova-I mostrando a placa MR-C3204 instalada. Extraído de \cite{robonova_manual}.}
+	\label{fig:costas_robonova}
+\end{figure}
+
+\begin{table}[ht!]
+  \begin{center}
+    \begin{tabular}{| l r |}
+    \hline
+    CPU & Atmel ATMEGA128 8bit RISC \\
+    Máx Servos & 24 \\
+    Conversores A/D & 8 \\
+    Memória de Programa & 32 Kbytes \\
+    Peso & 0,2 kg \\
+    Dimensão & 55 x 50 x 15 mm \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Especificação da placa MR-C3024. Extraído de \cite{mr-c3024}.}
+  \label{tab:mr-c3024}
+\end{table}
+
+A programação é feita com uma linguagem proprietária chamada RoboBASIC, especificamente criada para o Robonova-I. A linguagem tem a vantagem de possuir primitivas específicas para utilizar os recursos do Robonova-I e da MR-C3024. A programação feita é passada do PC para a MR-C3024 por comunicação serial RS-232 com uso de um cabo próprio. Outra opção de controle é mandar comandos via RS-232 para mover diretamente os servomotores seguindo protocolo próprio da MR-C3204 \cite{mr-c3024_protocol}.

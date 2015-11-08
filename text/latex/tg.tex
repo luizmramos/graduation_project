@@ -1,0 +1,158 @@
+%\documentclass[12pt]{book}
+\documentclass[12pt,plainheader,pnumplain]{abnt}
+\usepackage[brazil,brazilian]{babel}
+\usepackage[ansinew]{inputenc}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage[portuguese,ruled]{algorithm2e}
+\usepackage{url}
+\usepackage[num]{abntcite}
+\usepackage{acronym}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{framed}
+\usepackage{xcolor}
+\usepackage{pgfplots}
+\usepackage{pdfpages}
+\usepackage{bookmark}
+
+% início da configuração de listagens
+\lstset{basicstyle=\small, frame=single}
+
+\lstset{emph={%  
+    MOVE24, DELAY, GOTO%
+    },emphstyle={\color{blue}\bfseries}%
+}
+
+\renewcommand{\lstlistingname}{Listagem}
+\renewcommand{\lstlistlistingname}{Lista de Listagens}
+% fim da configuração de listagens
+
+% A setting that would be applied to all pgfplots
+\pgfplotsset{every axis/.append style={
+        scaled y ticks = false, 
+        scaled x ticks = false, 
+        y tick label style={/pgf/number format/.cd, fixed, fixed zerofill,
+                            int detect,1000 sep={\;},precision=3},
+        x tick label style={/pgf/number format/.cd, fixed, fixed zerofill,
+                            int detect, 1000 sep={},precision=3}
+    }
+}
+
+
+\begin{document}
+
+\includepdf{capa_tg.pdf}
+\bookmark[level=0, page=1]{Capa}
+
+% TODO: Colocar numero de folhas (tem dois lugares que precisam desse numero.. ficar atento)
+\includepdf{folha_rosto_tg.pdf}
+\bookmark[level=0, page=2]{Folha de Rosto}
+
+% TODO: Colocar numero da CDU na folha de rosto
+\includepdf{verso_folha_rosto_tg.pdf}
+\bookmark[level=0, page=3]{Verso da Folha de Rosto}
+
+\includepdf{folha_aprovacao_tg.pdf}
+\bookmark[level=0, page=4]{Folha de Aprovação}
+
+\input{dedicatoria}
+\thispagestyle{empty}
+\bookmark[level=0, page=5]{Dedicatória}
+
+\chapter*{Agradecimentos}
+\input{agradecimentos}
+\thispagestyle{empty}
+
+\input{citacao}
+\thispagestyle{empty}
+\bookmark[level=0, page=7]{Citação}
+
+\chapter*{Resumo}
+\input{resumo}
+\thispagestyle{empty}
+
+\chapter*{Abstract}
+\input{abstract}
+\thispagestyle{empty}
+
+\tableofcontents
+\bookmark[level=0, page=10]{Sumário}
+\addtocontents{sumario}{\protect\thispagestyle{empty}}
+%\thispagestyle{empty}
+% TODO: Descobrir como tirar numeração do Sumário
+
+\listoffigures
+%\thispagestyle{empty}
+% TODO: Descobrir como tirar numeração da lista de figuras
+
+\listoftables
+\thispagestyle{empty}
+
+\listofalgorithms
+\thispagestyle{empty}
+
+\lstlistoflistings
+\thispagestyle{empty}
+
+% TODO: Completar lista de abreviaturas
+\chapter*{Lista de Abreviaturas}
+\begin{acronym}
+\acro{FFT}{Transformada rápida de Fourier}
+\end{acronym}
+\thispagestyle{empty}
+
+\chapter{Introdução}
+\input{introducao}
+
+\chapter{Fundamentação Teórica}
+\input{fundamentacao_teorica}
+
+\chapter{Proposta de Classificador}
+\input{proposta_de_classificador}
+
+\chapter{Validação - Experimentos, resultados e análise}
+\input{resultados}
+
+\chapter{Conclusões e Trabalhos Futuros}
+\input{conclusao}
+
+% TODO: Tirar capitulos do Manga
+\chapter{Instrumentos analisados}
+\label{chap:instrumentos_analisados}
+\input{instrumentos_analisados}
+
+\chapter{Algoritmos de Otimização}
+\input{algoritmos_otimizacao}
+
+\chapter{Tecnologias Utilizadas}
+\input{tecnologias}
+
+\chapter{Modelo de Simulação}
+\input{modelo_usarsim}
+
+\chapter{Programa do Agente}
+\input{agente}
+
+\chapter{Processo de Otimização}
+\label{chap:processo_otimizacao}
+\input{processo_otimizacao}
+
+\chapter{Transferência para o Robô Real}
+\input{robo_real}
+
+\chapter{Validação com Outro Robô}
+\input{outros_robos}
+
+\chapter{Conclusões e Trabalhos Futuros}
+\input{conclusoes}
+
+% TODO: Criar as nossas proprias referencias
+\bibliography{referencias}
+\bibliographystyle{plain}
+
+% TODO: Completar folha registro documento e ajeitar o page para o certo
+\includepdf{folha_registro_documento.pdf}
+\bookmark[level=0, page=81]{Folha de Registro do Documento}
+
+\end{document}

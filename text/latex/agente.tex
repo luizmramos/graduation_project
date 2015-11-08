@@ -1,0 +1,74 @@
+O agente foi implementado em C++ usando a biblioteca Qt \cite{qt}. Essas tecnologias foram escolhidas pois permitem implementação \emph{cross-platform} e um alto desempenho em tempo de execução. Para permitir que boa parte do código fosse comum entre simulação e robô real, dividiu-se o programa do agente em três camadas (vide Figura \ref{fig:camadas_programa}):
+
+\begin{itemize}
+	\item \textbf{Comunicação:} implementa a comunicação de baixo nível com sensores e atuadores. Interface e implementação são diferentes entre simulação e robô real;
+	\item \textbf{Interface:} provê uma abstração para sensores e atuadores. Mesma interface na simulação e no robô real, mas implementações diferentes;
+	\item \textbf{Controlador:} determina quais posições devem ser enviadas para as juntas do robô a cada momento. Interface e implementação iguais entre simulação e robô real.
+\end{itemize}
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.5\textwidth]{camadas_programa.pdf}
+  \caption{Camadas do programa do agente.}
+	\label{fig:camadas_programa}
+\end{figure}
+
+É importante observar que a camada de Interface provê uma abstração para a camada superior (Controle), de modo que, a princípio, pode-se usar o mesmo controlador para o robô simulado e para o real. Já as camadas de Comunicação e de Interface devem ser implementadas em cada plataforma.
+
+Tal arquitetura é suficiente para os propósitos desse trabalho. Todavia, caso deseje-se que o robô realize tarefas mais complexas, como jogar futebol, as seguintes alterações são interessantes:
+
+\begin{itemize}
+	\item Adição de um componente de \textbf{Modelo} à camada de Controle. Esse componente seria responsável por processar as percepções e gerar modelos mais elaborados sobre o mundo e sobre o agente, de modo a prover informações importantes, como posições globais do agente, de outros agentes e de objetos. Com isso, seria adequado passar a chamar essa nova camada de \textbf{Modelo e Controle};
+	\item Adição de uma camada de \textbf{Cognição}, que deveria ficar acima das demais. Tal camada trataria de, a partir dos modelos providos pelo componente de Modelo, determinar o melhor movimento (andar, girar o corpo, levantar-se etc.) a ser executado e notificar a camada de Controle disto.
+\end{itemize}
+
+A seguir, cada camada efetivamente implementada é detalhada. Nisso, deve-se destacar um fato: fazia parte do plano inicial utilizar o mesmo programa de agente no robô simulado e no real, tanto que a arquitetura explicada foi idealizada de modo a permitir isso. Entretanto, o único \emph{hardware} de processamento disponbilizado foi a placa original do Robonova-I (MR-C3204) que é muito limitada e permite programação apenas em linguagem RoboBASIC. Com isso, implementou-se o programa de agente aqui descrito apenas na simulação.
+
+Embora isto torne a separação do programa em camadas irrelevante para a proposta deste trabalho, esta arquitetura ainda é interessante para servir como base para futuros trabalhos em que se possua o \emph{hardware} de processamento necessário.
+
+\section{Comunicação}
+
+A camada de comunicação implementa a comunicação direta de baixo nível com sensores e atuadores. Como essa comunicação difere muito entre robô simulado e real, é difícil estabelecer padrões para essa camada, portanto considerou-se interface e implementação diferentes entre as duas plataformas.
+
+Para a simulação, essa camada deve consistir de um socket \acs{TCP/IP} para comunicação com o servidor e de um \emph{parser} para transformar as mensagens brutas recebidas em uma estrutura mais fácil de lidar. Desse modo, a implementação é composta por duas classes:
+
+\begin{itemize}
+	\item USARSocket: implementa um socket \acs{TCP/IP} para comunicação com o servidor do \ac{USARSim}. Faz a separação dos dados recebidos na comunicação em mensagens usando a indicação de fim de mensagem ``$\backslash$r$\backslash$n'', como especificado no protocolo. A funcionalidade de socket propriamente dita é herdada de QTcpSocket, que a implementa de modo \emph{cross-platform};
+	\item USARMessage: representa uma mensagem que segue o protocolo do USARSim. A classe possui dois construtores: um que faz o \emph{parsing} de uma mensagem bruta recebida do servidor e a separada em seus constituintes (tipo e segmentos) e outro que recebe os constituientes e gera uma mensagem no protocolo esperado pelo servidor.
+\end{itemize}
+
+\section{Interface}
+
+Esta camada trata as estruturas intermediárias recebidas da camada de Comunicação e provê uma abstração para sensores e atuadores independente de se o programa está sendo executado no robô simulado ou no real. Como a camada lida com estruturas da camada de Comunicação, a implementação tem de ser diferente entre as duas plataformas. Porém, como a intenção é prover uma abstração indepente de plataforma para a camada de Controle, a interface deve ser a mesma entre robô simulado e real.
+
+Para conseguir esse efeito, o mecanismo usado em Orientação a Objetos é criar classes abstratas para representar a interface e então criar classes concretas que herdam destas classes abstratas e que implementam as funcionalidades desejadas em cada caso. Portanto, criou-se as seguintes classes abstratas:
+
+\begin{itemize}
+	\item RobotPerceptor: funciona como uma espécie de sensor especial que contém informações do corpo do robô, como nível da bateria e posições das juntas;
+	\item Sensor: representa um sensor genérico. Sensores devem ser implementados através de especialização desta classe, com exceção do RobotPerceptor;
+	\item Perception: provê uma interface única para toda a percepção;
+	\item Action: representa uma ação genérica. Não inclui comandos para as juntas;
+	\item ActionHandler: provê uma interface única para toda a atuação (incluindo as juntas).
+\end{itemize}
+
+No robô simulado, essa camada tem basicamente duas responsabilidades. No lado da percepção, deve interpretar as estruturas do tipo USARMessage da camada de Comunicação e atualizar o estado interno do agente. Em relação à atuação, deve receber uma requisição para movimentação de junta e criar uma estrutura do tipo USARMessage que será passada para a camada de Comunicação. Para isso, as principais classes criadas foram:
+
+\begin{itemize}
+	\item GroundTruth: implementa sensor GroundTruth. Sensor exclusivo do robô simulado;
+	\item USARPerception: implementação concreta de Perception. Interpreta uma USARMessage recebida da camada de Comunicação e atualiza o estado interno do robô;
+	\item InitAction: inicia um modelo de robô na simulação;
+	\item GetStartPosesAction: requisita ao servidor as localizações padrões em que o robô pode ser iniciado no mapa em questão;
+	\item ReconnectAction: reconecta o agente ao simulador;
+	\item USARActionHandler: implementação concreta de ActionHandler. Recebe ações (incluindo movimentação de junta), cria uma USARMessage correspondente e a envia para a camada de Comunicação.
+\end{itemize}
+
+\section{Controle}
+
+O objetivo desta camada é implementar os movimentos do robô humanóide a partir do controle de suas juntas. Como a camada de Interface provê uma abstração para sensores e atuadores, o código desta camada pode ser o mesmo tanto no robô simulado quanto no simulado (considerando que o comportamento físico do robô simulado seja próximo o suficiente do real).
+
+Dado o escopo do trabalho, implementou-se apenas um controlador para a caminhada do robô. Porém, a implementação feita já provê uma estrutura para implementações futuras de novos movimentos, como girar o corpo, levanta-se, chutar uma bola etc. As principais classes criadas foram:
+
+\begin{itemize}
+	\item TFSGaitController: controlador para caminhada baseada em \ac{SFT};
+	\item TFSGaitGenerator: classe abstrata que representa um gerador de caminhada baseada em \ac{SFT}. Dado o instante de tempo atual, gera as posições das juntas a partir das equações do modelo de caminhada.
+\end{itemize}

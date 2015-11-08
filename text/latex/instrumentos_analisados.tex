@@ -1,0 +1,242 @@
+Todo programa de computador é, essencialmente, um algoritmo que transforma um sinal de entrada em um sinal de saída, portanto, entender os sinais de entrada é fundamental para o desenvolvimento e a depuração de qualquer programa de computador.
+
+No desenvolvimento deste trabalho diversos limites terão de ser impostos aos sinais sonoros de entrada. Serão estabelecidos limites, por exemplo à quantidade máxima de notas tocadas por segundo, à nota mais grave e mais alta, à intensidade mínima para um som ser considerado uma nota, etc. Entretanto, dada a multitude de instrumentos existente, é virtualmente impossível estabelecer limites para os exemplos dados que satisfaçam aos sinais gerados por todos os instrumentos.
+
+Assim, embora o escopo deste trabalho seja a transcrição musical automática de instrumentos monofônicos temperados, independentemente da forma com que o som é gerado neles, as análises feitas a partir deste capítulo serão voltadas a um sub-conjunto específico de instrumentos. Espera-se que este sub-conjunto seja representativo o bastante para que o algoritmo final desenvolvido seja também aplicável a diversos outros instrumentos. Este capítulo apresenta os instrumentos escolhidos e justifica as escolhas.
+
+\section{Características de interesse}
+
+Ao escolher os instrumentos, algumas características desejadas foram levantadas, essas são apresentadas a seguir:
+
+\subsection{Mecânismo de produção de som}
+
+Deseja-se que os instrumentos analisados possuam mecânismos de produção de som simples e para os quais já existam modelos matemáticos confiáveis. Isso tornará possível embasar as decisões tomadas em modelos matemáticos que representam o mundo real, e não apenas em suposições feitas com base em teoria musical.
+
+\subsection{Timbre}
+
+O timbre é, talvez, a característica mais marcante de um instrumento, e pode variar muito mesmo entre instrumentos de uma mesma família. Por esses motivos, deseja-se que os instrumentos analisados possuam timbres consideravelmente distintos. Isso ajudará a elaborar algoritmos que funcionem em uma gama diversa de instrumentos.
+
+\subsection{Tom}
+
+Em um único instrumento, uma mesma nota pode ser tocada de diversas formas, ou tons, dependendo da sensação que o músico deseja transmitir. Por exemplo, uma nota pode ser suave ou agressiva; viva ou fria. É interessante que os instrumentos escolhidos sejam capazes de gerar uma vasta gama de tons, também para que os algoritmos elaborados sejam pouco específicos aos instrumentos escolhidos.
+
+\subsection{Popularidade}
+
+Para que os algoritmos desenvolvidos possuam aplicações reais, é interessante que eles funcionem bem para instrumentos populares, portanto faz sentido escolher instrumentos que sejam conhecidos e bastante utilizados.
+
+\section{Instrumentos escolhidos}
+
+Com base nas características levantadas, a classe dos instrumentos de sopro foi escolhida. Além de populares, a produção de som por esses instrumentos já é um processo bem conhecido e que pode ser aproximado por modelos majoritariamente lineares \cite{fletcher_1979}. Estes instrumentos também possuem timbres bastante característicos e distintos uns dos outros. Ainda, instrumentos como a flauta transversal permitem ao instrumentista realizar uma vasta gama de tonalidades dependendo de sua enbocadura, controle de respiração, etc.
+
+Dentro da classe dos instrumentos de sopro, os seguintes instrumentos foram selecionados:
+
+\begin{enumerate}
+    \item Flauta doce
+    \item \textit{Tin whistle}
+    \item Pífano
+    \item Flauta transversal ocidental
+    \item Flauta transversal chinesa (\textit{dizi})
+    \item Ocarina
+\end{enumerate}
+
+Cada instrumento será apresentado partindo de uma breve descrição histórica, seguida de características de interesse para o trabalho e de uma análise espectral de algumas notas tocadas no instrumento. Nota-se que o espectro gerado por cada instrumento pode variar de acordo com a habilidade do instrumentista e com as técnicas que ele deseja executar \cite{fletcher_1975}. Entretanto, consideramos que essas variações são desprezíveis quando comparadas às causadas pelo uso de instrumentos diferentes e, portanto, podem ser desconsideradas nesse capítulo, cujo propósito é apenas comparar o espectro de diferentes instrumentos e discutir os resultados esperados para cada um.
+
+\section{Flauta doce}
+
+A flauta doce é um instrumento de origem medieval, sua popularidade em apresentações diminuiu consideravelmente com o surgimento de instrumentos voltados para orquestras. Hoje, por ser um instrumento relativamente simples e fácil de se tocar, a flauta doce é amplamente utilizada no ensino de música.
+
+Neste trabalho, será utilizada uma flauta doce soprano germânica afinada em dó maior (modelo Yamaha YRS-23Y). Este modelo possui oito buracos, é feito de plástico e é amplamente utilizado por iniciantes. O termo "soprano" remete ao fato da nota mais grave produzida por esta flauta ser um C5, enquanto o termo "germânica" remete à forma com que os buracos na flauta devem ser utilizados para produzir notas específicas.
+
+\subsection{Características}
+
+A flauta doce utilizada é capaz de produzir 3 oitavas cromáticas\footnote{A maioria dos instrumentos de sopro não possui um limite superior para as notas produzidas \cite{fletcher_1979}. Os limites apresentados aqui são os dados pelo fabricante do modelo utilizado, e refletem o que é pedido no repertório clássico.} a partir do C5.
+
+Uma característica que facilitará este trabalho é que a estrutura geométrica da flauta doce é totalmente controlada pelo fabricante \cite{auvray_2014}. Seu bocal é feito de forma a direcionar o jato de ar produzido pelo flautista contra uma superfície afiada. Com isso, o flautista não precisa se preocupar em direcionar o jato de ar gerado, e tem que apenas controlar a pressão exercida. O bocal da flauta doce também é projetado para facilitar o controle da pressão exercida e, como resultado, o flautista é capaz de produzir duas oitavas com modificações mínimas no jato de ar que produz, e sem ter de modificar sua geometria. Isso também significa que a tonalidade da flauta doce varia pouco, embora fatores como ressonância na cavidade oral do instrumentista ainda permitam a ele leves modificações no tom \cite{auvray_2014}.
+
+Por outro lado, a flauta doce não possui nenhum mecanismo para ajudar o flautista a pressionar os buracos em seu corpo. Assim, embora seja relativamente fácil produzir e alternar entre as notas da escala de dó maior, produzir uma escala cromática é uma tarefa difícil que requer muito controle do posicionamento dos dedos, sendo necessário encobrir certos buracos levemente, com um alto grau de precisão. Ainda, pode ser necessário alternar muitos dedos entre notas cromáticas, o que facilmente produz estados transientes desagradáveis em frases tocadas em \textit{legato}.
+
+\subsection{Análise espectral}
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{FlautaDoce-C5.png}
+    \caption{Espectro para a nota C5 tocada em uma flauta doce Yamaha YRS-23Y obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:FlautaDoce-C5}
+\end{figure}
+
+A figura \ref{fig:FlautaDoce-C5} mostra o espectro obtido em 1 segundo de gravação da nota mais grave produzida pela flauta doce (C5). Observa-se que na flauta doce o componente fundamental é o mais acentuado, sendo seguido por quatro harmônicos cuja amplitude decai em cerca de $10 \textnormal{dB}/\textnormal{harmônico}$. A partir do quinto harmônico o comportamento deixa de seguir um padrão simples. Ainda, o máximo em $521 Hz$ indica que a flauta doce utilizada está afinada com o A4 em cerca de $438 	Hz$, o que sugere a afinação padrão de $440 Hz$ com uma pequena margem de erro que pode ter sido causada, por exemplo, por diferenças de temperatura. Por fim, é interessante observar que os harmônicos da flauta doce seguem a série:
+
+\begin{equation}
+H_n = H_0(n+1)
+\end{equation}
+
+Sendo $H_0$ o harmônico fundamental. Outros instrumentos podem seguir a série:
+
+\begin{equation}
+H_n = H_0(2n+1)
+\end{equation}
+
+Uma explicação física para os instrumentos de sopro gerarem uma série ou a outra pode ser encontrada em \cite{fletcher_1979}.
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{FlautaDoce-G5G6.png}
+    \caption{Espectro para um G5 (azul) e um G6 (verde) tocados em uma flauta doce Yamaha YRS-23Y obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:FlautaDoce-G5G6}
+\end{figure}
+
+Já a figura \ref{fig:FlautaDoce-G5G6} compara o espectro de um G5 e de um G6 uma oitava acima. É interessante observar que a amplitude relativa entre os harmônicos é bastante diferente da amplitude relativa para a nota C5 da figura \ref{fig:FlautaDoce-C5}, sendo o segundo harmônico mais intenso que o primeiro. Apesar disso, tanto o G5 quanto o G6 possuem amplitudes relativas semelhantes entre si. Outro fator interessante é que os harmônicos produzidos não são posicionados exatamente nas mesmas frequências.
+
+Por fim, observamos que a nota G6 tem uma leve tendência de gerar componentes posicionados nos harmônicos de um G5 que não são seus próprios harmônicos. Isso pode ser visto na frequência de ($2325 Hz$), que é um múltiplo da frequência fundamental do G5 $775 Hz$, mas não é um múltiplo do G6 ($1550 Hz$). Isto dificultará a distinção dessas duas notas no algoritmo de detecção de frequência fundamental.
+
+\subsection{Conclusões}
+
+Espera-se que o programa desenvolvido nesse trabalho seja capaz de identificar muito bem músicas em dó maior tocadas nessa flauta, mas que encontre dificuldades em músicas cromáticas, especialmente se houver muitas frases em \textit{legato}. Espera-se que essa dificuldade seja mais relacionada à erros cometidos pelo instrumentista do que de erros do algoritmo.
+
+\section{\textit{Tin Whistle}}
+
+O \textit{tin whistle} é um instrumento de sopro popular na música celta, seu corpo costuma ser feito de estanho, daí o nome. A música popular celta é conhecida por ritmos rápidos e frases com muitos ornamentos, e isso se reflete nas características do \textit{whistle}.
+
+Nesse trabalho será utilizado um \textit{whistle} Clarke SBDC afinado em Ré maior, que possui 6 buracos.
+
+\subsection{Características}
+
+O \textit{whistle} utilizado é capaz de produzir 2 oitavas nas escalas de Ré maior ou Sol maior, a partir de um D5.
+
+O \textit{whistle} é bastante semelhante à flauta doce, mas é um instrumento de confecção mais simples e seu bocal ajuda muito menos o instrumentista a controlar o jato de ar, sendo mais fácil gerar notas desafinadas ou desagradáveis. Por outro lado, os buracos no corpo do \textit{whistle} são mais simples, e é muito fácil transitar entre as notas na escala para a qual ele foi afinado. Isso permite ao instrumentista tocar passagens muito rápidas e com diversos ornamentos sem gerar muitos transientes desagradáveis.
+
+\subsection{Análise espectral}
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{TinWhistle-D5.png}
+    \caption{Espectro para a nota D5 tocada em um \textit{whistle} Clarke SBDC obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:TinWhistle-D5}
+\end{figure}
+
+Na figura \ref{fig:TinWhistle-D5} podemos ver que, relativamente à flauta doce, o \textit{whistle} gera menos harmônicos significativos. Além disso, os picos nas frequências dos harmônicos "vazam" mais para as frequências vizinhas. Isso pode ser atribuído ao bocal mais primitivo do \text{whistle}, que direciona menos o jato de ar produzido pelo instrumentista, fazendo com que parte da energia do jato seja desperdiçada e gere componentes indesejados.
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{TinWhistle-G5G6.png}
+    \caption{Espectro para um G5 (verde) e um G6 (azul) tocados em um \textit{whistle} Clarke SBDC obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:TinWhistle-G5G6}
+\end{figure}
+
+Na figura \ref{fig:TinWhistle-G5G6} podemos comparar a nota G6 com a nota G5 no \textit{whistle}. É interessante observar que na nota G6 os ruídos são muito mais intensos do que na G5, lembramos que no \textit{whistle} é necessário aumentar consideravelmente a intensidade do jato de ar para trocar entre oitavas, como o bocal do whistle não faz nenhum ajuste no jato de ar, a maior intensidade causa um desperdício maior de energia, que se reflete no rúido.
+
+Adicionalmente, nota-se que a nota G6 gera um componente harmônico na frequência fundamental da nota G5, mas com amplitude reduzida. Isso é esperado pois as duas notas possuem o mesmo dedilhado e, portanto, a forma geométrica do instrumento permite que esse componente seja formado. Esse datalhe pode causar erros na classificação correta da oitava de uma nota tocada.
+
+\subsection{Conclusões}
+
+Relativamente a flauta doce, espera-se que nos sinais provenientes do \textit{whistle} seja mais fácil identificar passagens rápidas e com ornamentos, mas que para músicas lentas a precisão seja menor, devido a maior dificuldade em se controlar o jato de ar. Ainda, espera-se uma dificuldade adicional nas notas mais agudas, que possuem mais ruído e componentes nas mesmas frequências das notas correspondentes na oitava inferior.
+
+\section{Pífano}
+
+O pífano é uma flauta transversal pequena com timbre estridente. É um instrumento bastante simples, sendo desprovido de um bocal e, portanto, delegando o controle do jato de ar totalmente ao instrumentista.
+
+Nesse trabalho será utilizado um pífano Yamaha YRF-21 afinado em Dó maior, que é feito de plástico e possui 9 buracos em seu corpo, sendo um destinado ao sopro.
+
+\subsection{Características}
+
+O pífano utilizado é capaz de produzir cromaticamente as notas entre C5 e E7.
+
+O pífano escolhido é bastante semelhante à flauta doce, tanto em material quanto na posição dos dedilhados. A maior diferença é o fato do pífano ser desprovido de um bocal e de ser empunhado transversalmente. A ausência de um bocal permite ao instrumentista controlar sua embocadura de forma a variar muito o tom do instrumento. Assim, as dificuldades apresentadas para a flauta doce se mantém, sendo acrescentadas dificuldades em identificar precisamente as notas, que podem sofrer muitas variações de tom.
+
+Nota-se, em especial, que a transição entre oitavas no pífano é muito mais difícil de se realizar do que nos instrumentos apresentados anteriormente. Tanto na flauta doce quando no \textit{whistle} essa transição pode ser feita usando um dedilhado levemente diferente e acelerando um pouco o jato de ar. Entretanto, como o pífano não possui um bocal para direcionar o jato de ar, o instrumentista precisa alterar consideravelmente a sua embocadura de forma a gerar um jato mais rápido que continua atingindo a superfície do instrumento no ângulo correto e com a largura adequada. Esse aspecto será analisado espectralmente a seguir.
+
+\subsection{Análise espectral}
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{Fife-C5.png}
+    \caption{Espectro para a nota C5 tocada em um pífano Yamaha YRF-21 obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:Fife-C5}
+\end{figure}
+
+Na figura \ref{fig:Fife-C5} temos o espectro para um C5, a nota mais grave atingida pelo pífano. É possível reconhecer cerca de $8$ harmônicos, sendo os $3$ primeiros bem mais significativos. Ainda, nota-se que os harmônicos a partir do terceiro são acompanhados de amplitudes consideráveis em suas redondezas, de forma semelhante ao que ocorre no \textit{whistle}, e contrária à flauta doce.
+
+\subsection{Conclusões}
+
+Relativamente a flauta doce, espera-se que nos sinais provenientes do pífano seja mais difícil identificar precisamente a frequência fundamental das notas, e que ocorram erros relativos à oitava da nota tocada. Esses problemas se reduzem de acordo com a habilidade do instrumentista.
+
+\section{Flauta transversal ocidental}
+
+A flauta transversal ocidental é um dos instrumentos de sopro mais populares em orquestras. Foi feito a partir da modificação de flautas transversais medievais (semelhantes ao pífano). As principais melhorias introduzidas foram um corpo de metal, que é capaz de gerar notas muito mais altas e que podem ser carregadas sobre os demais instrumentos de uma orquestra, e um mecanismo de botões e molas que deixa os dedilhados muito mais confortáveis, pois os botões podem ser projetados para ocuparem posições confortáveis sem prejudizar a afinação do instrumento, além de facilitarem a tarefa de encobrir  totalmente os buracos.
+
+Nesse trabalho será utilizada uma flauta transversal afinada em Dó maior, modelo Hallelu HFL-200.
+
+\subsection{Características}
+
+A flauta transversal utilizada é capaz de produzir cromaticamente três oitavas a partir do C4.
+
+Em relação aos instrumentos apresentados anteriormente, nota-se que a flauta transversal escolhida é capaz de produzir notas mais graves. Analisar essas notas será uma tarefa mais difícil, primeiro porque a diferença absoluta da frequência entre duas notas separadas por um semitom será menor e, segundo, porque a frequência menor aumenta o tempo em que o instrumento se encontra em estados transitórios \cite{fletcher_1979}.
+
+Em relação à flauta doce e ao \textit{whistle}, a ausência de um bocal dificulta a identificação das notas tocadas, pois há uma variedade muito maior de tons que podem ser produzidos, assim como no pífano. Por outro lado, a construção mais cuidadosa do instrumento e os botões mecânicos ajudarão a produzir tons mais limpos do que no pífano, e facilitarão a identificação de notas em passagens rápidas e com \textit{legatos}.
+
+\subsection{Análise espectral}
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{FlautaTransversal-C4.png}
+    \caption{Espectro para a nota C4 tocada em uma flauta transversal Hallelu HFL-200 obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:FlautaTransversal-C4}
+\end{figure}
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{FlautaTransversal-G4G6.png}
+    \caption{Espectro para um G4 (verde) e um G6 (azul) tocados em uma flauta transversal Hallelu HFL-200C obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:FlautaTransversal-G4G6}
+\end{figure}
+
+Na figura \ref{fig:FlautaTransversal-C4} vemos o espectro para um C4, a nota mais grave produzível na flauta transversal. Já na figura \ref{fig:FlautaTransversal-G4G6} vemos as notas G4 e G6 na mesma flauta.
+
+Primeiramente, observamos que na nota C4 os três primeiros harmônicos possuem amplitude bastante próxima. A nota C4 na flauta transversal é relativamente difícil de ser tocada, sendo necessário um controle bastante preciso do jato de ar produzido. Pequenos erros no jato podem transformar a nota em um C5, o que justifica a amplitude relativamente alta do segundo harmônico (que seria o fundamental para um C5). Além disso, os harmônicos mais altos não possuem picos tão bem definidos quanto os mais baixos, o que indica um som menos limpo do que o da flauta doce, por exemplo.
+
+Comparando a figura \ref{fig:FlautaTransversal-C4} com a \ref{fig:FlautaTransversal-G4G6}, podemos ver que a nota G4, apesar de estar na mesma oitava que a C4, não apresenta as dificuldades apresentadas anteriormente, possuindo um espectro parecido com os produzidos pela flauta doce, em que cada harmônico possui um pico bem definido no espectro.
+
+Por fim, vemos que a nota G6, mesmo estando duas oitavas acima da nota G4, não apresenta um ruído significativamente maior e nem gera componentes sub-harmônicos significativos (dificuldades presentes, por exemplo, nas notas altas do \textit{whistle}). Nota-se que a flauta transversal é um instrumento feito para ser ouvido sob uma orquestra e é, portanto, mais potente. A energia perdida no jato de ar produzido pelo flautista é menos significativa. Além disso, a ausência de um bocal permite ao flautista ajustar livremente a embocadura, de forma a aproveitar bem a energia do jato de ar e controlar os componentes sub-harmônicos.
+
+\subsection{Conclusões}
+
+Espera-se que a identificação das notas na flauta transversal seja mais fácil que nos demais instrumentos a partir da segunda oitava (C5-C7), desde que o flautista seja hábil o bastante para controlar sua embocadura corretamente. Na oitava inferior (C4-B4) podem haver mais erros devido à estados transientes e à maior proximidade entre as frequências fundamentais. Por fim, espera-se ser mais fácil identificar passagens cromáticas na flauta transversal do que nos outros instrumentos, devido aos botões mecânicos que facilitam os dedilhados para notas acidentais.
+
+\section{Flauta transversal chinesa (\textit{dizi})}
+
+O \textit{dizi}, comumente conhecido como flauta transversal chinesa, é um instrumento popular na china, sendo utilizado tanto em música popular quanto em óperas e orquestras chinesas. Costuma ser feito artesanalmente a partir de uma única peça de bambu, que é furada nas posições desejadas para os dedilhados.
+
+Nesse trabalho será utilizado um \textit{dizi} artesanal de baixa qualidade importado da china.
+
+\subsection{Características}
+
+O \textit{dizi} utilizado é capaz de produzir um subconjunto específico de notas entre E5 e B7. Seu temperamento não gera notas separadas por semitons, o que dificultará muito a tarefa de classificá-las.
+
+Em relação ao pífano, a produção artesanal do \textit{dizi} faz com que as notas produzidas possuam várias imperfeições, tanto na afinação, pela posição dos buracos, quanto no tom, pela maior dificuldade em se encobrir totalmente os buracos. Ainda, o \textit{dizi} escolhido possui 11 buracos em seu corpo, e seus dedilhados são pouco confortáveis, sendo difícil tocar passagens rápidas com precisão
+
+Por não ser muito adequado à música ocidental, ele será utilizado brevemente para testar os tons produzidos por instrumentos pouco comuns na música ocidental, e com afinações exóticas.
+
+\subsection{Análise espectral}
+
+\subsection{Conclusões}
+
+Espera-se que a identificação correta das notas tocadas no \textit{dizi} seja bastante difícil e que seja feita com sucesso apenas para músicas mais lentas, a menos que o instrumentista seja muito habilidoso. Ainda, espera-se que seja difícil obter as notas exatas devido à afinação não temperada do \textit{dizi}.
+    
+\section{Ocarina}
+
+A ocarina é um instrumento de sopro globular geralmente feito de cerâmica. É um dos instrumentos mais antigos conhecidos, e pode ter diversas formas.
+
+Nesse trabalho será utilizada uma ocarina modelo "TOTMC Legend of Zelda Ocarina of Time Triforce Link TOLO248" de 12 buracos afinada em Dó maior.
+
+\subsection{Características}
+
+A ocarina escolhida é capaz de produzir cromaticamente as notas no intervalo A4-F6.
+
+O corpo globular da ocarina dificulta a criação de harmônicos, sendo a frequência fundamental muito mais intensa do que as mais altas. Entretanto, espera-se que a manufatura em cerâmica apresente mais imperfeições do que os instrumentos em plástico e metal, o que pode ser constadado, por exemplo, no formato irregular dos buracos. Também nota-se que os dedilhados na ocarina são pouco confortáveis, sendo muito fácil não encobrir corretamente alguns dos buracos.
+
+\subsection{Análise espectral}
+
+\begin{figure}[ht!]
+    \centering	\includegraphics[width=1.0\textwidth]{Ocarina-A4A5.png}
+    \caption{Espectro para um A4 (azul) e um A5 (verde) tocados na ocarina escolhida, obtido a partir da FFT em 1 segundo de gravação.}
+    \label{fig:Ocarina-A4A5}
+\end{figure}
+
+Na figura \ref{fig:Ocarina-A4A5} comprovamos que apenas o harmônico fundamental é significativo na ocarina.
+
+\subsection{Conclusões}
+
+Como na ocarina apenas a frequência fundamental é considerável, espera-se que as notas identificadas estejam na oitava correta. Entretanto, pode haver erros na identificação de notas separadas por semitons, pois a decisão terá de ser tomada com a informação de um único harmônico.

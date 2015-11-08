@@ -1,0 +1,372 @@
+\section{Modelos de Caminhada}
+
+Para verificar os efeitos da adição de movimento de braços e movimento no plano coronal, decidiu-se por implementar geradores para os 3 modelos propostos por Shafii \cite{shafii_2010, shafii_2009, shafii_rc}, conforme explicitado no Capítulo \ref{chap:locomocao_humanoide}.
+
+Entretanto, após alguns testes, optou-se por modificar a função proposta por Shafii para os ombros. A modificação proposta envolve considerar que as amplitudes no sentido positivo e negativo podem ser diferentes para o movimento do braço, assim como é feito para a perna no sentido frente-trás. Desse modo, \(\theta_o(t)\) passa a ser descrita pela equação \eqref{eq:sft_ombro_modificada}.
+
+\begin{equation}
+\theta_o(t) =
+\begin{cases}
+- D_- \sin{\left(\dfrac{2 \pi t}{T}\right)}, & t \in \left[k T, \dfrac{T}{2} + k T\right), k \in \mathbb{Z} \\ \\
+- D_+ \sin{\left(\dfrac{2 \pi t}{T}\right)}, & t \in \left[\dfrac{T}{2} + k T, (k+1) T\right), k \in \mathbb{Z}
+\end{cases}
+\label{eq:sft_ombro_modificada}
+\end{equation}
+
+Note que essa modificação aumenta em 1 o número de constantes a serem determinadas para os modelos que possuem movimento de braços. Portanto, os modelos de caminhada implementados são os seguintes:
+
+\begin{itemize}
+	\item Modelo Simples (MS): usa apenas as juntas na direção frente-trás das pernas;
+	\item Modelo com Movimento de Braços (MB): além das juntas do ``Modelo Simples'', utiliza as juntas do ombro (com trajetória para o ombro esquerdo definida pela equação \eqref{eq:sft_ombro_modificada});
+	\item Modelo Complexo (MC): além das juntas do Modelo com ``Movimento de Braços'', adiciona as juntas da coxa no sentido lateral (plano coronal).
+\end{itemize}
+
+Observe que o Robonova possui os graus de liberdade necessários para implementar os 3 modelos. A Tabela \ref{tab:mapeamento_juntas} apresenta o mapeamento feito das juntas do modelo teórico para as do Robonova (veja a Figura \ref{fig:joints} para nomenclatura utilizada para as juntas do Robonova).
+
+\begin{table}[tp]
+  \begin{center}
+    \begin{tabular}{c c}
+    \hline
+    Junta nos Modelos Teóricos & Junta no Robonova \\
+    \hline
+    Coxa Frente-trás Esquerda & LLEG4 \\
+    Joelho Esquerdo & LLEG3 \\
+    Pé Frente-trás Esquerdo & LLEG2 \\
+    Ombro Esquerdo & LARM3 \\
+    Coxa Lateral Esquerda & LLEG5 \\
+    Pé Lateral Esquerdo & LLEG1 \\
+    Coxa Frente-trás Direita & RLEG4 \\
+    Joelho Direito & RLEG3 \\
+    Pé Frente-trás Direito & RLEG2 \\
+    Ombro Direito & RARM3 \\
+    Coxa Lateral Direita & RLEG5 \\
+    Pé Lateral Direito & RLEG1 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Mapeamento das juntas dos modelos teóricos para as do Robonova (veja a Figura \ref{fig:joints} para nomenclatura utilizada para as juntas do Robonova).}
+  \label{tab:mapeamento_juntas}
+\end{table}
+
+\section{Configuração dos Algoritmos de Otimização}
+
+Um algoritmo de Otimização fornece um \emph{framework} para resolução de problemas de otimização, mas deve-se definir o que significa certos elemento do algoritmo para o problema em específico.
+
+O problema de Otimização em questão envolve a determinação de constantes reais relacionada ao modelo de caminhada. É interessante definir um domínio para cada uma das constantes a fim de evitar valores sem sentido para o problema (que resultem em ângulos ou velocidades além do domínio de operação dos servomotores ou que certamente levem à queda do robô). Após testes manuais, determinou-se os limites para as constantes do modelo apresentados na Tabela \ref{tab:limites_constantes} (as equações \eqref{eq:sft_coxa}, \eqref{eq:sft_joelho}, \eqref{eq:sft_ombro_modificada} e \eqref{eq:sft_lateral} apresentam detalhes sobre as constantes mencionadas).
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Constante & Mínimo & Máximo \\
+    \hline
+    \(O_c\) &  -1,5 & 0 \\
+    \(A\) & 0,01 & 1,0 \\
+    \(B\) & 0,01 & 1,0 \\
+    \(O_j\) & 0 & 2,0 \\
+    \(C\) & 0 & 1,0 \\
+    \(\tau = t_2/T\) & 0,1 & 0,9 \\
+    \(T\) & 0,1 & 0,7 \\
+    \(D_+\) & 0 & 0,6 \\
+    \(D_-\) & 0 & 0,6 \\
+    \(E\) & 0 & 0,5 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Limites para os valores das contantes dos modelos de caminhada.}
+  \label{tab:limites_constantes}
+\end{table}
+
+\subsection{Configuração do Algoritmo Genético}
+
+A seguir, são apresentados como os conceitos de \ac{AG} são definidos no problema em específico:
+
+\begin{itemize}
+	\item Cromossomo: a escolha mais óbvia para a definição de cromossomo é um vetor com as constantes, em que cada gene representa uma constante;
+	\item Função de \emph{fitness}: explicitada a seguir, na Seção \ref{sec:experimento};
+	\item Mutação: altera um gene (no caso, uma das constantes) por um valor real aleatório dentro dos limites da Tabela \ref{tab:limites_constantes}.
+\end{itemize}
+
+Os demais conceitos de AG (seleção, \emph{crossover} e sobrevivência dos mais aptos) saem naturalmente da definição de cromossomo.
+
+Por fim, a Tabela \ref{tab:parametros_ag} apresenta os valores dos parâmetros usados nas execuções de \ac{AG}.
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Parâmetro & Valor \\
+    \hline
+    \(S_i\) & 20 \\
+    \(S_m\) & 20 \\
+    \(R\) & 10 \\
+    \(p_m\) & 0,05 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Valores dos parâmetros usados nas execuções de \ac{AG}.}
+  \label{tab:parametros_ag}
+\end{table}
+
+\subsection{Configuração do Particle Swarm Optimization}
+
+A escolha natural é considerar que cada partícula em um espaço \(n\)-dimensional, em que \(n\) é o número de constantes a serem determinadas. Assim, cada posição de partículas é um vetor de constantes. O espaço de busca é dado pelos limites da Tabela \ref{tab:limites_constantes}. Já a função de medida de qualidade é apresentada na Seção \ref{sec:experimento}.
+
+No \ac{PSO} pode ocorrer das partículas atingirem velocidades muito altas e saírem do espaço de busca. Para evitar esses problemas, fez-se modificações no \ac{PSO} apresentado na Seção \ref{sec:pso}. Primeiramente, logo após a atualização de velocidade deuma partícula, limita-se sua velocidade com uso da equação \eqref{eq:clamp_velocidade}.
+
+\begin{equation}
+\boldsymbol{v_i}(d)\gets min(\boldsymbol{u}(d)-\boldsymbol{l}(d), max(\boldsymbol{l}(d)-\boldsymbol{u}(d), \boldsymbol{v_i}(d))), d=1,\ldots ,D
+\label{eq:clamp_velocidade}
+\end{equation}
+
+A outra modificação busca forçar as partículas a permanecerem sempre dentro do espaço de busca. Para tal, considera-se que as partículas sofrem ``choques mecânicos inelásticos'' ao tentarem cruzar os limites do espaço de busca. A partir desta inspiração da Mecânica, criou-se a subrotina apresentada no Algoritmo \ref{alg:choques}, que é executada logo após ser aplicada a limitação de velocidade. Note que o uso dessa subrotina introduz o parâmetro \(\varepsilon\), ao qual deu-se a denominação de ``coeficiente de restituição'' para seguir a analogia mecânica.
+
+\begin{algorithm}[H]
+\Begin{
+\For{$i\gets 1,\ldots,P$} {
+	\For{$d\gets 1,\ldots,D$} {
+		\If{$\boldsymbol{x_i}(d) > \boldsymbol{u}(d)$}{
+			$\delta\gets \boldsymbol{x_i}(d) - \boldsymbol{u}(d)$\;
+			$\boldsymbol{x_i}(d)\gets \varepsilon (\boldsymbol{u}(d)-\delta)$\;
+			$\boldsymbol{v_i}(d)\gets - \varepsilon \boldsymbol{v_i}(d)$\;
+		}
+		\If{$\boldsymbol{x_i}(d) < \boldsymbol{l}(d)$}{
+			$\delta\gets \boldsymbol{l}(d) - \boldsymbol{x_i}(d)$\;
+			$\boldsymbol{x_i}(d)\gets \varepsilon (\boldsymbol{l}(d)+\delta)$\;
+			$\boldsymbol{v_i}(d)\gets - \varepsilon \boldsymbol{v_i}(d)$\;
+		}
+	}
+}
+}
+\caption{Subrotina que simula ``choques'' das partículas com os limites do espaço de busca.}
+\label{alg:choques}
+\end{algorithm}
+
+Por fim, a Tabela \ref{tab:parametros_pso} apresenta os valores dos parâmetros usados nas execuções de \ac{PSO}.
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Parâmetro & Valor \\
+    \hline
+    \(P\) & 20 \\
+    \(\omega\) & 0,9 \\
+    \(\varphi_p\) & 0,6 \\
+    \(\varphi_g\) & 0,8 \\
+    \(\varepsilon\) & 0,7 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Valores dos parâmetros usados nas execuções de \ac{PSO}.}
+  \label{tab:parametros_pso}
+\end{table}
+
+\section{Montagem do Experimento Simulado}
+\label{sec:experimento}
+
+Para utilizar um algoritmo de Otimização para o ``aprendizado'' das melhores constantes para os modelos de caminhada, é necessário montar um experimento em que seja dado ao robô um período de tempo para tentar andar e depois seja aplicada uma métrica para avaliação do desempenho da caminhada com o dado conjunto de constantes.
+
+O mapa do simulador escolhido para os experimentos foi o ``ExampleMap'' (vide Figura \ref{fig:examplemap}), porque possui uma grande área com terreno plano e sem presença de obstáculos. A localização escolhida para iniciar o robô no mapa foi a ``RobotStart1'', que é onde o robô se encontra na Figura \ref{fig:examplemap}.
+
+Como o robô inicia com as juntas em posições diferentes das posições neutras da caminhada (quando os senos valem zero), adicionou-se um tempo de preparação em que os ângulos das juntas são interpolados linearmente das posições iniciais para as neutras da caminhada. Experimentalmente, verificou-se que 1,5 segundo era adequado para esse tempo de ajuste.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{examplemap.jpg}
+  \caption{ExampleMap.}
+	\label{fig:examplemap}
+\end{figure}
+
+Depois, deixava-se o robô andar por 20 segundos, o que podia ser interrompido prematuramente caso o robô caísse. Considera-se queda se a orientação do robô passar de 0,6 radianos em relação aos eixos X ou Y (vide Figura \ref{fig:examplemap_axes}). Por fim, media-se o desempenho do robô. Em resumo, cada experimento de simulação segue os passos:
+
+\begin{enumerate}
+	\item Iniciar o Robonova na localização ``RobotStart1'';
+	\item Esperar 1,5 segundo para preparação;
+	\item Esperar 20 segundos ou o robô cair, o que ocorrer primeiro;
+	\item Calcular desempenho com a equação \eqref{eq:medida_qualidade}.
+\end{enumerate}
+
+\begin{equation}
+D = (x-x_o) - |y-y_o| + 0,1\times \Delta t - \sum{P_i}
+\label{eq:medida_qualidade}
+\end{equation}
+
+Na equação \eqref{eq:medida_qualidade}, \((x_o, y_o)\) e \((x, y)\) são respectivamente as posições inicial e final do robô no plano do mapa; o sistema de coordenadas usado é o mostrado na Figura \ref{fig:examplemap_axes}. \(\Delta t\) é a quantidade tempo (em segundos) que o robô permaneceu sem cair. \(\sum{P_i}\) representa o somatório das possíveis punições (mostradas na Tabela \ref{tab:punicoes}). O objetivo das punições é tratar casos muito indesejados.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.5\textwidth]{examplemap_axes.png}
+  \caption{Sistema de coordenadas no USARSim.}
+	\label{fig:examplemap_axes}
+\end{figure}
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Punição & Significado & Valor \\
+    \hline
+    \(P_1\) & Queda & 50 \\
+    \(P_2\) & Posição inicial instável & 80 \\
+    \(P_3\) & Praticamente não se moveu & 60 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Limites para os valores das contantes dos modelos de caminhada.}
+  \label{tab:punicoes}
+\end{table}
+
+Após algumas execuções dos experimentos simulados, verificou-se o seguinte:
+
+\begin{itemize}
+	\item Percebeu-se que havia uma dificuldade grande do robô romper a transição brusca de quando ele estava parado para o primeiro passo. Ocorria com frequência de uma caminhada que se tornava bem estável quando o robô entrava em regime cair no primeiro passo;
+	\item Às vezes, ocorria de uma caminhada pouco estável, mas muito rápida, ter a sorte de se manter em pé durante os 20 segundos do teste e receber uma avaliação muito boa. Isto era problemático principalmente para o \ac{PSO}, que é fortemente guiado pelo melhor desempenho encontrado.
+\end{itemize}
+
+Para resolver estes dois problemas, implementou-se duas heurísticas propostas em \cite{shafii_rc}:
+
+\begin{itemize}
+	\item Ao invés de começar o movimento já com as amplitudes no máximo, no começo do movimento reduz-se todas as amplitudes dos movimentos por um fator que aumenta linearmente de 0 a 1. Após alguns testes, determinou-se que uma duração de 3 períodos (3 primeiros passos) era adequada para este tempo. Ou seja, o robô começa dando passos curtos e vai aumentando o tamanho do passo gradativamente até atingir o valor de regime;
+	\item Ao invés de usar o desempenho de uma única execução do experimento para alimentar a otimização, passou-se a utilizar uma média de 3 execuções.
+\end{itemize}
+
+\section{Resultados e Discussões}
+
+A Tabela \ref{tab:resultados} apresenta os resultados dos experimentos. Como \ac{AG} e \ac{PSO} envolvem aleatoriedade, o mais justo para comparação seria realizar diversas execuções de cada algoritmo para cada modelo de caminhada e tirar uma média. Entretanto, isso exigiria uma disponibilidade de poder de processamento bem superior à que o autor tinha disponível. Assim, cada linha da Tabela \ref{tab:resultados} se refere a uma única instância de execução. Apesar disso, acredita-se que os resultados apresentados permitem fazer as seguintes considerações qualitativas:
+
+\begin{itemize}
+	\item A adição de movimento de braços provoca melhora na qualidade da caminhada (se os parâmetros estiverem ajustados corretamente);
+	\item A adição de movimento no plano coronal provoca melhora ainda maior na qualidade da caminhada (novamente, se os parâmetros estiverem ajustados corretamente);
+	\item Quanto mais parâmetros são adicionados ao modelo, mais difícil é a convergência dos algoritmos, como esperado.
+\end{itemize}
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c c}
+    \hline
+    Algoritmo & Modelo & Melhor & Número \\
+    de Otimização & de Caminhada & Desempenho & de Testes \\
+    \hline
+    AG & Simples & 6,16 & 1585 \\
+    AG & Com Movimento de Braços & 8,3 & 1678 \\
+    AG & Complexo & 5,77 & 1636 \\
+    PSO & Simples & 5,58 & 860 \\
+    PSO & Com Movimento de Braços & 7,2 & 1449 \\
+    PSO & Complexo & 7,99 & 1493 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Resultados dos Experimentos.}
+  \label{tab:resultados}
+\end{table}
+
+As Figuras \ref{fig:convergencia_ag_simples}, \ref{fig:convergencia_ag_bracos} e \ref{fig:convergencia_ag_complexo} apresentam como varia o melhor \emph{fitness} até então pelo número de testes para experimentos com AG. As Figuras \ref{fig:convergencia_pso_simples}, \ref{fig:convergencia_pso_bracos} e \ref{fig:convergencia_pso_complexo} fazem o mesmo para o PSO. A Tabela \ref{tab:melhores_otimizacao} exibem os melhores conjuntos de parâmetros encontrados para cada caso.
+
+\begin{figure}[ht!]
+	\centering
+	\newlength\figureheight 
+	\newlength\figurewidth
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{ms-ag.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com Modelo Simples e \ac{AG}.}
+	\label{fig:convergencia_ag_simples}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{ma-ag.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com Modelo com Movimento de Braços e \ac{AG}.}
+	\label{fig:convergencia_ag_bracos}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{mc-ag.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com Modelo Complexo e \ac{AG}.}
+	\label{fig:convergencia_ag_complexo}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{ms-pso.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com Modelo Simples e \ac{PSO}.}
+	\label{fig:convergencia_pso_simples}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{ma-pso.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com Modelo com Movimento de Braços e \ac{PSO}.}
+	\label{fig:convergencia_pso_bracos}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{mc-pso.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com Modelo Complexo e \ac{PSO}.}
+	\label{fig:convergencia_pso_complexo}
+\end{figure}
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c c c c c}
+    \hline
+    Constante & MS+AG & MB+AG & MC+AG & MS+PSO & MB+PSO & MC+PSO \\
+    \hline
+    \(O_c\) & -0,69 & -1,2 & -0,96 & -0.64 & -0.66 & -0,87 \\
+    \(A\) & 0,23 & 0,33 & 0,37 & 0,27 & 0,5 & 0,51 \\
+    \(B\) & 0,43 & 0,37 & 0,68 & 0,35 & 0,56 & 0,7 \\
+    \(O_j\) & 0,98 & 1,6 & 0,99 & 0,85 & 0,83 & 1,23 \\
+    \(C\) & 0,4 & 0,51 & 0,76 & 0,3 & 0,6 & 0,46 \\
+    \(\tau = t_2/T\) & 0,38 & 0,25 & 0,22 & 0,39 & 0,38 & 0,34 \\
+    \(T\) & 0,34 & 0,1 & 0,4 & 0,44 & 0,39 & 0,38 \\
+    \(D_+\) & -- & 0,58 & 0,58 & -- & 0,17 & 0,54 \\
+    \(D_-\) & -- & 0,14 & 0,55 & -- & 0,57 & 0,39 \\
+    \(E\) & -- & -- & 0,04 & -- & -- & 0,05 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Limites para os valores das contantes dos modelos de caminhada.}
+  \label{tab:melhores_otimizacao}
+\end{table}
+
+Por fim, as Figuras \ref{fig:sequencia_pso_simples}, \ref{fig:sequencia_pso_bracos} e \ref{fig:sequencia_pso_complexo} apresentam sequências de imagens para ilustrar a visualização das caminhadas aprendidas com \ac{PSO} para cada modelo. A taxa de quadros utilizada para a gravação foi de 15 quadros por segundo.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=1.0\textwidth]{sequencia_simple.png}
+  \caption{Sequência de imagens para ilustrar a caminhada aprendida com Modelo Simples e \ac{PSO}.}
+	\label{fig:sequencia_pso_simples}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=1.0\textwidth]{sequencia_arms.png}
+  \caption{Sequência de imagens para ilustrar a caminhada aprendida com Modelo com Movimento de Braços e \ac{PSO}.}
+	\label{fig:sequencia_pso_bracos}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=1.0\textwidth]{sequencia_complex.png}
+  \caption{Sequência de imagens para ilustrar a caminhada aprendida com Modelo Complexo e \ac{PSO}.}
+	\label{fig:sequencia_pso_complexo}
+\end{figure}

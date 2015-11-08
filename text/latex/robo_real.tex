@@ -1,0 +1,112 @@
+\section{Desafios Envolvidos}
+
+Apesar do cuidado tomado em fazer um modelo físico o mais próximo possível do real e da PhysX ser uma das melhores \emph{engines} de Física da atualidade, há diversas limitações na modelagem que não foram tratadas:
+
+\begin{itemize}
+	\item Modelos físicos são aproximações dos modelos CAD;
+	\item O coeficiente de atrito do solo usado para otimização no simulador não é necessariamente o mesmo que um solo em que o robô real caminhará;
+	\item Embora sejam todos do mesmo modelo, os servomotores do robô real possuem pequenas diferenças de torque e velocidade devido a questões de construção;
+	\item No robô real, existem folgas mecânicas que não são modeladas na simulação.
+\end{itemize}
+
+Locomoção humanóide é um problema complexo em que pequenas variações nas condições como as citadas acima podem tornar o comportamento muito diferente. Assim, espera-se que a caminhada com os parâmetros aprendidos em simulação não tenha um desempenho tão bom no robô real, mas que, após alguns ajustes manuais, obtenha-se uma boa solução para o problema.
+
+\section{Processo de Transferência}
+
+Como comentado na Seção \ref{sec:plano_trabalho}, o plano inicial era utilizar o mesmo código C++ tanto em simulação quanto no robô real. Para isso, esperava-se substituir a placa original do Robonova (MR-C3024) por uma placa Gumstix \cite{gumstix}. Esta placa roda uma versão embarcada do sistema operacional Linux, o que permitiria compilar e executar a maior parte do código do controlador construído para o robô simulado. Infelizmente, não foi possível obter esse \emph{hardware}. Desse modo, alterou-se o plano para programação na MR-C3024.
+
+A programação para a MR-C3024 deve ser feita em RoboBASIC, conforme comentado na Seção \ref{sec:robonova}. O recursos dessa linguagem são bem limitados e ela não possui suporte ao uso direto da função seno, que é necessária para a implementação das equações que descrevem as trajetórias angulares das juntas.
+
+Portanto, decidiu-se criar um programa em linguagem C\# que, a partir das equações do modelo de caminhada e um passo de tempo, gera código em RoboBASIC com os valores numéricos para as posições das juntas já calculados. O código gerado é formado basicamente por dois comandos da RoboBASIC: o MOVE, que envia novas posições para todos os servomotores, e DELAY, que bloqueia a execução por um tempo em milisegundos. A Listagem \ref{lst:robobasic_modelo_complexo} mostra o código gerado para a caminhada com Modelo com Movimento de Braços.
+
+\begin{lstlisting}[caption={Código em RoboBASIC para a caminhada de Modelo com Movimento de Braços.}, label=lst:robobasic_modelo_complexo]
+' 3 PASSOS INICIAIS
+
+MOVE24  ,79,140,90, , ,100, , , , , ,100, , , , , , ,82,137,90, , 
+DELAY 20
+MOVE24  ,81,140,87, , ,101, , , , , ,96, , , , , , ,80,137,92, , 
+DELAY 20
+MOVE24  ,82,137,90, , ,100, , , , , ,100, , , , , , ,79,140,90, , 
+DELAY 20
+MOVE24  ,80,137,92, , ,96, , , , , ,101, , , , , , ,81,140,87, , 
+DELAY 20
+MOVE24  ,79,140,90, , ,100, , , , , ,100, , , , , , ,86,133,90, , 
+DELAY 20
+MOVE24  ,84,140,85, , ,102, , , , , ,92, , , , , , ,81,134,93, , 
+DELAY 20
+MOVE24  ,86,133,90, , ,100, , , , , ,100, , , , , , ,79,140,90, , 
+DELAY 20
+MOVE24  ,81,134,93, , ,92, , , , , ,102, , , , , , ,84,140,85, , 
+DELAY 20
+MOVE24  ,79,140,90, , ,100, , , , , ,100, , , , , , ,89,130,90, , 
+DELAY 20
+MOVE24  ,86,140,82, , ,103, , , , , ,88, , , , , , ,83,131,95, , 
+DELAY 20
+MOVE24  ,89,130,90, , ,100, , , , , ,100, , , , , , ,79,140,90, , 
+DELAY 20
+MOVE24  ,83,131,95, , ,88, , , , , ,103, , , , , , ,86,140,82, , 
+DELAY 20
+
+' MOVIMENTO PERIÓDICO
+
+walk_loop:
+
+MOVE24  ,79,140,90, , ,100, , , , , ,100, , , , , , ,89,130,90, , 
+DELAY 20
+MOVE24  ,89,140,80, , ,103, , , , , ,84, , , , , , ,84,127,97, , 
+DELAY 20
+MOVE24  ,92,127,90, , ,100, , , , , ,100, , , , , , ,79,140,90, , 
+DELAY 20
+MOVE24  ,84,127,97, , ,84, , , , , ,103, , , , , , ,89,140,80, , 
+DELAY 20
+
+GOTO walk_loop
+\end{lstlisting}
+
+Testes foram feitos para avaliar a velocidade de resposta do microcontrolador e dos servomotores na prática. Com os servomotores em velocidade máxima, determinou-se 20 milisegundos como um bom passo de tempo. Passos menores faziam os servomotores vibrarem excessivamente durante a operação.
+
+Com isso, a primeira tentativa foi tentar a caminhada com ``Modelo Simples'' com os parâmetros aprendidos em simulação. A caminhada funcionou, mas o desempenho foi bem inferior ao da simulação: a caminhada ficou lenta, pouco estável (robô caia com frequência) e curvava excessivamente para a direita.
+
+Através de alguns testes foi possível perceber que apenas a redução do período já melhorava a qualidade da caminhada. Empiricamente, chegou-se ao valor de 0,08 segundos como adequado para o período. A caminhada assim obtida mostrou-se bem estável, de modo que quedas se tornaram raras quando em solo plano.
+
+Entretanto, ainda verificou-se que ela curvava muito. Atribui-se isso principalmente ao deslizamento no solo devido a uma amplitude muito grande dos passos. Desse modo, testes foram realizados reduzindo-se os valores das amplitudes de todas as juntas percentualmente até encontrar um percentual de 60\% de redução como adequado. A velocidade da caminhada assim obtida foi de 18,08 cm/s.
+
+Então, implementou-se movimento de braços e verificou-se uma melhora de desempenho, com a velocidade passando a 21,49 cm/s. Também, a trajetória do robô passou a curvar menos.
+
+A Tabela \ref{tab:caminhadas_robonova} resume as velocidades as velocidades da caminhada com os diferentes modelos. Para efeitos de comparação, mostra-se também as velocidades das caminhadas originais do kit Robonova e de uma versão melhorada disponível em \cite{robonova_fast_walk}. Observe que a caminhada final gerada nesse trabalho supera em velocidade todas as outras testadas. A Figura \ref{fig:caminhada_robonova_real} apresenta uma sequência de imagens que ilustra a caminhada após todas as modificações feitas.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.9\textwidth]{caminhada_robonova_real.png}
+  \caption{Sequência de imagens para ilustrar a caminhada final do Robonova real. A taxa de quadros usada para gravação foi de 30 quadros por segundo.}
+	\label{fig:caminhada_robonova_real}
+\end{figure}
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c c}
+    \hline
+    Caminhada & Média & Desvio Padrão & Número de Quedas \\
+     & da Velocidade & da Velocidade & (em 10 testes) \\
+     & (cm/s) & (cm/s) &  \\
+    \hline
+    Modelo Simples & 18,08 & 1,05 & 0 \\
+    Modelo com Movimento de Braços & 21,49 & 0,9 & 0 \\
+    Forward Walk (fabricante) & 2,7 & 0,25 & 0 \\
+    Fast Walk (fabricante) & 6,35 & 3,12 & 5 \\
+    New Fast Walk \cite{robonova_fast_walk} & 19,2 & 1,3 & 0 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Comparação entre diversas caminhadas para o Robonova-I.}
+  \label{tab:caminhadas_robonova}
+\end{table}
+
+As medidas das velocidades das caminhadas foram feitas a partir de quanto o robô conseguia caminhar em 5 segundos. 10 testes foram feitos para cada tipo de caminhada. A medidas de distância foram feitas com uso de uma trena no chão e as de tempo com uso de um cronômetro digital. A Figura \ref{fig:experimento_velocidade_robonova} mostra o ambiente do experimento montado.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.5\textwidth]{experimento_velocidade_robonova.jpg}
+  \caption{Ambiente do experimento de medida de velocidade do robô real.}
+	\label{fig:experimento_velocidade_robonova}
+\end{figure}

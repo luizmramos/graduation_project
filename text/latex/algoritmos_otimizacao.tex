@@ -1,0 +1,116 @@
+\section{Algoritmo Genético}
+
+Algoritmos Genéticos (\acs{AG}s) são inspirados na Teoria da Evolução de Darwin \cite{holland_1975}. Nestas técnicas,  mantém-se uma população de soluções candidatas, chamadas cromossomos, que ``evoluem'' guiadas por uma medida de qualidade (função de \emph{fitness}) através da aplicação de operações inspiradas pela evolução natural: seleção, mutação, \textit{crossover} e sobrevivência dos mais aptos. Inicialmente, a população é composta por \(S_i\) (parâmetro do AG) cromossomos gerados aleatoriamente.
+
+Existem diversas variantes de \ac{AG}. A seguir, explica-se os detalhes de \ac{AG} nas formas que são utilizadas com mais frequência. No final, apresenta-se também um pseudocódigo para \ac{AG}. Uma descrição mais geral de \ac{AG} pode ser encontrada em \cite{norvig}.
+
+\subsection*{Cromossomo}
+
+Um cromossomo é um candidato à solução ótima. Cada parte do cromossomo é chamada gene. A boa codificação do problema em cromossomo é um fator fundamental para o sucesso do algoritmo. No caso do problema de otimizar um conjunto de parâmetros, a codificação em cromossomo óbvia é representar uma dada instância por um vetor, em que cada posição (gene) corresponde a um parâmetro específico.
+
+\subsection*{Função de \textit{Fitness}}
+
+É uma função que, dado um cromossomo, retorna um número real (\textit{fitness}) que mede o quão bom é este cromossomo para resolver o problema. Em geral, assume-se a convenção que quanto maior o \textit{fitness}, melhor o cromossomo.
+
+\subsection*{Seleção}
+
+A cada geração uma parte da população é escolhida para reprodução. Nesse processo, a probabilidade de um cromossomo ser escolhido é geralmente proporcional ao seu \textit{fitness} (seleção por roleta). Outras formas de selecionar os que irão se reproduzir também são aplicadas. O número de quantos indivíduos \(R\) (parâmetro do \ac{AG}) são escolhidos para reprodução a cada geração é um parâmetro do \ac{AG}.
+
+\subsection*{Mutação}
+
+Corresponde ao fator de caminhada aleatória do algoritmo. Dado um cromossomo, essa operação itera sobre cada gene e o troca por um valor aleatório (dentro do domínio do gene) com uma certa probabilidade de mutação \(p_m\) (parâmetro do \ac{AG}).
+
+\subsection*{\textit{Crossover}}
+
+Dados dois cromossomos escolhidos para se reproduzir, é interessante (assim como ocorre na Natureza) que, ao invés de se ter filhos como cópia idêntica dos pais, faça-se uma recombinação dos genes dos pais de modo a produzir cromossomos com características mistas. Assim, o \textit{crossover} em um \ac{AG} segue um procedimento análogo ao \textit{crossover} biológico: escolhe-se um ponto de quebra e cria-se um cromossomo filho tomando-se a parte do primeiro pai antes do ponto de quebra e a do segundo após esse ponto. Observe que esse processo pode ser generalizado para múltiplos pontos de quebra, embora comumente se utilize um único ponto.
+
+\subsection*{Sobrevivência dos Mais Aptos}
+
+Como a cada iteração ocorre reprodução, a população tende a aumentar indefinidamente. Para evitar isso, assume-se um tamanho de população máximo \(S_m\) (parâmetro do \ac{AG}) e elimina-se os menos aptos (com menores valores de \textit{fitness}) a cada geração. Outra forma de realizar esta operação envolve escolher probabilisticamente os sobreviventes com probabilidade de escolha dependente do valor de \emph{fitness}.
+
+\newpage
+
+\begin{algorithm}[H]
+\Begin{
+$Populacao\gets PopulacaoAleatoria(S_i)$\;
+$Fitnesses\gets CalcularFitnesses(Populacao)$\;
+\While{critério de parada não satisfeito}{
+$Pais\gets Selecao(Populacao, Fitnesses, R)$\;
+$Filhos\gets Crossover(Pais)$\;
+$Populacao\gets Populacao\cup Filhos$\;
+$Populacao\gets Mutacao(Populacao, p_m)$\;
+$Fitnesses\gets CalcularFitnesses(Populacao)$\;
+$Populacao\gets MaisAptos(Populacao, Fitnesses, S_m)$\;
+}
+}
+\caption{Pseudocódigo do Algoritmo Genético.}
+\label{alg:ag}
+\end{algorithm}
+
+\section{Particle Swarm Optimization}
+\label{sec:pso}
+
+\ac{PSO} é um algoritmo de otimização iterativo que busca uma candidata à solução ótima conforme uma medida de qualidade. O algoritmo trabalha com um espaço de busca em \(D\) dimensões limitado inferiormente por \(\boldsymbol{l}\) e superiormente por \(\boldsymbol{u}\). Inicialmente, sorteia-se \(P\) ``partículas'' aleatoriamente tal que a posição \(\boldsymbol{x_i}\) e a velocidade \(\boldsymbol{v_i}\) de cada partícula \(p_i\) satisfazem as equações \ref{eq:posicao_pso} e \ref{eq:velocidade_pso}, respectivamente.
+
+\begin{equation}
+\boldsymbol{x_i}(d)\in [\boldsymbol{l}(d), \boldsymbol{u}(d)], d=1,\ldots ,D
+\label{eq:posicao_pso}
+\end{equation}
+
+\begin{equation}
+\boldsymbol{v_i}(d)\in [-|\boldsymbol{u}(d)-\boldsymbol{l}(d)|, |\boldsymbol{u}(d)-\boldsymbol{l}(d)|], d=1,\ldots ,D
+\label{eq:velocidade_pso}
+\end{equation}
+
+Assim, a cada iteração, cada posição de partícula é avaliada pela função de medida de qualidade \(f:\mathbb{R}^{D}\rightarrow\mathbb{R}\) e atualiza-se \(\boldsymbol{b_i}\), a melhor posição da partícula \(p_i\) até então,  e \(\boldsymbol{g}\), a melhor posição global de partícula até o momento, segundo \(f\). A partir deste ponto, assume-se que o objetivo é maximizar \(f(\boldsymbol{x})\). Note que isso não é limitação, pois se o objetivo é minimizar \(f(\boldsymbol{x})\), basta executar o algoritmo com \(g(\boldsymbol{x})=-f(\boldsymbol{x})\). Por fim, atualiza-se a velocidade e a posição de cada partícula segundo as equações  \ref{eq:atualiza_velocidade_pso} e \ref{eq:atualiza_posicao_pso}, respectivamente.
+
+\begin{equation}
+\boldsymbol{v_i}\gets \omega \boldsymbol{v_i} + \varphi_p r_p (\boldsymbol{b_i} - \boldsymbol{x_i}) + \varphi_g r_g (\boldsymbol{g} - \boldsymbol{x_i})
+\label{eq:atualiza_velocidade_pso}
+\end{equation}
+
+\begin{equation}
+\boldsymbol{x_i}\gets \boldsymbol{x_i} + \boldsymbol{v_i}
+\label{eq:atualiza_posicao_pso}
+\end{equation}
+
+Em que \(\omega\), \(\varphi_p\) e \(\varphi_g\) são parâmetros do algoritmo, e \(r_p\) e \(r_g\) são número reais aleatórios entre 0 e 1. O método prossegue até que algum critério de parada seja atingido (número máximo de iterações, tempo máximo, limite de processamento, etc.). Um pseudocódigo para \ac{PSO} é apresentado no Algoritmo \ref{alg:pso}.
+
+O \ac{PSO} tem vantagens por não impor requisitos sobre o problema a ser otimizado além do conhecimento do espaço de busca e de uma medida de desempenho. Entretanto, seu comportamento não é bem compreendido e não há garantia de convergência para solução ótima. Além disso, o método sofre de tendência a convergir para máximos locais.
+
+\newpage
+
+\begin{algorithm}[H]
+\Begin{
+\For{$i\gets 1,\ldots,P$} {
+	\For{$d\gets 1,\ldots,D$}{
+		$\boldsymbol{x_i}(d)\gets random(\boldsymbol{l}(d), \boldsymbol{u}(d))$\;
+		$\Delta\gets |\boldsymbol{u}(d)-\boldsymbol{l}(d)|$\;
+		$\boldsymbol{v_i}(d)\gets random(-\Delta,\Delta)$\;
+	}
+	$\boldsymbol{b_i}\gets \boldsymbol{x_i}$\;
+	\If{$f(\boldsymbol{b_i}) > f(\boldsymbol{g})$}{
+		$\boldsymbol{g}\gets \boldsymbol{b_i}$\;
+	}
+}
+
+\While{critério de parada não satisfeito}{
+	\For{$i\gets 1,\ldots,P$}{
+		\For{$d\gets 1,\ldots,D$}{
+			$r_p\gets random(0,1)$\;
+			$r_g\gets random(0,1)$\;
+			$\boldsymbol{v_i}(d)\gets \omega \boldsymbol{v_i}(d) + \varphi_p r_p (\boldsymbol{b_i}(d)-\boldsymbol{x_i}(d))+\varphi_g r_g (\boldsymbol{g}(d) - \boldsymbol{x_i}(d))$\;
+		}
+		$\boldsymbol{x_i}\gets \boldsymbol{x_i}+\boldsymbol{v_i}$\;
+		\If{$f(\boldsymbol{x_i}) > f(\boldsymbol{b_i})$}{
+			$\boldsymbol{b_i}\gets \boldsymbol{x_i}$\;
+			\If {$f(\boldsymbol{b_i}) > f(\boldsymbol{g})$}{
+				$\boldsymbol{g}\gets \boldsymbol{b_i}$\;
+			}
+		}
+	}
+}
+}
+\caption{Pseudocódigo do \textit{Particle Swarm Optimization}.}
+\label{alg:pso}
+\end{algorithm}

@@ -1,0 +1,88 @@
+\section{Modelos CAD}
+
+Os modelos \acs{CAD} foram confeccionados em um trabalho anterior \cite{esther_2007}. Os modelos foram construídos com uso do \emph{software} Autodesk AutoCAD \cite{autocad} a partir de medidas das peças de do Robonova-I real tomadas com um paquímetro. Cada peça foi feita como um modelo \acs{CAD} separado.
+
+Em seguida, as peças foram importados no \emph{software} Autodesk 3D Studio Max \cite{3dsmax}, onde materiais (gráficos) com padrões de cores simples foram criados e assinalados conforme as cores correspondentes no robô real. As Figuras \ref{fig:robonova_montado_render} e \ref{fig:robonova_explodido_render} apresentam o modelo final montado e o explodido, respectivamente. Como pode-se verificar, teve-se o cuidado de confeccionar o modelo com boa precisão, para que se consiga um comportamento em simulação o mais fiel possível ao robô real.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.5\textwidth]{robonova_montado_render.png}
+  \caption{Modelo completo montado do Robonova-I.}
+	\label{fig:robonova_montado_render}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{robonova_explodido_render.pdf}
+  \caption{Modelo completo explodido do Robonova-I.}
+	\label{fig:robonova_explodido_render}
+\end{figure}
+
+
+Finalmente, cada modelo foi exportado como um arquivo FBX \cite{fbx} separado, porque esse formato permite importação direta no \ac{UDK} Editor.
+
+\section{Configuração no UDK Editor}
+
+Para ter-se um modelo de simulação o mais fiel possível à realidade, optou-se pelo método \emph{26-DOF simplified collision} para auto-gerar os modelos físicos a partir dos gráficos.
+
+Embora os materiais já tivessem sido associados às peças anteriormente, foi necessário repetir esse processo dentro do \ac{UDK} Editor. Após a configuração de todos as peças, exportou-se o conjunto de peças como um pacote UPK (Unreal Package).
+
+\subsection{Implementação no USARSim}
+
+Para concluir a implementação do robô em \ac{USARSim}, faltava ainda criar a classe do robô em UnrealScript e configurar os sensores. A classe em UnrealScript do Robonova-I foi inspirada na implementação em \ac{USARSim} do robô Albebaran Nao \cite{sander_2012}.
+
+As peças foram implementadas como objetos do tipo ``Part'', que permite definir o modelo (gráfico e físico), massa e uma posição em relação à origem do robô (ou um deslocamento em relação a uma outra Part tomada como ``pai''). A Tabela \ref{tab:parts} apresenta todas as peças implementadas.
+
+\begin{table}[tp]
+  \begin{center}
+    \begin{tabular}{c c}
+    \hline
+    Peça & Massa \\
+    (Part) & (g) \\
+    \hline
+    Head & 27 \\
+    Chest & 337 \\
+    LeftShoulder & 6 \\
+    LeftElbow & 65 \\
+    LeftHand & 65 \\
+    RightShoulder & 6 \\
+    RightElbow & 65 \\
+    RightHand & 65 \\
+    LeftThigh & 23 \\
+    LeftKnee & 135 \\
+    LeftAnkle & 44 \\
+    LeftAnkle2 & 23 \\
+    LeftFoot & 83 \\
+    RightThigh & 23 \\
+    RightKnee & 135 \\
+    RightAnkle & 44 \\
+    RightAnkle2 & 23 \\
+    RightFoot & 83 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Peças implementadas como objetos do tipo ``Part''.}
+  \label{tab:parts}
+\end{table}
+
+Em seguida, as juntas foram implementadas como juntas de revolução (objetos do tipo ``RevoluteJoint''). Um objeto do tipo RevoluteJoint une dois objetos do tipo Part por um eixo de rotação. A Figura \ref{fig:joints} mostra os nomes dados às juntas implementadas.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.7\textwidth]{joints.png}
+  \caption{Juntas implementadas no modelo de simulação.}
+	\label{fig:joints}
+\end{figure}
+
+Devido a imprecisões dos modelos físicos, foi necessário desabilitar colisão entre peças adjacentes (considera-se que duas peças são adjacentes se são ligadas por uma junta). As demais colisões foram mantidas ativas.
+
+Para percepção, colocou-se uma câmera na cabeça e sensores de toque nos pés. O \ac{USARSim} já possui esses sensores implementados, logo foi necessário apenas configurá-los. Além disso, acoplou-se um sensor especial do \ac{USARSim} chamado ``GroundTruth'' no tronco do robô. Esse sensor provê posição e orientação globais livres de ruído. Embora essas informações sejam impossíveis de se obter em um robô real, elas são muito úteis em processos de Aprendizado ou Otimização.
+
+A Figura \ref{fig:robonova_simulado} apresenta o Robonova-I dentro do \ac{USARSim}; os modelos físicos são mostrados em \emph{wireframe} por linhas rosas. No canto superior esquerdo é mostrada a visualização a partir da câmera do robô.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.8\textwidth]{robonova_simulado.png}
+  \caption{Robonova-I simulado dentro do \ac{USARSim}.}
+	\label{fig:robonova_simulado}
+\end{figure}

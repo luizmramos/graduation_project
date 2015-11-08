@@ -1,0 +1,145 @@
+Para verificar a validade das técnicas utilizadas neste trabalho em outro modelo de robô, foi feito um procedimento análogo com o robô Nao simulado do domínio da RoboCup 3D Soccer Simulation League.
+
+\section{RoboCup 3D Soccer Simulation League}
+
+A \ac{Soccer 3D} é uma das categorias da competição RoboCup \cite{robocup}. Na \ac{Soccer 3D}, 22 agentes (11 em cada time) jogam futebol em um ambiente simulado, seguindo regras semelhantes às do futebol humano.
+
+O simulador de Robótica utilizado é o \ac{SimSpark} \cite{simspark}. Esse simulador utiliza a \ac{ODE} \cite{ode} como sua \emph{engine} de Física, que permite uma simulação precisa de interações mecânicas, como atrito e colisão. Isso permite modelar robôs humanóides complexos, como o Albebaran Nao \cite{nao}, que possui 22 graus de liberdade. A Figura \ref{fig:nao_simulado} mostra o robô Nao simulado dentro do \ac{SimSpark}.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.6\textwidth]{simspark_ss_original.png}
+  \caption{Robô Nao simulado chutando uma bola no \ac{SimSpark}.}
+	\label{fig:nao_simulado}
+\end{figure}
+
+Diferentemente do USARSim, em que a simulação ocorre em tempo real, sendo o passo de tempo limitado pelo poder de processamento da máquina, a simulação no \ac{SimSpark} ocorre a um passo fixo de 20 milisegundos. A comunicação entre agentes e servidor é por \ac{TCP/IP} de acordo com um protocolo específico.
+
+Um dos objetivos da competição é fomentar pesquisas em controle de humanóides, assim a atuação é feita a partir do envio de comandos de velocidade para as juntas. Note que a implementação de controle de posição para as juntas fica a cargo do agente. A Figura \ref{fig:juntas_nao} apresenta um esquema das juntas do Nao simulado.
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=0.6\textwidth]{Models_NaoAnatomy.png}
+  \caption{Esquema das juntas do Nao simulado do \ac{SimSpark}.}
+	\label{fig:juntas_nao}
+\end{figure}
+
+Já a visão é simplificada e não é necessário fazer processamento de imagem, pois o servidor envia medidas de distância e ângulo para cada objeto dentro do campo de visão do agente (que abrange \(120^{\circ}\) na horizontal). Outros sensores (acelerômetro, girômetro, sensores de pressão nos pés etc.) presentes no Nao real estão também presentes nessa versão simulada. Note que ruído é adicionado às medidas dos sensores para simular o que ocorre no caso de sensores reais. Ademais, para se comunicarem entre si, os agentes podem ``falar'' e ``ouvir'' mensagens limitadas a 20 bytes.
+
+\section{Implementação}
+
+Como trata-se de uma competição, a \ac{Soccer 3D} possui uma comunidade de tamanho razoável. Alguns times mais experientes liberam códigos de agentes base para servir de exemplo e facilitar a entrada de novos times.
+
+Como o objetivo era apenas usar a \ac{Soccer 3D} para validação das técnicas utilizadas e não construir um novo programa de agente, optou-se pelo uso de um time base. Após a análise de alguns dos códigos providos em \cite{simspark_agents}, escolheu-se o \ac{magma-AF}, que é desenvolvido pelo time magmaOffenburg da Hochschule Offenburg University of Applied Sciences. O código do \ac{magma-AF} é escrito em Java com o uso de boas práticas de Engenharia de Software.
+
+O \ac{magma-AF} é um agente funcional que joga futebol de modo autônomo com uma estratégia bem simples. Assim, várias das questões de baixo nível necessárias foram aproveitadas: comunicação com o servidor, controlador de posição, verificação de se o robô caiu etc.
+
+Entretanto, no \ac{SimSpark}, o Nao não possui um sensor que dê a localização global do agente, assim como faz o GroundTruth do USARSim. Desse modo, o agente deve inferir sua posição a partir das medidas dos sensores que possui, principalmente da câmera. Considerando que o problema de Localização é um dos mais complexos da Robótica Móvel e que o \ac{magma-AF} usa um método muito simples de localização, as estimativas de posição feitas pelo agente certamente não seriam adequadas para o processo de treinamento.
+
+A solução para isso foi implementar o que geralmente é chamado na liga de ``treinador''. Esse treinador se conecta ao servidor como se fosse um monitor (um programa para visualização do jogo), logo recebe posições e orientações globais de todos os objetos. Com isso, pode-se obter a posição do agente desejado. O treinador implementado foi inspirado no código provido em \cite{tinman}. Para facilitar a troca de informações, optou-se por implementar o treinador no mesmo processo Java do agente, mas sendo executado em uma \emph{thread} própria.
+
+Depois disso, a caminhada com Modelo Complexo foi implementada conforme as estruturas providas pelo \ac{magma-AF}.
+
+\section{Processo de Otimização}
+
+O processo de otimização foi montado de modo semelhante ao explicado no Capítulo \ref{chap:processo_otimizacao}, inclusive a função de medida de qualidade utilizada foi a mesma. No caso, executou-se otimização apenas para o Modelo Complexo e com \ac{PSO}. Os parâmetros usados para o \ac{PSO} foram os apresentados na Tabela \ref{tab:parametros_pso_3d}. Os limites para do espaço de busca são mostrados na Tabela \ref{tab:limites_busca_3d}.
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Parâmetro & Valor \\
+    \hline
+    \(P\) & 50 \\
+    \(\omega\) & 0,7 \\
+    \(\varphi_p\) & 0,5 \\
+    \(\varphi_g\) & 0,8 \\
+    \(\varepsilon\) & 0,8 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Valores dos parâmetros da execução de \ac{PSO} para otimização dentro do domínio da \ac{Soccer 3D}.}
+  \label{tab:parametros_pso_3d}
+\end{table}
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Constante & Mínimo & Máximo \\
+    \hline
+    \(O_c\) & -1,0 & 0 \\
+    \(A\) & 0,01 & 1,0 \\
+    \(B\) & 0,01 & 1,0 \\
+    \(O_j\) & 0 & 1,5 \\
+    \(C\) & 0 & 1,5 \\
+    \(\tau = t_2/T\) & 0,1 & 0,9 \\
+    \(T\) & 0,1 & 2,0 \\
+    \(D_+\) & 0 & 1 \\
+    \(D_-\) & 0 & 1 \\
+    \(E\) & 0 & 0,5 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Limites do espaço de busca para no caso da otimização realizada dentro da domínio da \ac{Soccer 3D}.}
+  \label{tab:limites_busca_3d}
+\end{table}
+
+A Figura \ref{fig:resultados_otimizacao_3d} apresenta como o melhor desempenho até então varia com o número de testes. A Tabela \ref{tab:parametros_aprendidos_3d} mostra os valores da melhor partícula encontrada, que foi avaliada com qualidade igual a 9,39. Por fim, a Figura \ref{fig:sequencia_3d} mostra uma sequência de imagens apresentando a caminhada aprendida.
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Constante & Valor \\
+    \hline
+    \(O_c\) & -0,36 \\
+    \(A\) & 0,51 \\
+    \(B\) & 0,21 \\
+    \(O_j\) & 0,81 \\
+    \(C\) & 0,72 \\
+    \(\tau = t_2/T\) & 0,36 \\
+    \(T\) & 0,27 \\
+    \(D_+\) & 0,23 \\
+    \(D_-\) & 0,31 \\
+    \(E\) & 0,12 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Parâmetros aprendidos para o Modelo Complexo executado no Nao simulado do \ac{SimSpark}.}
+  \label{tab:parametros_aprendidos_3d}
+\end{table}
+
+\begin{figure}[ht!]
+	\centering
+	\setlength\figureheight{0.4\textwidth}
+	\setlength\figurewidth{0.7\textwidth}
+	\input{resultados_otimizacao_3d.tikz}
+		%\includegraphics[width=0.6\textwidth]{resultados_otimizacao_3d.png}
+  \caption{Resultados da otimização com \ac{PSO} realizada no ambiente da \ac{Soccer 3D}.}
+	\label{fig:resultados_otimizacao_3d}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+		\includegraphics[width=1.0\textwidth]{sequencia_3d.png}
+  \caption{Sequência de imagens para ilustrar a caminhada aprendida para o Nao simulado do \ac{SimSpark}. Há uma diferença de tempo de  0,1 segundo entre uma imagem e a posterior.}
+	\label{fig:sequencia_3d}
+\end{figure}
+
+Para avaliar o desempenho da caminhada aprendida, decidiu-se compará-la com a caminhada provida no \ac{magma-AF}. Assim, executou-se 10 experimentos simulados de 15 segundos para cada caminhada. Ao fim dos 15 segundos, a distância percorrida pelo robô no sentido positivo do eixo X era medida. A Tabela \ref{tab:comparacao_caminhadas_3d} resume os resultados obtidos. Observe que a caminhada aprendida é bem superior à do time base, sendo 89\% mais rápida.
+
+\begin{table}[tph]
+  \begin{center}
+    \begin{tabular}{c c c}
+    \hline
+    Caminhada & Média & Desvio Padrão \\
+    \hline
+    Modelo Complexo & 7,41 & 0,55 \\
+    magma-AF & 3,93 & 0,4 \\
+    \hline
+    \end{tabular}
+  \end{center}
+  \caption{Resultados de medidas de distâncias percorridas no sentido positivo do eixo X. Realizou-se 10 experimentos de 15 segundos para cada caminhada.}
+  \label{tab:comparacao_caminhadas_3d}
+\end{table}

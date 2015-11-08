@@ -1,0 +1,21 @@
+\section{Conclusão}
+
+Nesse trabalho, caminhadas rápidas e estáveis foram confeccionadas para um robô Hitec Robonova-I. Para isso, usou-se um modelos parametrizados baseados em \acf{SFT} propostos em \cite{shafii_2009, shafii_2010, shafii_rc}. Na abordagem seguida, parâmetros adequados para os modelos foram aprendidos com uso de 2 algoritmos de otimização: \acf{AG} e \acf{PSO}. Como aprendizado de locomoção diretamente no robô seria inconveniente e poderia provocar danos ao \emph{hardware}, construiu-se um modelo do Robonova-I no \acf{USARSim} e realizou-se o processo de aprendizado em simulação. Então, adaptou-se as caminhadas aprendidas para o robô real por ajustes manuais. Testes realizados com a melhor caminhada obtida mostraram que seu desempenho é bem superior à caminhada original do fabricante.
+
+Posteriormente, uma validação adicional foi feita no domínio da \acf{Soccer 3D}, que é uma categoria de futebol de robôs humanóides simulado da competição RoboCup. A \ac{Soccer 3D} é baseada no \acf{SimSpark} e atualmente usa um modelo simulado do robô Aldebaran Nao. Para evitar o desenvolvimento de uma interface com o \ac{SimSpark}, como foi feito no caso do \ac{USARSim}, utilizou-se o código base \acf{magma-AF}. Assim, o processo de aprendizado foi executado e a melhor caminhada obtida se mostrou rápida e estável, inclusive superando significativemente o desempenho da caminhada provida no código base.
+
+\section{Trabalhos Futuros}
+
+Desde seu início, a intenção desse trabalho era criar uma estrutura para diversos outros trabalhos de pesquisa em robôs humanóides na instituição. Exatamente por isso, houve um cuidado especial em deixar os desenvolvimentos feitos bem documentados e em se fazer uma boa estrutura de programa de agente, embora essas questões não fossem tão importantes dentro do escopo desse trabalho.
+
+Em relação ao controle de humanóides especificamente, são propostas as seguintes frentes de trabalho futuro:
+
+\begin{itemize}
+	\item Implementação de outros movimentos, como levantar-se, girar o corpo etc.;
+	\item Idealização e execução de experimentos e métricas que avaliem o quanto o comportamento do robô simulado difere do real. A partir disso, seria interessante a realização de ajustes finos no modelo de simulação a fim de se obter um comportamento o mais próximo possível do robô real;
+	\item Em otimização heurística, é difícil determinar de antemão qual o melhor método para um determinado problema. Assim, seria interessante tentar utilizar outros métodos além de \ac{AG} e \ac{PSO};
+	\item Estudo, desenvolvimento e implementação de novos modelos de caminhada. Em especial, caminhadas omnidirecionais, por serem mais flexíveis;
+	\item Estudo, desenvolvimento e implementação de estratégias de balanço com base em sensores para ``fechar a malha'' da caminhada e torná-la mais estável e menos sucetível a pertubações como irregularidades no solo. Para isso, seria necessário antes a adição de sensores julgados interessantes, como acelerômetro, girômetro e sensores de pressão nos pés.
+\end{itemize}
+
+Em relação a outras linhas ligadas a humanóides, o autor tem interesse especial em continuar este trabalho em uma pós-graduação no sentido de construir robôs autônomos jogadores de futebol para a liga Humanoid KidSize da RoboCup, o que na realidade era objetivo implícito desde o início. Inclusive, um grupo de alunos de já está formado dentro da ITAndroids, grupo para competições de Robótica do ITA, para este projeto.
