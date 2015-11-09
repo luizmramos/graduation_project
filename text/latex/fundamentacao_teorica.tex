@@ -1,0 +1,248 @@
+\section{Definição formal}
+Utilizando a notação adotada por Dan Jurafsky e Christopher Manning em seu curso de Processamento de Linguagem Natural para Stanford \cite{text_classification}, define-se o problema da classificação supervisionada de textos da seguinte forma.
+
+Seja $C=\{c_1, c_2, ..., c_J\}$ um conjunto fixo de classes, $D=\{d_1, d_2, ..., d_n\}$ um conjunto de documentos, e $\mathcal{T}=\{(d_1, c_{d_1}), (d_2, c_{d_2}), ... , (d_m, c_{d_m})\}$ um conjunto de treinamento (subconjunto de $D$) com $m$ documentos classificados manualmente, o classificador consiste em uma função $\gamma :D\rightarrow C$ que relaciona um documento a uma classe, e um algoritmo de aprendizado de máquina supervisionado é um algoritmo que recebe como parâmetros $C$ e $\mathcal{T}$ e retorna $\gamma$.
+
+\section{Tipos de classificadores}
+Existem diversos tipos diferentes de classificadores que possuem resultados muito bons dependendo do problema analisado. Segue abaixo uma lista dos principais classificadores existentes.
+
+\begin{itemize}	
+	\item Árvores de Decisão
+	\item Naïve Bayes
+	\item Regressão Logística
+	\item Support Vector Machines
+	\item k-Nearest Neightbors
+	\item Redes Neurais
+	\item Dentre outros
+\end{itemize}
+
+A performance de todos estes métodos varia consideravelmente dependendo da aplicação. Estudos mostram que para bases de dados grandes o suficiente, ótimos resultados podem ser atingidos independentemente do método utilizado \cite{practical_issues}. Entretanto, para uma quantidade pequena de dados as Naïve Bayes apresentam resultados bons por serem classificadores de alto \emph{bias} / baixa variância \cite{quora_classifier}. 
+
+As NB possuem as vantagens de serem fáceis de se implementar, serem bem rápidas na hora da execução e mostrarem bons resultados práticos.
+
+\section{Redes Bayesianas}
+
+\subsection{Definição}
+Em modelagem gráfica probabilística, Redes Bayesianas são grafos direcionados que representam relações de dependência condicionais entre diferentes variáveis aleatórias \cite{introduction_to_graphical_models}. A partir da visualização de uma Rede Bayesiana é possível utilizar a regra de Bayes para realizar inferências e descobrir a probabilidade de eventos, dadas algumas variáveis observadas.As arestas direcionadas representam as noções de causalidade entre as variáveis aleatórias e geram as dependências condicionais. Para cada nó do gráfico deve haver uma tabela de probabilidades condicionais para a variável em questão.
+
+A Figura \ref{fig:bayesian_networks}, retirada do curso de Modelagem Gráfica Probabilística da professora Daphne Koller de Stanford \cite{probabilistic_graphical_models}, ilustra um exemplo de uma Rede Bayesiana simples. Neste caso, pode-se ver que a nota do aluno é influenciada pela dificuldade da prova e pela sua inteligencia. Alem disso A possibilidade do professor escrever uma carta de recomendação depende apenas da nota do aluno e o SAT do aluno depende apenas de sua inteligencia. Em cada nó do grafo há uma tabela de distribuições de probabilidades condicionais.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{bayesian_networks.png}
+	\caption{Exemplo de Redes Bayesianas}
+	\label{fig:bayesian_networks}
+\end{figure}
+
+
+\subsection{Regra de Bayes}
+Para realizar inferências nas redes Bayesianas utiliza-se a regra de Bayes, como definida a seguir.
+
+Sejam $A$ e $B$ dois eventos com probabilidades de ocorrência $P(A)$ e $P(B)$ e sendo $P(A|B)$ e $P(B|A)$ as probabilidades condicionais de $A$ dado $B$ e de $B$ dado $A$, respectivamente, tem-se que:
+
+$P(A|B) = \frac{{P(A) P(B|A)}}{P(B)}$
+
+Esse resultado parte da noção probabilidade conjunta $P(A,B)$.
+
+$P(A,B)=P(A) P(B|A) = P(B) P(A|B) \rightarrow P(A|B) = \frac{{P(A) P(B|A)}}{P(B)}$
+
+No caso do exemplo da Figura \ref{fig:bayesian_networks}, podemos calcular a probabilidade conjunta da rede da seguinte forma:
+
+$P(D,I,G,S,L)=P(D)P(I)P(G|I,D)P(S|I)P(L|G)$ 
+
+Onde $D=Difficulty$, $G=Grade$, $I=Intelligence$, $S=SAT$ e $L=Letter$.
+
+\subsection{Naïve Bayes}
+\subsubsection{Problema a ser resolvido}
+Redes Bayesianas são ferramentas excelentes para modelar problemas complexos, entretanto elas possuem um grande problema prático. A realização de inferências em redes genéricas é um problema NP-hard, conforme demonstrado por Cooper \cite{inference_bayesian_networks}.
+
+O que é realizado na prática é, ou realizar inferências aproximadas nas redes com algoritmos polinomiais, ou simplificar as redes a alguns tipos específicos mais simples.
+
+\subsubsection{O que são Naïve Bayes}
+As Naïve Bayes (bayes ingênuas) são simplificações feitas na modelagem de um problema por redes Bayesianas de modo a tornar possível realizar a inferência de forma rápida. Elas assumem que as variáveis do problema são condicionalmente independentes (mesmo que na prática elas não sejam, o que explica o nome \emph{ingênuas}).
+
+A Figura \ref{fig:naive_bayes_example} mostra um exemplo de uma NB comum. Ela possui uma variável $Classe$ que depende de um série de outras varáveis $x_1, x_2, x_3, ... , x_n$ (que serão chamadas a partir daqui de features). É importante notar que a estrutura da rede mostra que as features são condicionalmente independentes umas das outras e a $Classe$ depende de cada uma das features individualmente. É fácil entender a grande vantagem desta abordagem. Cada tabela de probabilidades condicionais será pequena. Alem disso a inferência da variável classe, dadas algumas das features será bem simples, como será mostrado nas próximas seções.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{naive_bayes_example.png}
+	\caption{Exemplo de uma Naïve Bayes}
+	\label{fig:naive_bayes_example}
+\end{figure}
+
+Na prática o NB é um ótimo classificador de textos, pois, além de ser simples, traz resultados comparáveis a outros classificadores substancialmente mais complexos e lentos.
+
+\subsubsection{Independência Condicional}
+Antes de explicar a inferência em NB é importante entender o que significa o conceito de independência condicional.
+
+Dados dois eventos $A$ e $B$, dizemos que eles são independentes se a probabilidade de ocorrência de um deles não é influenciada pelo fato do outro ter ocorrido. Ou seja:
+
+$P(A|B) = P(A)$
+$P(B|A) = P(B)$
+
+Esta propriedade é muito relevante na simplificação de expressões pois podemos usar o fato de que a probabilidade conjunta é igual ao produto das probabilidades individuais.
+
+$P(A,B) = P(A)P(B|A) = P(A)P(B)$
+
+\subsubsection{Inferência}
+A regra de Bayes seguida pela propriedade de independência condicional pode ser utilizada para a realização de inferência em NB da seguinte forma.
+
+Sejam $C=\{c_1,c_2,c_3, ..., c_J\}$ um conjunto de classes e $x_1, x_2, x_3, ..., x_n$ as features a serem analisadas. Como trata-se de NB, assume-se independência condicional das features. Deseja-se saber para cada $i$:
+
+$P(C=c_i|x_1,x_2,...,x_n)$
+
+Ou seja, deseja-se saber qual a probabilidade da classe possuir o valor $c_i$, dadas as features observadas.
+
+Pela regra de Bayes temos:
+
+\begin{equation}
+P(C=c_i|x_1,x_2,...,x_n) = \frac{P(x_1,x_2,...,x_n|C=c_i)P(C=c_i)}{P(x_1,x_2,...,x_n)}
+\label{eq:bayes_inference}
+\end{equation}
+
+Como $x_1, x_2, x_3, ..., x_n$ são condicionalmente independentes entre si, temos:
+
+
+\begin{equation}
+\begin{split}
+P(x_1,x_2,...,x_n|C=c_i) &= P(x_1,x_2,...,x_{n-1}|x_n,C=c_i)P(x_n|C=c_i) \\ 
+&= P(x_1,x_2,...,x_{n-1}|C=c_i)P(x_n|C=c_i) \\
+&= P(x_1,x_2,...,x_{n-2}|x_{n-1},C=c_i)P(x_{n-1}|C=c_i)P(x_n|C=c_i) \\
+&= P(x_1,x_2,...,x_{n-2}|C=c_i)P(x_{n-1}|C=c_i)P(x_n|C=c_i) \\
+&= ... = P(x_1|C=c_i)P(x_2|C=c_i)P(x_3|C=c_i)...P(x_n|C=c_i)  \\
+&= \prod_{j=1}^{n}P(x_j|C=c_i)
+\end{split}
+\label{eq:produtorio}
+\end{equation}
+
+
+Substituindo \ref{eq:produtorio} em \ref{eq:bayes_inference} temos:
+
+\begin{equation}
+P(C=c_i|x_1,x_2,...,x_n) = \frac{P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)})}{P(x_1,x_2,...,x_n)}
+\label{eq:naive_bayes_probability}
+\end{equation}
+
+\subsubsection{Classificação utilizando Naïve Bayes}
+No problema de classificação temos um documento $d$ que será representado pelas features $x_1,x_2,...,x_n$ e deseja-se saber de qual classe $c \in C$ este documento pertence.
+
+Matematicamente, deseja-se saber de qual classe é mais provável que o documento pertença. Isto é, a classe que maximiza $P(d|c)$.
+
+$\gamma(d)=argmax_c(P(d|c))=argmax_c(P(x_1,x_2,...,x_n|c))$
+
+Pela equação \ref{eq:naive_bayes_probability}, temos que:
+
+$argmax_c(P(x_1,x_2,...,x_n|c)) = argmax_c(\frac{P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)})}{P(x_1,x_2,...,x_n)})$
+
+Como $P(x_1,x_2,...,x_n)$ não depende de c, pode-se cortá-lo do denominador, chegando em:
+
+$\gamma(d) = argmax_c(P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)})$
+
+Agora, para descobrir a classe do documento, basta calcular $P(C=c_i)$ e $P(x_k|C=c_i)$ e ambas estas probabilidades são fáceis de serem estimadas (se tivermos um conjunto de treino suficientemente grande).
+
+Assumindo que as features sejam binarias, isto é, ou estão presentes no documento, ou não estão. Seja $\#(x)$ um operador que indica quantas vezes a feature x aparece no conjunto de treinamento e $\#(c)$ quantos documentos do conjunto de treinamento possuem a classe c. Além disso, seja $\#(x \wedge c)$ a quantidade de vezes que a feature x aparece num documento de classe c e seja N o total de documentos do conjunto de treinamento. É fácil ver que:
+
+$P(C=c_i) \simeq \frac{\#(c_i)}{N}$
+
+e
+
+$P(x_j|C=c_i) \simeq \frac{\#(x_j \wedge c_i)}{\#(c_i)}$
+
+Ou seja, o problema de classificação se tornou basicamente um problema de contagem.
+
+\subsubsection{Smoothing}
+Um dos problemas práticos encontrados por NB é a ocorrência de contagens nulas. O grande problema do 0 é que se ele for apenas um dos fatores da multiplicação o resultado inteiro será 0, inutilizando o método.
+
+Isto não é algo incomum, principalmente se o conjunto de treinamento for pequeno. Basta ter uma palavra no conjunto de teste que nunca ocorreu em uma determinada classe no conjunto de treinamento.
+
+Existem técnicas que são utilizadas para resolver este problema e elas são chamadas de Smoothing. Neste trabalho utilizou-se uma das mais comuns: o Laplace Smoothing.
+
+O Laplace consiste em assumir que todas as features foram vistas pelo menos $\alpha$ vezes em cada uma das classes. Isso se traduz nas seguintes formulas, sendo $L$ o número total de classes e $V$ o numero total de features.
+
+$P(C=c_i) \simeq \frac{\#(c_i) + \alpha}{N + \alpha L}$
+
+e
+
+$P(x_j|C=c_i) \simeq \frac{\#(x_j \wedge c_i) + \alpha}{\#(c_i) + \alpha V}$
+
+No caso especial em que $\alpha = 1$, tem-se o \emph{Add-One Smoothing}.
+
+\subsection{Modelagens para classificação de texto}
+Uma vez que já foi entendida a forma de classificar o texto, resta apenas representá-lo por um conjunto de features.
+
+\subsubsection{Naïve Bayes Binária}
+Uma forma comum de representar um texto em features é considerá-lo como um conjunto de palavras. Assume-se que cada palavra é uma feature que pode estar presente ou não no documento. Nesta representação a ordem das palavras não é importante.
+
+Esta representação não leva em consideração a frequência com a qual cada palavra aparece no texto. A fórmula para calcular a classe mais provável é aquela que foi desenvolvida acima.
+
+% TODO: Continuar essa explicação
+
+\subsubsection{Naïve Bayes de Bernoulli}
+
+\subsubsection{Multinomial Naïve Bayes}
+É interessante levar em consideração a frequência da ocorrência das palavras uma vez que esta pode trazer informação relevante sobre a classe.
+% TODO: Entender multinomial bayes e continuar
+
+
+\subsubsection{Outras features}
+É possível enriquecer o classificador utilizando outras features (que não sejam as próprias palavras do texto). Exemplos de features que podem ser utilizadas são: combinações de palavras, o tamanho do texto, quantidade de sinais de pontuação, quantidade de palavras com iniciais maiúsculas, etc.
+
+Para o caso específico de postagens em redes sociais existem ainda outras features que podem ser incluídas. Pode-se considerar o autor da postagem, o momento em que ela foi publicada, a presença de fotos, vídeos ou links, etc.
+
+\section{Weighted Naïve Bayes}
+Um dos problemas das NB é que muitas vezes nas aplicações reais não é possível assumir a independência condicional das features. Muitas vezes uma das features tem um peso maior que as outras, por exemplo.
+
+Um modo inicial de relaxar essa hipótese de independência, é eliminar features com alta correlação, fazendo com que o subconjunto restante se encaixe melhor na hipótese de independência condicional. Isto é chamado de seleção de features.
+
+Neste caso temos:
+
+$\gamma(d) = argmax_c(P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)^{I(j)}})$
+
+Onde:
+
+$I(j) \in \{0,1\}$
+
+Uma abordagem mais genérica é ponderar cada feature de acordo com sua relevância. Ou seja:
+
+$\gamma(d) = argmax_c(P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)^{w(j)}})$
+
+Onde:
+
+$w(j) \in \mathbb{R}^+$
+
+Nota-se que a seleção de features é um caso específico da ponderação de features (onde $w(j)$ só pode ser 0 ou 1).
+
+Agora o grande problema passa a ser determinar os pesos $w(j)$ das features. Há diversos algoritmos que ja foram propostos para realizar esta tarefa.
+
+% TODO: Escrever sobre outros approachs the feature weighting (tem naquele artigo)
+
+Neste trabalho, estudou-se a utilização de um método baseado na Teoria da Informação, que além de ser comum na literatura, possui fundamentos teóricos bem embasados \cite{weighted_naive_bayes}. 
+
+% TODO: Escrever sobre feature weighting
+
+
+\section{Métodos de avaliação de um classificador}
+Uma vez desenvolvido o classificador é importante ser capaz de avaliá-lo a fim de determinar o quão bom ele é. A utilização de métricas numéricas para avaliar os classificadores é interessante pois permite a realização de comparações entre as diferentes versões implementadas, tornando possível determinar se as modificações que foram feitas estão fazendo efeito.
+
+Existem diversas métricas que podem ser utilizadas para avaliar classificadores, algumas delas serão analisadas nesta seção.
+
+\subsection{Classificador Binário}
+
+\subsubsection{Acurácia}
+
+\subsubsection{Precisão}
+
+\subsubsection{Abrangência (\emph{Recall})}
+
+\subsubsection{Medida F1}
+
+\subsection{Classificador \emph{Multi-Class}}
+
+\subsubsection{Matriz de Confusão (\emph{Confusion Matrix})}
+
+\subsubsection{Médias micro e macro (\emph{Micro and Macro Averaging})}
+
+\subsubsection{Medida Kappa}
+
+
+
