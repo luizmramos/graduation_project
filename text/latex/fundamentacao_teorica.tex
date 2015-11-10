@@ -54,7 +54,7 @@ Onde $D=Difficulty$, $G=Grade$, $I=Intelligence$, $S=SAT$ e $L=Letter$.
 
 \subsection{Naïve Bayes}
 \subsubsection{Problema a ser resolvido}
-Redes Bayesianas são ferramentas excelentes para modelar problemas complexos, entretanto elas possuem um grande problema prático. A realização de inferências em redes genéricas é um problema NP-hard, conforme demonstrado por Cooper \cite{inference_bayesian_networks}.
+Redes Bayesianas são ferramentas excelentes para modelar problemas complexos, entretanto elas possuem um grande problema prático. A realização de inferências em redes genéricas é um problema NP-Hard, conforme demonstrado por Cooper \cite{inference_bayesian_networks}.
 
 O que é realizado na prática é, ou realizar inferências aproximadas nas redes com algoritmos polinomiais, ou simplificar as redes a alguns tipos específicos mais simples.
 
@@ -224,23 +224,157 @@ Neste trabalho, estudou-se a utilização de um método baseado na Teoria da Inform
 \section{Métodos de avaliação de um classificador}
 Uma vez desenvolvido o classificador é importante ser capaz de avaliá-lo a fim de determinar o quão bom ele é. A utilização de métricas numéricas para avaliar os classificadores é interessante pois permite a realização de comparações entre as diferentes versões implementadas, tornando possível determinar se as modificações que foram feitas estão fazendo efeito.
 
-Existem diversas métricas que podem ser utilizadas para avaliar classificadores, algumas delas serão analisadas nesta seção.
+Existem diversas métricas que podem ser utilizadas para avaliar classificadores, algumas delas serão analisadas nesta seção \cite{sokolova2009systematic}.
+
 
 \subsection{Classificador Binário}
+Primeiro serão explorados os métodos de avaliação da performance do classificador binário, que é o classificador mais simples. 
+
+A tabela \ref{tab:avaliacao_classificador_binario} resume as diferentes medidas que podem ser utilizadas, onde $tp$ é o verdadeiro positivo, $tn$ é o verdadeiro negativo, $fp$ é o falso positivo e $fn$ é o falso negativo.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{c c c}
+			\hline
+			Medida & Fórmula & Intuição \\
+			\hline 
+			&&\\
+			Acurácia & $\frac{tp+tn}{tp+fn+fp+tn}$ & Eficácia global do classificador \\[0.6cm]
+			Precisão & $\frac{tp}{tp+fp}$ & Quantos dos objetos classificados como positivo são efetivamente positivos\\[0.6cm]
+			Abrangência & $\frac{tp}{tp+fn}$ & Quantos dos objetos positivos foram classificados como positivos\\[0.6cm]
+			Fscore & $\frac{(\beta^2+1)tp}{(\beta^2+1)tp + \beta^2fn + fp}$ & Uma média harmônica entre a precisão e a abrangência \\[0.2cm]
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Resumo das medidas de performance para classificadores binários}
+	\label{tab:avaliacao_classificador_binario}
+\end{table}
+
+\subsubsection{Acurácia}
+A acurácia mede a quantidade total de acertos (verdadeiro positivos ou verdadeiro negativos) em relação à quantidade total de objetos classificados.
+
+$acuracia = \frac{tp+tn}{tp+fn+fp+tn}$
+
+Esta é a medida de performance mais fácil de se entender, entretanto ela não é muito informativa, uma vez que dependendo da distribuição das classes, classificadores ruins podem ter alta acurácia.
+
+Suponha, por exemplo, um classificador que classifica tumores em benignos ou malignos. Suponha também que 99.9\% dos tumores sejam benignos. É possível criar um classificador que sempre responde que o tumor é benigno e ele teria uma acurácia de 99.9\% (aparentemente muito boa). Entretanto este classificador falha miseravelmente na sua tarefa principal (que é determinar quais tumores são malignos para que as devidas providencias sejam tomadas).
+
+\subsubsection{Precisão}
+A precisão é uma estatística que indica quantos dos objetos classificados como positivo são efetivamente positivos. Quando um classificador com alto precisão classifica um objeto como positivo, é muito provável que ele seja positivo (entretanto nada se sabe sobre quantos objetos positivos ele esta classificando como negativo).
+
+$precisao = \frac{tp}{tp+fp}$
+
+Um classificador que indica para uma pessoa se ela deve investir ou não em uma determinada ação deve ser muito preciso. Pois para o investidor o importante é que quando ele siga o conselho do classificador e invista, ele não perca dinheiro. Não importa tanto se havia várias outras ações que eram boas, mas que o classificador desprezou.
+
+\subsubsection{Abrangência (\emph{Recall})}
+A abrangência de um classificador indica quantos dos objetos positivos são efetivamente classificados como positivos. Um classificador com grande abrangência provavelmente irá detectar a maior parte dos objetos positivos (apesar de também poder detectar alguns negativos como sendo positivos).
+
+$abrangencia = \frac{tp}{tp+fn}$
+
+Um médico que classifica pintas na pele das pessoas entre malignas ou benignas (câncer de pele ou não) deve ter uma grande abrangência (sendo a classificação 'maligno' a classe positiva do classificador), mas a precisão não é tão importante. Isso ocorre pois se o médico deixar de classificar alguma pinta que era maligna como maligna, o paciente pode acabar evoluindo a doença e morrer (ou seja, todos que são efetivamente malignos devem ser classificados como malignos). A precisão não é tão importante pois se por ventura o médico classificar uma pinta benigna como maligna, o paciente vai remover a mesma e na biópsia será possível identificar que não era nada demais (o paciente só terá que passar inutilmente pelo procedimento cirúrgico de remoção de pintas, mas isso não é muito problemático).
+
+Existe, normalmente uma relação inversa entre a precisão e a abrangência. Em geral quanto se aumenta a precisão se reduz a abrangência e vice-versa. Pode-se exemplificar isto com o mesmo caso do médico que classifica pintas. Quando ele fica com dúvida se a pinta é benigna ou maligna, ele pode dizer que ela é maligna e pedir a remoção ou dizer que ela é benigna. Se na dúvida ele sempre disser que a pinta é maligna, ele estará aumentando a abrangência, mas diminuindo a precisão (pois haverá mais verdadeiros positivos e mais falso positivos). No limite, dizer que todas pintas são malignas dá abrangência máxima (100\%). Se ele sempre disser que a pinta duvidosa é benigna, ele aumentará a precisão, mas diminuirá a abrangência (pois haverá mais falso negativos e menos falso positivos).
+
+\subsubsection{Fscore}
+Como pode ser visto, a abrangência e a precisão possuem comportamentos antagônicos. Normalmente é importante que o classificador tenha tanto uma precisão aceitável, quanto uma abrangência razoável. Então combinou-se a abrangência e a precisão em um único número, chamado de Fscore.
+
+O caso mais simples do Fscore (chamado de F1score) é uma média harmônica entre a precisão e a abrangência.
+
+$F_1 = \frac{2}{\frac{1}{precisao} + \frac{1}{abrangencia}}$
+
+Ou seja:
+
+$F_1 = \frac{2.precisao.abrangencia}{precisao + abrangencia}$
+
+Isto pode ser simplificado para:
+
+$F_1 = \frac{2tp}{2tp+fn+fp}$
+
+É interessante notar que se a precisão ou se a abrangência forem bem pequenas, o F1score será bem pequeno. Se ambas forem grandes, o F1score será algum valor entre as duas.
+
+Como dependendo da aplicação, a precisão ou a abrangência podem ser mais importantes, há uma formulação genérica para o Fscore que utiliza o parâmetro $\beta$ para determinar qual das duas métricas é mais importante.
+
+$F_\beta = \frac{(1+\beta^2).precisao.abrangencia}{\beta^2 precisao + abrangencia}$
+
+É fácil provar que:
+
+$F_\beta = \frac{(\beta^2+1)tp}{(\beta^2+1)tp + \beta^2fn + fp}$
+
+Os dois valores de $\beta$ mais comuns são 0.5 e 2. Nota-se que para $\beta$ maior que 1 a abrangência é considerada mais importante. Para $\beta$ menor que 1 a precisão é considerada mais importante. 
+
+\subsection{Classificador \emph{Multi-Class}}
+As mesmas métricas definidas acima podem ser aplicadas para problemas \emph{multi-class}, entretanto alguns problemas surgem. Por exemplo, as métricas seriam calculadas individualmente para cada classe (gerando vários números), o que tornaria a avaliação do classificador um processo complicado (vários números são mais difíceis de serem analisados do que apenas um único).
+
+A tabela \ref{tab:avaliacao_classificador_multiclass} resume as diferentes medidas utilizadas na avaliação de performance de um classificador \emph{multi-class}.
+
+
+
+\subsubsection{Matriz de Confusão (\emph{Confusion Matrix})}
+Para facilitar a análise de problemas \emph{multi-class}, criou-se a matriz de confusão. Ela consiste em uma matriz de números na qual as linhas representam as classificações realizadas pelo classificador e as colunas representam as classes originais das quais os objetos pertencem. A célula $a_{ij}$ da matriz possui um número que indica quantas vezes o classificador classificou objetos de tipo j como i.
+
+É fácil de notar que uma matriz de confusão de um classificador perfeito possui vários números positivos na diagonal principal e zero em todas as outras células. Nota-se que qualquer numero maior que zero em uma célula que não pertence a diagonal principal representa um erro. Com a matriz de confusão fica fácil de visualizar os erros mais comuns feitos pelo classificador.
+
+A Figura \ref{fig:confusion_matrix_example} mostra uma matriz de confusão de um classificador que deve classificar expressões faciais.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{confusion_matrix_example.png}
+	\caption{Exemplo de Matriz de Confusão para um classificador retirado de \cite{bollano2007method}}
+	\label{fig:confusion_matrix_example}
+\end{figure}
+
+A partir da matriz de confusão é fácil de determinar a precisão e a abrangência para cada classe i, conforme segue:
+
+$precisao(i) = \frac{a_{ii}}{\sum_{j=1}^{L} a_{ij}} $
+
+$abrangencia(i) = \frac{a_{ii}}{\sum_{j=1}^{L} a_{ji}} $
+
+Ou seja, a precisão é um dos elementos da diagonal principal dividido pela soma de sua linha, enquanto que a abrangência é um dos elementos da diagonal principal dividido pela sua coluna.
+
+Apesar de ter números específicos é muito bom pra analisar o quão bom um classificador é, é sempre importante observar a Matriz de Confusão pra detectar possíveis problemas e os lugares onda há erros mais comuns.
+
+\subsubsection{Médias micro e macro (\emph{Micro and Macro Averaging})}
+Conforme o descrito, pode-se calcular a precisão, a abrangência, o Fscore e a acurácia para cada classe individualmente. Entretanto seria interessante juntar todos estes dados em um único número. Para tal, faz-se uma média. Existem duas formas de realizar esta média, que são chamadas de micro e macro. 
+
+A média micro consiste em somar os numeradores e denominadores das formulas das métricas supracitadas separadamente (na prática isto é equivalente a realizar uma média ponderada nos denominadores). Seguem as fórmulas de precisão, abrangência e acurácia micro.
+
+$precisao_\mu = \frac{\sum_{i=1}^{L} {tp_i}}{\sum_{i=1}^{L} {tp_i + fp_i}}$
+
+$abrangencia_\mu = \frac{\sum_{i=1}^{L} {tp_i}}{\sum_{i=1}^{L} {tp_i + fn_i}}$
+
+Com uma matemática simples da pra concluir que a precisão micro é numericamente igual à abrangência micro (basta notar que o numerador dos dois é igual e o numerador dos dois representa a soma de todos os elementos da matriz de confusão, um através da soma das linhas e o outro através da soma das colunas).
+
+A média macro consiste em somar os valores finais das métricas calculadas em cada classe e dividir pelo total de classes (uma média aritmética simples). Seguem as fórmulas de precisão e abrangência macro.
+
+$precisao_M = \frac{\sum_{i=1}^{L} {\frac{tp_i}{tp_i + fp_i}}}{L}$
+
+$abrangencia_M = \frac{\sum_{i=1}^{L} {\frac{tp_i}{tp_i + fn_i}}}{L}$
+
+A intuição por trás dessas duas médias é que a média macro dá igual importância para todas as classes, enquanto que a média micro da mais importância para as classes mais comuns (no caso da abrangência) ou para as classes com mais objetos classificados nelas (no caso da precisão).
+
+\subsubsection{Fscore}
+Da mesma forma que foi definido o Fscore para o caso do classificador binário, é possível definir um Fscore macro e um Fscore micro (dependendo da utilização da precisão e abrangência macro ou micro).
+
+$F_{\beta \mu} = \frac{(1+\beta^2).precisao_\mu .abrangencia_\mu}{\beta^2 precisao_\mu + abrangencia_\mu}$
+
+$F_{\beta M} = \frac{(1+\beta^2).precisao_M .abrangencia_M}{\beta^2 precisao_M + abrangencia_M}$
+
+Uma observação interessante é que, como a precisão micro e a abrangência micro são numericamente iguais, temos que o Fscore micro tambem terá este mesmo valor (independentemente de $\beta$). Para a média macro isto não acontece.
 
 \subsubsection{Acurácia}
 
-\subsubsection{Precisão}
+É possível encontrar na literatura duas definições diferentes de acurácia \cite{caballero2010sensitivity} \cite{sokolova2009systematic}. 
 
-\subsubsection{Abrangência (\emph{Recall})}
+Em uma das definições, a acurácia de um classificador \emph{multi-class} é a média aritmética (média macro) das acurácias individuais de cada classe.
 
-\subsubsection{Medida F1}
+$accuracy = \frac{\sum_{i=1}^{L} {\frac{tp_i + tn_i}{tp_i + fn_i + fp_i + tn_i}}}{L}$
 
-\subsection{Classificador \emph{Multi-Class}}
+Na outra definição, a acurácia é a quantidade total de acertos (considerando todas as classes), dividida pela quantidade total de documentos.
 
-\subsubsection{Matriz de Confusão (\emph{Confusion Matrix})}
+$accuracy = \frac{\sum_{i=1}^{L}{tp_i}}{N}$
 
-\subsubsection{Médias micro e macro (\emph{Micro and Macro Averaging})}
+Neste trabalho será utilizada esta última definição por ser mais intuitiva e dar mais informação sobre a qualidade do classificador (observe que a primeira definição de acurácia tende a sempre dar acurácias altas para problemas com muitas classes, uma vez que a quantidade de verdadeiros negativos tende a ser alta para todas as classes).
 
 \subsubsection{Medida Kappa}
 
