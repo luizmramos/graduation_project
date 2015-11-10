@@ -372,11 +372,45 @@ $accuracy = \frac{\sum_{i=1}^{L} {\frac{tp_i + tn_i}{tp_i + fn_i + fp_i + tn_i}}
 
 Na outra definição, a acurácia é a quantidade total de acertos (considerando todas as classes), dividida pela quantidade total de documentos.
 
-$accuracy = \frac{\sum_{i=1}^{L}{tp_i}}{N}$
+\begin{equation}
+accuracy = \frac{\sum_{i=1}^{L}{tp_i}}{N}
+\label{eq:accuracy_multi_class}
+\end{equation}
 
-Neste trabalho será utilizada esta última definição por ser mais intuitiva e dar mais informação sobre a qualidade do classificador (observe que a primeira definição de acurácia tende a sempre dar acurácias altas para problemas com muitas classes, uma vez que a quantidade de verdadeiros negativos tende a ser alta para todas as classes).
+Considerando a matriz de confusão, temos que:
+
+$accuracy = \frac{\sum_{i=1}^{L}{a_{ii}}}{\sum_{i=1}^{L}{\sum_{j=1}^{L}{a_{ij}}}} = \frac{\sum_{i=1}^{L}{a_{ii}}} {N}$
+
+Neste trabalho será utilizada esta última definição por ser mais intuitiva e dar mais informação sobre a qualidade do classificador (observe que a primeira definição de acurácia tende a sempre resultar em valores altos para problemas com muitas classes, uma vez que a quantidade de verdadeiros negativos tende a ser alta para todas as classes).
+
+Observa-se que a acurácia também é numericamente igual à abrangência e à precisão com média micro.
 
 \subsubsection{Medida Kappa}
+Como já foi discutido previamente, a acurácia é uma medida muito ruim pois é possível desenvolver classificadores com comportamento trivial que possuem uma boa acurácia. Para resolver este problema, utilizam-se outras estatísticas em vez da acurácia que possuem mais valor semântico e dão mais informações sobre a performance do classificador. Já foram explicadas outras medidas que possuem mais informações (abrangência, precisão e Fscore micros e macros) e a matriz de confusão que permite a visualização de problemas recorrentes no classificador. Entretanto, para o problema \emph{multi-class} é comum utilizar uma outra métrica (chamada de Kappa) para avaliar a performance do classificador em questão.
 
+A estatística Kappa é utilizada para comparar a Acurácia Observada com a Acurácia Esperada. Esta estatística é muito poderosa e permite a realização de comparações até mesmo entre classificadores diferentes \cite{kappa_statistic}. Ela utiliza a comparação em relação a um classificador aleatório de modo a tornar esta estatística mais confiável que uma simples acurácia.
 
+A Acurácia Observada é a mesma acurácia que já foi definida previamente na equação \ref{eq:accuracy_multi_class}. Ela representa a quantidade de objetos classificados corretamente em relação ao total.
+
+Define-se como Acurácia Observada, a porcentagem esperada de acertos que um classificador aleatório teria se ele classificar os objetos com a mesma proporção entre as classes que o classificador original. 
+
+Para se deduzir a fórmula da Acurácia Esperada primeiro calcula-se a quantidade de vezes que o classificador original escolheu a classe $c_i$. É fácil de ver que ele escolheu esta classe $tp_i + fp_i$ vezes. O valor esperado do número de acertos de um classificador aleatório que escolha a dada classe $tp_i + fp_i$ vezes é: 
+
+$E[c_i] = (tp_i + fp_i)\frac{tp_i + fn_i}{N}$ 
+
+Isto ocorre pois $\frac{tp_i + fn_i}{N}$ é a probabilidade de que um objeto aleatório pertença à classe $i$. A quantidade esperada para o número de acertos em todas as classes é de: 
+
+$E[c_1,c_2,...,c_L] = \sum_{i=1}^{L} {(tp_i + fp_i)\frac{tp_i + fn_i}{N}}$
+
+Como a Acurácia Esperada é a porcentagem de acertos desse classificador aleatório tem-se:
+
+$acuracia\_esperada = \frac{E[c_1,c_2,...,c_L]}{N} =  \frac{\sum_{i=1}^{L}{(tp_i + fp_i)(tp_i + fn_i)}}{N^2}$
+
+Em termos da matriz de confusão, a acurácia esperada é a somatória dos produtos entre cada linha com a sua respectiva coluna (linha 1 com coluna 1, linha 2 com coluna 2 e assim por diante) dividida pela quantidade total de elementos ao quadrado.
+
+A definição de Acurácia Esperada é importante pois um classificador de Acurácia Observada 80\% é muito mais impressionante se a Acurácia Esperada for de 1\% do que se ela for 79\%.
+
+A estatística $Kappa$ indica a porcentagem de melhoria que o classificador tem em relação à Acurácia Esperada \cite{viera2005understanding}. Um classificador com Acurácia Observada idêntica à Acurácia Esperada possui $Kappa=0$, enquanto que um classificador com Acurácia Observada de 100\% possui $Kappa=1$. Valores intermediários do $Kappa$ indicam a melhoria do classificador em relação ao aleatório. Desta forma, a fórmula para o $Kapp$ é:
+
+$Kappa = \frac{acuracia\_observada - acuracia\_esperada}{1 - acuracia\_esperada}$
 
