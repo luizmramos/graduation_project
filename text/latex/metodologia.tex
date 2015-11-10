@@ -1,6 +1,58 @@
 \section{Plano de desenvolvimento}
 
-\section{AquisiÃ§Ã£o de dados}
+Dividiu-se o desenvolvimento do projeto em diversas etapas.
+
+\subsection{Estudo basico sobre Processamento de Linguagem Natural}
+Inicialmente realizou-se um estudo aprofundado sobre o assunto do projeto para aproveitar o conhecimento já desenvolvido ao longo dos anos pela comunidade científica e garantir que as melhores tecnologias e técnicas fossem adotadas.
+O plano de estudos adotado foi:
+
+\begin{enumerate}[(a)]
+\item Expressões regulares
+\item Processamento de texto
+\item Normalização
+\item Tokenização das strings
+\item Modelagem linguística e simplificação de N-gramas
+\item Classificação de texto
+\item Naïve Bayes
+\item Métricas de performance (Precisão, Abrangência, Acurácia, etc)
+\item Melhorias para Naïve Bayes
+\end{enumerate}
+
+\subsection{Coleta de dados}
+Como trata-se de um projeto de Inteligência Artificial, é essencial que se obtenha uma base de dados grande o suficiente para que o sistema desenvolvido seja capaz de realizar as generalizações necessárias para um bom funcionamento sem que haja overfit.
+
+Esta base de dados consiste em um conjunto de postagens (variável X) e o assunto da mesma (variável Y).
+
+Foram propostas duas formas possíveis de aquisição de dados.
+
+\begin{itemize}
+\item Uma delas foi desenvolver um plugin que colete as postagens e pergunte o assunto para o usuário. A utilização deste plugin por várias pessoas permitiu a aquisição de uma base de dados considerável.
+\item Paralelamente desenvolveram-se crawlers para vasculhar sites que contenham artigos e textos sobre cada assunto que se deseja classificar. É importante ter a capacidade de classificar artigos de sites genéricos, pois muitas das postagens em rede social possuem links para tais sites.
+\end{itemize}
+
+\subsection{Pré-processamento dos textos e normalização}
+Como trata-se de linguagem natural e ainda por cima coloquial, para atingir um bom resultado com o classificador é essencial que haja um bom pré-processamento do texto corrigindo palavras erradas, frases mal-construídas, normalizando termos parecidos, etc.
+
+
+\subsection{Criação dos classificadores de Redes Bayesianas}
+Foram criados classificadores de NB e suas performances foram avaliadas contra um conjunto de validação. Os métodos mais efetivos foram selecionados, combinando os classificadores de postagens e de artigos e ajustando seus parâmetros para obter um bom resultado final.
+
+\subsection{Estudo dos resultados obtidos no conjunto de validação para diferentes features e parâmetros}
+Foi realizado um estudo detalhado dos resultados obtidos pelos classificadores para diferentes features, parâmetros e técnicas de classificação (NB e NB com pesos). A avaliação final da rede foi realizada em um conjunto de teste separado. % TODO: Foi mesmo?
+
+\subsection{Definição da arquitetura do classificador e sua implementação}
+Definiu-se onde a rede seria treinada e armazenada (nas máquinas cliente vs em um servidor centralizado). Considerou-se também a possibilidade da rede ser dinâmica (ou seja, se a interação com o usuário fazer com
+que a rede aprenda online com as novas informações).
+
+\subsection{Desenvolvimento do plugin}
+Por fim desenvolveu-se o plugin para o Google Chrome, com uma interface gráfica amigável para o usuário para que ele entenda de forma fácil como filtrar as postagens em seu feed de notícias. %TODO: Nao fizemos isto ainda
+
+\subsection{Testes de usabilidade com colegas}
+% TODO: Tirar isso daqui?
+Por fim foram realizados testes de usabilidade com colegas de turma baseados nas heurísticas de Nielsen.
+
+
+\section{Aquisição de dados}
 
 
 \section{Processamento do texto}

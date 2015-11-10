@@ -8,16 +8,13 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\addvspace {10\p@ }
-\contentsline {algocf}{\numberline {1}{\ignorespaces Pseudoc\'odigo do Algoritmo Gen\'etico.}}{69}{algocf.1}
-\contentsline {algocf}{\numberline {2}{\ignorespaces Pseudoc\'odigo do \textit {Particle Swarm Optimization}.}}{71}{algocf.2}
+\contentsline {algocf}{\numberline {1}{\ignorespaces Pseudoc\'odigo do Algoritmo Gen\'etico.}}{68}{algocf.1}
+\contentsline {algocf}{\numberline {2}{\ignorespaces Pseudoc\'odigo do \textit {Particle Swarm Optimization}.}}{70}{algocf.2}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {algocf}{\numberline {3}{\ignorespaces Subrotina que simula ``choques'' das part\IeC {\'\i }culas com os limites do espa\c co de busca.}}{91}{algocf.3}
+\contentsline {algocf}{\numberline {3}{\ignorespaces Subrotina que simula ``choques'' das part\IeC {\'\i }culas com os limites do espa\c co de busca.}}{90}{algocf.3}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
