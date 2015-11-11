@@ -1,18 +1,6 @@
 import re
 import unicodedata
 
-def parse_acronyms(text):
-    s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
-    while s:
-        acronym = s.group(2)
-        if len(acronym) > 1:
-            text = re.sub(acronym,'{acronym:' + acronym + '}', text)
-        else:
-            text = re.sub(acronym, acronym.lower(), text)
-        s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
-    return text
-
-
 def parse_in_text_tokens(text):
     text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', '{link}', text)
     text = re.sub('(^|\s)#[^\s]+', ' {hashtag}', text)
@@ -70,7 +58,7 @@ def parse_laughter(word):
         return laughter
 
     return word
-
+  
 
 acronyms = {
     'aew': 'ai',
@@ -222,7 +210,6 @@ def tokenize(words):
 
 def extract_tokens_from_text(text):
     text = remove_unicode_characters(text)
-    text = parse_acronyms(text)
     text = text.lower()
     text = parse_in_text_tokens(text)
     text = remove_non_letters(text)
