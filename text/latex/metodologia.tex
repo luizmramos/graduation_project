@@ -47,13 +47,189 @@ que a rede aprenda online com as novas informações).
 \subsection{Desenvolvimento do plugin}
 Por fim desenvolveu-se o plugin para o Google Chrome, com uma interface gráfica amigável para o usuário para que ele entenda de forma fácil como filtrar as postagens em seu feed de notícias. %TODO: Nao fizemos isto ainda
 
-\subsection{Testes de usabilidade com colegas}
+\subsection{Testes de usabilidade}
 % TODO: Tirar isso daqui?
 Por fim foram realizados testes de usabilidade com colegas de turma baseados nas heurísticas de Nielsen.
 
 
 \section{Aquisição de dados}
+Como já foi dito, foram desenvolvidas duas formas diferente de realizar a aquisição de dados. Uma delas consiste numa extensão para o Google Chrome que possibilita o usuário classificar cada postagens à qual ele se depara no Facebook, enviando os dados e a classificação da mesma para o banco de dados. A outra forma de aquisição de dados é o desenvolvimento de um crawler que faz o download diversos artigos online.
+
+\subsection{Plugin de classificação de postagens}
+\subsubsection{Funcionamento de extensões do Chrome}
+Extensões são softwares que melhoram as funcionalidades de um navegador. O Google Chrome disponibiliza um Framework de desenvolvimento de extensões com muitas capacidades \cite{chrome_extension}.
+
+A extensão consiste em um conjuntos de arquivos zipados que incluem HTML, Javascript, CSS, imagens, etc. O Javascript de uma extensão pode ser dividido em 3 partes diferentes: código de extensão (\emph{extension code}), scripts de conteúdo (\emph{content scripts}) e scripts injetados (\emph{injected scripts}). Estes três modos foram descritos abaixo.
+
+\begin{itemize}
+\item \textbf{Código de extensão:} Trata-se do código injetado diretamente no browser, tendo portanto acesso a todas as funcionalidades da API do Chrome, como tabs de background, pop-ups do navegador (aqueles pequenos ícones das extensões que ficam no canto superior direito do chrome), etc.
+
+\item \textbf{Scripts de conteúdo:} Trata-se de um código que é executado quando uma determinada página é carregada pelo usuário. Este script possui um escopo entre o do código de extensão e o do script injetado. Os scripts de conteúdo têm acesso à algumas das funcionalidades da API do Chrome e ao mesmo tempo pode acessar e modificar o DOM da página. Por estar em um escopo diferente ao escopo do javascript da própria página ele não tem acesso às funções e objetos definidos no mesmo. Por outro lado, ele não possui diversas das restrições de segurança que scripts injetados possuem. O script de conteúdo pode, por exemplo, executar cross-origin requests (ou seja, acessar servidores de outra origem).
+
+\item \textbf{Scripts injetados:} Scripts injetados são, como o nome diz, pedaços de código javascript que são injetados numa determinada página, executando em seu escopo. Desta forma eles tem acesso à todas as funções e variáveis definidos pelo javascript original da página. Também podem modificar como eles quiserem estas variáveis e o próprio DOM.
+
+\end{itemize}
+
+No caso da aplicação deste trabalho, é necessário ser capaz de mandar os dados das postagens com suas classificações para um servidor central (que obviamente não é do próprio Facebook), logo scripts injetados não são uma boa solução (uma vez que o javascript do Facebook impede a execução de cross-origin requests). Ou seja, a extensão foi desenvolvida predominantemente com scripts de conteúdo. 
+
+Uma observação importante é que scripts de conteúdo ainda possuem algumas restrições de segurança ao fazer requests para outros domínios. Se o site principal for https, o script de conteúdo só poderá realizar requests para outros servidores por https também. Para tal, o servidor desenvolvido neste trabalho deve ser capaz de responder requests https.
+
+\subsubsection{Manifesto da extensão}
+As extensões do Chrome possuem um arquivo de configuração chamado de manifesto. Este arquivo encontra-se no formato de JSON.
+
+\begin{lstlisting}[language=json, firstnumber=1, caption={Manifesto da extensão do Chrome para coleta de dados}, label={lst:manifest_chrome_extension}]
+{
+  "manifest_version": 2,
+  "name": "Demeter",
+  "version": "1.0.0",
+  "description": "Collect data from facebook to use in NLP studies. This plugin has academic purposes.",
+
+  "icons": {
+    "128" : "icon_128.png",
+    "180" : "icon_180.png"
+  },
+
+  "content_scripts": [{
+    "matches": [ "https://*.facebook.com/*" ],
+    "js": [ 
+      "jquery-1.11.3.min.js", 
+      "poo_utilities.js",
+      "facebook_tree.js",
+      "demeter_dom.js",
+      "story_classification.js",
+      "contentscript.js" 
+    ],
+    "css": [ "demeter.css" ]
+  }],
+
+  "permissions": [ "tabs", "https://*.facebook.com/*", "https://demeter-1075.appspot.com/*" ],
+
+  "web_accessible_resources": [ 
+    "contentscript.js", 
+    "jquery-1.11.3.min.js", 
+    "poo_utilities.js", 
+    "facebook_tree.js",
+    "story_classification.js",
+    "demeter_dom.js",
+    "demeter.css",
+    "three-dots.png"
+  ]
+}
+
+\end{lstlisting}
+
+O código \ref{lst:manifest_chrome_extension} ilustra o manifesto da extensão desenvolvida. Ele identifica o nome da extensão (Demeter), a sua versão, os ícones utilizados, os scripts de conteúdo e as permissões (acessar o facebook e o servidor desenvolvido).
+
+Note que além dos códigos desenvolvidos, utilizou-se a biblioteca do JQuery para facilitar a manipulação do DOM.
+
+\subsubsection{Estrutura do DOM do Facebook}
+Para injetar um pedaço de HTML no meio do Feed de notícias do Facebook, é importante entender a sua estrutura, básica. 
+
+Este projeto foi feito assumindo que o Facebook não iria realizar grandes mudanças em seu design e em sua estrutura básica de HTML em um curto prazo. Caso houvesse tal modificação, a extensão desenvolvida iria parar de funcionar, sendo necessário realizar algumas adaptações para que ela fosse consertada. Todo código foi desenvolvido de forma modularizada de modo a tentar diminuir as dificuldades de adaptação caso este evento infortúnio ocorresse. Todavia, desde o começo até o final do desenvolvimento do projeto isto não aconteceu.
+
+O HTML do Facebook passa por um processo de ofuscação e compressão antes de ser enviado para as máquinas cliente. Essa ofuscação troca as classes e ids dos elementos por nomes aleatórios e curtos. Então um elemento HTML que originalmente tinha uma classe `facebook{\_}feed', por exemplo, passará a ter a classe `{\_}u{\_}s8v4'. Este processo atrapalha um pouco no desenvolvimento de uma extensão que se acople ao site do Facebook (pois esses ids e classes são aleatórios e podem mudar). Entretanto, por algum motivo (provavelmente se trata de um código antigo), algumas classes e ids continuam com nomes legíveis. Considerou-se que estes nomes legíveis são mais estáveis e portanto, baseou-se a extensão desenvolvida em elementos HTML que possuíam estes nomes.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{facebook_html_example.png}
+	\caption{Exemplo de HTML do Facebook, com algumas classes aleatórias e algumas de nome legível}
+	\label{fig:facebook_html_example}
+\end{figure}
+
+A Figura \ref{fig:facebook_html_example} ilustra o que foi explicado no parágrafo anterior. Algumas das classes são strings aleatórias(`{\_}5pcr', `{\_}3ccb', `{\_}1dwg', etc), enquanto que algumas possuem valores legíveis (`userContentWrapper').
+
+Observando estes elementos nomeados, chegou-se à seguinte estrutura simplificada para o DOM do Facebook. Todo o conteúdo do site, exceto a barra azul superior e o chat que fica ao lado direito, se encontra dentro de um div chamado de mainContainer. Dentro deste mainContainer há um div chamado de feed{\_}stream, que possui todas as postagens do feed de notícias. O feed{\_}stream contem um ou mais substreams. Cada substream é um conjunto de postagens. Quando o usuário desce a página até a parte inferior, um novo substream é criado com as novas postagens. Cada substream possui uma ou mais postagens que são representadas por divs chamados de userContentWrapper. É possível que userContentWrapper's contenham outros userContentWrapper's (por exemplo quando uma pessoa compartilha a postagem de outra pessoa). A Figura \ref{fig:facebook_dom_structure} mostra um exemplo de uma árvore de DOM simplificada para o Facebook.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{facebook_dom_structure.png}
+	\caption{Exemplo ilustrativo da estrutura básica da árvore de DOM do Facebook}
+	\label{fig:facebook_dom_structure}
+\end{figure}
+
+\subsubsection{UI desenvolvida}
+A extensão desenvolvida utiliza a API de javascript JQuery para injetar um pedaço de HTML logo acima do userContentWrapper, de modo a colocar um cabeçalho no topo de cada postagem com as classes pré definidas. O usuário deverá agir como um supervisor para o classificador indicando qual o assunto da postagem em questão. A Figura \ref{fig:chrome_extension_header_example} ilustra o cabeçalho em uma postagem.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chrome_extension_header_example.png}
+	\caption{Exemplo em uma postagem do cabeçalho contendo as possíveis classes}
+	\label{fig:chrome_extension_header_example}
+\end{figure}
+
+Uma vez que o usuário clique na classe à qual a postagem pertence, o cabeçalho passa a conter apenas o nome da classe escolhida e uma barra opções a direita que pode ser expandida, conforme a Figura \ref{fig:chrome_extension_header_classified}
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{chrome_extension_header_classified.png}
+	\caption{Exemplo da UI de uma postagem classificada pelo usuário}
+	\label{fig:chrome_extension_header_classified}
+\end{figure}
+
+A barra de opções possui duas possíveis ações: `Mudar Assunto' ou `Adicionar Assunto'. Se o usuário clicar na primeira opção ele poderá escolher um novo assunto para a postagem. Se o usuário clicar na segunda opção ele poderá adicionar um novo assunto para a postagem (que então possuirá duas classes). A Figura \ref{fig:barra_de_opcoes_extencao} ilustra a barra de opções.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{barra_de_opcoes_extencao.png}
+	\caption{Barra de opções para modificar a escolha do assunto na extensão do Chrome}
+	\label{fig:barra_de_opcoes_extencao}
+\end{figure}
+
+Observe que apesar de na hora de realizar a classificação foi feita a simplificação de que o problema se trata apenas de \emph{multi-class} (não \emph{multi-class / multi-label}), na hora da coleta de dados é possível classificar uma única postagem em vários assuntos diferentes. Isto foi feito primordialmente por dois motivos. Primeiramente, é interessante já possuir uma base de dados com postagens com classificações múltiplas para se poder estudar o classificador \emph{multi-class / multi-label} em trabalhos futuros. Além disto, vários usuários diferentes podem classificar as postagens de forma distinta (não concordam entre si). Neste caso, o servidor guarda a contagem de classificações para cada classe e é considerado que a postagem pertence à classe mais frequente (empates são quebrados manualmente).
+
+\subsubsection{Servidor}
+Sempre que um usuário seleciona uma classe para uma determinada postagem, é realizada uma requisição POST para o servidor do Demeter (nome do projeto), contendo as informações relevantes. O servidor salva estas informações em um banco de dados.
+
+O banco de dados contem postagens indexadas por sua url (que é um valor único para cada postagem) e é associado a um conjunto de classes e frequências. Por exemplo, se um post foi classificado 5 vezes como Política e 2 como educação, essa informação ficará registrada no banco de dados.
+
+É importante notar que não é apenas o texto da postagem que é salva no banco de dados. Também armazena-se o usuário que realizou criou a postagem, o momento em que ela foi publicada (timestamp), a presença de fotos ou vídeos, a existência de informações sobre o local de onde o usuário postou, etc. Essas informações podem ser relevantes na hora de se criar features para a NB.
+
+
+\subsubsection{Crawler}
+
+% TODO: Write about crawler
 
 \section{Processamento do texto}
+Um bom pré processamento do texto é essencial para um bom resultado de classificação. Isso é especificamente válido em um ambiente como uma rede social, onde muitas vezes há abreviações, interjeições, utilização de linguagem informal, etc.
+
+\subsection{Tokenização}
+Muitas vezes as palavras puras não são muito boas para utilizar como features na classificação. Por isso para cada palavra associa-se um token. Este processo é chamado de tokenização. Deve-se decidir o que será feito com a pontuação, se palavras serão modificadas, etc. As vezes um token pode ser um conjunto de palavras. Por exemplo `Rio de Janeiro' pode ser um único token.
+
+Outros exemplos de tokenização são trocar todos os números por um único token (normalmente para um classificador não é tão importante o valor numérico, mas sim a presença de um número em si). O mesmo vale para datas, porcentagens, links, etc.
+
+\subsection{Normalização}
+Normalização é o processo de se criar classes de equivalência de palavras. Por exemplo: as palavras U.S.A e USA são a mesma, porém escritas de forma diferente. Alem disso palavras possuem a primeira letra maiúscula quando iniciam uma frase ou podem estar completamente escritas em caixa alta (se o escritor quer passar a noção de que está gritando, por exemplo). Transformar todas as letras para caixa baixa é um tipo de normalização.
+
+\subsection{Stemming}
+Stemming é o processo de trocar todas as palavras que possuem sentidos parecidos por um mesmo radical. Por exemplo, os verbos escrevo, escrevi, escrevemos, escreverei, escrevera e escreveu podem ser substituídos pelo radicar escrev.
+
+\subsection{Processamento utilizado}
+
+%TODO: Se implementarmos stemming ele tem que entrar nessa secao
+Para este trabalho foram feitas as seguintes etapas de pré processamento do texto.
+
+\begin{itemize}
+\item \textbf{Remover caracteres unicode:} Acentos, cedilhas, tremas e outros caracteres unicode são substituídos por seus equivalentes em ASCII.
+\item \textbf{Remover letras maiúscula:} Todas as letras maiúsculas são mudadas para minúscula.
+\item \textbf{Remoção números:} Quando há um número no texto, seu valor exato não importa muito para o classificador. O que importa é a sua presença. O mesmo vale para datas, porcentagens, urls, valores de dinheiro e datas. No caso, os números são substituídos por `\{number\}', as datas por `\{date\}' e assim por diante.
+\item \textbf{Remover a pontuação:} Toda a pontuação é removida.
+\item \textbf{Encontrar risadas:} Todas as ocorrências de risadas (que puderam ser identificadas com algumas heurísticas simples) são substituídas por `{laughter}'
+\item \textbf{Remover letras duplas:} Em redes sociais é muito comum o usuário repetir a mesma letras diversas vezes para enfatizar a palavra. Por exemplo: `Que FOOOOOOOOOOFO!'. Isto atrapalharia o classificador. Por isso letras repetidas são removidas. Note que, apesar de ser permitido no português `r' e `s' duplos, removê-los não atrapalhará muito o classificador.
+\item \textbf{Filtrar palavras comuns e que não agregam muito valor ao classificador:} Palavras comuns do português como artigos, preposições, etc são desconsideradas.
+\end{itemize}
+
+% TODO: ver se acronimos sao uteis ou 
 
 \section{Tecnologias utilizadas}
+% TODO: escrever sobre as tecnologias utilizadas
+
+\subsection{Extensão para Chrome}
+
+\subsection{HTML / Javascript / CSS}
+
+\subsection{Git}
+
+\subsection{Google App Engine}
+
+\subsection{Python}
+
