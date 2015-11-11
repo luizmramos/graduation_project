@@ -22,18 +22,6 @@ def bytefy(input):
         return input
 
 
-def parse_acronyms(text):
-    s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
-    while s:
-        acronym = s.group(2)
-        if len(acronym) > 1:
-            text = re.sub(acronym,'{acronym:' + acronym + '}', text)
-        else:
-            text = re.sub(acronym, acronym.lower(), text)
-        s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
-    return text
-
-
 class LinkCache(object):
 
     TOTAL_ELAPSED_TIME = 0.0
@@ -143,7 +131,7 @@ def parse_laughter(word):
         return laughter
 
     return word
-
+  
 
 acronyms = {
     'aew': 'ai',
@@ -300,7 +288,6 @@ STEMMER = nltk.stem.RSLPStemmer()
 def extract_tokens_from_text(text, link_cache):
     text = parse_links(text, link_cache)
     text = remove_unicode_characters(text)
-    text = parse_acronyms(text)
     text = text.lower()
     text = parse_in_text_tokens(text)
     text = remove_non_letters(text)

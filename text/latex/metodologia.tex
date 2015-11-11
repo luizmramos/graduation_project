@@ -4,3 +4,45 @@
 
 
 \section{Processamento do texto}
+
+Um bom pré processamento do texto é essencial para um bom resultado de classificação. Isso é especificamente válido em um ambiente como uma rede social, onde muitas vezes há abreviações, interjeições, utilização de linguagem informal, etc.
+
+\subsection{Tokenização}
+Muitas vezes as palavras puras não são muito boas para utilizar como features na classificação. Por isso para cada palavra associa-se um token. Este processo é chamado de tokenização. Deve-se decidir o que será feito com a pontuação, se palavras serão modificadas, etc. As vezes um token pode ser um conjunto de palavras. Por exemplo `Rio de Janeiro' pode ser um único token.
+
+Outros exemplos de tokenização são trocar todos os números por um único token (normalmente para um classificador não é tão importante o valor numérico, mas sim a presença de um número em si). O mesmo vale para datas, porcentagens, links, etc.
+
+\subsection{Normalização}
+Normalização é o processo de se criar classes de equivalência de palavras. Por exemplo: as palavras U.S.A e USA são a mesma, porém escritas de forma diferente. Alem disso palavras possuem a primeira letra maiúscula quando iniciam uma frase ou podem estar completamente escritas em caixa alta (se o escritor quer passar a noção de que está gritando, por exemplo). Transformar todas as letras para caixa baixa é um tipo de normalização.
+
+\subsection{Stemming}
+Stemming é o processo de trocar todas as palavras que possuem sentidos parecidos por um mesmo radical. Por exemplo, os verbos escrevo, escrevi, escrevemos, escreverei, escrevera e escreveu podem ser substituídos pelo radicar escrev.
+
+\subsection{Processamento utilizado}
+
+%TODO: Se implementarmos stemming ele tem que entrar nessa secao
+Para este trabalho foram feitas as seguintes etapas de pré processamento do texto.
+
+\begin{itemize}
+\item \textbf{Remover caracteres unicode:} Acentos, cedilhas, tremas e outros caracteres unicode são substituídos por seus equivalentes em ASCII.
+\item \textbf{Remover letras maiúscula:} Todas as letras maiúsculas são mudadas para minúscula.
+\item \textbf{Remoção números:} Quando há um número no texto, seu valor exato não importa muito para o classificador. O que importa é a sua presença. O mesmo vale para datas, porcentagens, urls, valores de dinheiro e datas. No caso, os números são substituídos por `\{number\}', as datas por `\{date\}' e assim por diante.
+\item \textbf{Remover a pontuação:} Toda a pontuação é removida.
+\item \textbf{Encontrar risadas:} Todas as ocorrências de risadas (que puderam ser identificadas com algumas heurísticas simples) são substituídas por `{laughter}'
+\item \textbf{Remover letras duplas:} Em redes sociais é muito comum o usuário repetir a mesma letras diversas vezes para enfatizar a palavra. Por exemplo: `Que FOOOOOOOOOOFO!'. Isto atrapalharia o classificador. Por isso letras repetidas são removidas. Note que, apesar de ser permitido no português `r' e `s' duplos, removê-los não atrapalhará muito o classificador.
+\item \textbf{Filtrar palavras comuns e que não agregam muito valor ao classificador:} Palavras comuns do português como artigos, preposições, etc são desconsideradas.
+\end{itemize} 
+
+\section{Tecnologias utilizadas}
+% TODO: escrever sobre as tecnologias utilizadas
+
+\subsection{Extensão para Chrome}
+
+\subsection{HTML / Javascript / CSS}
+
+\subsection{Git}
+
+\subsection{Google App Engine}
+
+\subsection{Python}
+
