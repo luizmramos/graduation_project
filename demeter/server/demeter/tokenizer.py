@@ -1,5 +1,12 @@
+import os
 import re
 import unicodedata
+import subprocess
+import time
+
+DIR=os.path.dirname(os.path.realpath(__file__))
+CLASSIFY_LINK_BINARY = os.path.join(DIR, '../../../../articles/classify_single.sh')
+assert os.path.isfile(CLASSIFY_LINK_BINARY), "Article classifier not found"
 
 def parse_acronyms(text):
     s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
@@ -13,8 +20,51 @@ def parse_acronyms(text):
     return text
 
 
+class LinkCache(object):
+
+    TOTAL_ELAPSED_TIME = 0.0
+
+    def __init__(self):
+        self._cache = {}
+
+    def classify_link(self, link):
+        if link in self._cache:
+            if self._cache[link]:
+                print '(cache:{:.2f}s) {} = {}'.format(self.TOTAL_ELAPSED_TIME, link, self._cache[link])
+            else:
+                print '(cache:{:.2f}s)'.format(self.TOTAL_ELAPSED_TIME)
+            return self._cache[link]
+
+        t = time.time()
+        self._cache[link] = self._classify_link_no_cache(link)
+        t = time.time() - t
+        self.TOTAL_ELAPSED_TIME += t
+        if self._cache[link]:
+            print '({:.2f}s:{:.2f}s) {} = {}'.format(t, self.TOTAL_ELAPSED_TIME, link, self._cache[link])
+        else:
+            print '({:.2f}s:{:.2f}s)'.format(t, self.TOTAL_ELAPSED_TIME)
+        return self._cache[link]
+
+    def _classify_link_no_cache(self, link):
+        return None
+        #if not re.search("glo.bo", link):
+        #    return None
+        p = subprocess.Popen([CLASSIFY_LINK_BINARY, link], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        out, err = p.communicate()
+        return out.strip() if p.returncode == 0 else None
+
+
+def replace_links_with_classification(match, link_cache):
+    link = match.group(0)
+    c = link_cache.classify_link(link)
+    return '{{link:{}}}'.format(c) if c else '{link}'
+
+
+def parse_links(text, link_cache):
+    text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', lambda match: replace_links_with_classification(match, link_cache), text)
+    return text
+
 def parse_in_text_tokens(text):
-    text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', '{link}', text)
     text = re.sub('(^|\s)#[^\s]+', ' {hashtag}', text)
     text = re.sub('(^|\s)@[^\s]+', ' {tag}', text)
     text = re.sub('\d+([\.,]\d+)?', '{number}', text)
@@ -163,7 +213,7 @@ unwanted_words = set([
     'pelo',
     'pelos',
     'pela',
-    'pelas'
+    'pelas',
     #pronomes
     'eu',
     'tu',
@@ -190,7 +240,7 @@ unwanted_words = set([
     'nosso',
     'nossos',
     'nossa',
-    'nossas'
+    'nossas',
     #adverbios
     'nao',
     'mais',
@@ -220,7 +270,8 @@ def filter_words(words):
 def tokenize(words):
     return map(lambda w: w if re.match('^{.+}$', w) else '{w:' + w + '}', words)
 
-def extract_tokens_from_text(text):
+def extract_tokens_from_text(text, link_cache):
+    text = parse_links(text, link_cache)
     text = remove_unicode_characters(text)
     text = parse_acronyms(text)
     text = text.lower()
@@ -232,6 +283,9 @@ def extract_tokens_from_text(text):
     words = normalize(words)
     words = filter_words(words) 
     tokens = tokenize(words)
+    print_tokens = [t for t in tokens if re.search("link", t)]
+    # if print_tokens:
+    #     print 'tokens = {}'.format(', '.join(print_tokens))
     return tokens
 
 def extract_user_token_from_id(id):
@@ -271,8 +325,8 @@ def get_text_size_token(text):
         return '{size:medium}'
     return '{size:large}'
 
-def extract_tokens_from_story(story):
-    tokens = extract_tokens_from_text(story.text)
+def extract_tokens_from_story(story, link_cache):
+    tokens = extract_tokens_from_text(story.text, link_cache)
     tokens.append(extract_user_token_from_id(story.id))
     links_token = get_links_token(story.links)
     for link_token in links_token:
