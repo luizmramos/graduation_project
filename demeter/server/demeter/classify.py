@@ -1,12 +1,14 @@
-from tokenizer import extract_tokens_from_story
+from tokenizer import extract_tokens_from_story, LinkCache
 from naive_bayes import NaiveBayes, Document
 from collections import defaultdict
 from random import shuffle
 import math
 import json
 
+
 class Story:
     pass
+
 
 def mock_stories(data):
     stories = []
@@ -68,6 +70,8 @@ if mode == 'mean':
     N_TRIES_PER_STEP = 100
     INITIAL_DOCUMENTS_SIZE = len(stories)
 
+link_cache = LinkCache()
+
 for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
     global_recall = defaultdict(lambda: 0)
@@ -89,17 +93,17 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
             if i > n_stories:
                 break
             i += 1
-            story_tokens = extract_tokens_from_story(story)
+            story_tokens = extract_tokens_from_story(story, link_cache)
             best_count = max(story.classification.values())
             tag = max(story.classification, key=story.classification.get)
             count_total += 1
             if len(story.links):
                 count_links += 1
-            if len(documents) < n_stories*3.0/4:
+            if len(documents) < n_stories * 3.0 / 4:
                 documents.append(Document(story_tokens, tag))
             else:
                 test_data.append(Document(story_tokens, tag))
-                test_data[len(test_data)-1].texto_completo = story.text
+                test_data[len(test_data) - 1].texto_completo = story.text
 
         naive_bayes = NaiveBayes()
         naive_bayes.train(documents)
@@ -111,7 +115,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
 
         for document in test_data:
             chosen = [naive_bayes.classify(document.tokens)]
-            for c in chosen: 
+            for c in chosen:
                 confusion_matrix[c][document.tag] += 1
             #print '<divisor>'
             #print chosen
@@ -119,8 +123,8 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
             #print '</divisor>'
             if document.tag in chosen:
                 accuracy += 1
-            #else:
-                #print '[WRONG] Deveria ser ' +  document.tag + ' mas foi ' + str(chosen)
+                # else:
+                # print '[WRONG] Deveria ser ' +  document.tag + ' mas foi ' + str(chosen)
             for tag in naive_bayes.tags:
                 if document.tag == tag and tag in chosen:
                     true_positives[tag] += 1
@@ -130,16 +134,16 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
                     true_negatives[tag] += 1
                 elif document.tag != tag and tag in chosen:
                     false_positives[tag] += 1
-            
-        n_test_documents = 1.0*len(test_data)
+
+        n_test_documents = 1.0 * len(test_data)
         global_count += 1
         for tag in all_tags:
             if true_positives[tag] + false_positives[tag] == 0:
-                precision = 1 # check corner cases
+                precision = 1  # check corner cases
             else:
                 precision = (true_positives[tag]) * 1.0 / (true_positives[tag] + false_positives[tag])
             if true_positives[tag] + false_negatives[tag] == 0:
-                recall = 1 # check corner cases
+                recall = 1  # check corner cases
             else:
                 recall = (true_positives[tag]) * 1.0 / (true_positives[tag] + false_negatives[tag])
             if precision + recall != 0:
@@ -149,7 +153,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
 
             global_precision[tag] += precision
             global_recall[tag] += recall
-            
+
             #print tag + ' TP: ' + str(true_positives[tag]) + ' / ' + str(total[tag]) + ' TN: ' + str(true_negatives[tag]) + ' / '  + str(nDocs - total[tag]) 
             if mode == 'confusion': 
                 print str(precision),
@@ -158,12 +162,12 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
     
         accuracy = accuracy * 1.0/ n_test_documents
         global_accuracy += accuracy
-        #print str(accuracy * 100)
-        #print str(n_stories) + ' - Accuracy: ' + str(accuracy*100)
-       
+        # print str(accuracy * 100)
+        # print str(n_stories) + ' - Accuracy: ' + str(accuracy*100)
+
         expected_accuracy = 0
         total = 0
-        
+
         for line in all_tags:
             if mode == 'confusion': 
                 for column in all_tags:
@@ -171,15 +175,15 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
                 print
             sum_column = sum([confusion_matrix[l][line] for l in confusion_matrix])
             sum_line = sum(confusion_matrix[line].values())
-            expected_accuracy += sum_column*sum_line
+            expected_accuracy += sum_column * sum_line
             total += sum_line
-        
+
         expected_accuracy = expected_accuracy * 1.0 / (total ** 2)
-        #print str(expected_accuracy * 100)
+        # print str(expected_accuracy * 100)
 
         kappa = (accuracy - expected_accuracy) / (1 - expected_accuracy)
         global_kappa += kappa
-        #print kappa
-    
-    #print str(global_accuracay * 1.0 / global_count)
-    print str(global_kappa * 1.0 / global_count) + ' / '  + str(global_accuracy * 1.0 / global_count) 
+        # print kappa
+
+    # print str(global_accuracay * 1.0 / global_count)
+    print str(global_kappa * 1.0 / global_count) + ' / ' + str(global_accuracy * 1.0 / global_count)
