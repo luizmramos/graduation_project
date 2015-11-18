@@ -3,7 +3,7 @@ import unicodedata
 
 def parse_in_text_tokens(text):
     text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', '{link}', text)
-    text = re.sub('(^|\s)#[^\s]+', ' {hashtag}', text)
+    # text = re.sub('(^|\s)#[^\s]+', ' {hashtag}', text)
     text = re.sub('(^|\s)@[^\s]+', ' {tag}', text)
     text = re.sub('\d+([\.,]\d+)?', '{number}', text)
     text = re.sub('({number}/{number}(/{number})?)|({number}-{number}(-{number})?)', '{date}', text)
@@ -259,7 +259,8 @@ def get_text_size_token(text):
     return '{size:large}'
 
 def extract_tokens_from_story(story):
-    tokens = extract_tokens_from_text(story.text)
+    tokens = extract_tokens_from_text(story.text) 
+    return tokens
     tokens.append(extract_user_token_from_id(story.id))
     links_token = get_links_token(story.links)
     for link_token in links_token:

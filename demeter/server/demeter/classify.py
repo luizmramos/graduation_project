@@ -33,9 +33,9 @@ for story in stories:
     storyMap[story.text] = story
 stories = storyMap.values()
 
-INITIAL_DOCUMENTS_SIZE = 20
-DOCUMENTS_INCREASE_STEP = 20
-N_TRIES_PER_STEP = 25
+INITIAL_DOCUMENTS_SIZE = 820
+DOCUMENTS_INCREASE_STEP = 50
+N_TRIES_PER_STEP =  100
 
 for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
@@ -60,6 +60,8 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_S
             story_tokens = extract_tokens_from_story(story)
             if len(story_tokens) < 5:
                 continue
+            if "Outros" in story.classification: 
+                continue
             best_count = max(story.classification.values())
             tag = max(story.classification, key=story.classification.get)
             count_total += 1
@@ -81,7 +83,8 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_S
 
         for document in test_data:
             chosen = [naive_bayes.classify(document.tokens)]
-            confusion_matrix[document.tag][chosen[0]] += 1
+            for c in chosen: 
+                confusion_matrix[document.tag][c] += 1
             #print '<divisor>'
             #print chosen
             #print document.textoCompleto
