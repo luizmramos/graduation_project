@@ -32,18 +32,28 @@ storyMap = {}
 for story in stories:
     storyMap[story.text] = story
 stories = storyMap.values()
+filteredStories = []
+for story in stories:
+    story_tokens = extract_tokens_from_story(story)
+    if len(story_tokens) < 5:
+        continue
+    if "Outros" in story.classification: 
+        continue
+    filteredStories.append(story)
+stories = filteredStories
 
-INITIAL_DOCUMENTS_SIZE = 820
+INITIAL_DOCUMENTS_SIZE = len(stories)
 DOCUMENTS_INCREASE_STEP = 50
 N_TRIES_PER_STEP =  100
 
-for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_STEP):
+for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
     global_recall = defaultdict(lambda: 0)
     global_accuracy = 0
     global_count = 0
     global_kappa = 0
     for tries in range(0, N_TRIES_PER_STEP):
+
         confusion_matrix = defaultdict(lambda: defaultdict(lambda: 0))
         accuracy = 0
         shuffle(stories)
@@ -58,10 +68,6 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_S
                 break
             i += 1
             story_tokens = extract_tokens_from_story(story)
-            if len(story_tokens) < 5:
-                continue
-            if "Outros" in story.classification: 
-                continue
             best_count = max(story.classification.values())
             tag = max(story.classification, key=story.classification.get)
             count_total += 1
