@@ -5,7 +5,7 @@ Em aprendizado de máquina, o problema de classificação consiste na tarefa de atr
 
 O problema de classificação em geral é o exemplo clássico de aprendizado de máquina supervisionado. A partir de um conjunto de exemplos previamente classificados por um supervisor experiente (em geral um ou mais humanos com conhecimento de domínio), o classificador é capaz de aprender e generalizar, podendo assim categorizar corretamente novos objetos encontrados.
 
-Existem vários tipos diferentes de classificação baseados na quantidade de categorias pré-definidas assim como na quantidade de classes as quais cada objeto pode pertencer.
+Existem vários tipos diferentes de classificação baseados na quantidade de categorias pré-definidas bem como na quantidade de classes às quais cada objeto pode pertencer.
 
 \begin{figure}[ht!]
 	\centering
@@ -18,21 +18,21 @@ Existem vários tipos diferentes de classificação baseados na quantidade de categ
 
 A classificação binária é o caso mais simples que pode ser estudado. Neste problema, há apenas duas classes diferentes e cada objeto pertence a exatamente uma delas. 
 
-Exemplos comuns que podem ser citados são a classificação de emails em spam ou não-spam, a classificação de tumores em benignos ou malignos, a determinação quais produtos deverão ser descartados em uma linha de produção, a detecção de transações financeiras fraudulentas, etc.
+Exemplos comuns que podem ser citados são a classificação de emails em spam ou não-spam, a classificação de tumores em benignos ou malignos, a determinação de quais produtos deverão ser descartados em uma linha de produção, a detecção de transações financeiras fraudulentas, etc.
 
 \subsection{Classificação \emph{Multi-Class}}
-Quando há mais de duas classes possíveis, chama-se o problema de classificação \emph{multi-class}. Neste caso, cada objeto deve pertencer a exatamente uma dentre as várias categorias pré definidas. O classificador deve ser capaz de determinar qual é a categoria de cada objeto.
+Quando há mais de duas classes possíveis, chama-se o problema de classificação \emph{multi-class}. Neste caso, cada objeto deve pertencer a exatamente uma dentre as várias categorias pré-definidas. O classificador deve ser capaz de determinar qual é a categoria de cada objeto.
 
 Vários exemplos de classificação podem ser considerados. Dadas imagens de frutas (que podem ser maçãs, peras, ou laranjas) determinar qual é o tipo de cada fruta. Ou então dadas imagens de telescópio de galaxias distantes, determinar o tipo da galaxia em questão (elíptica, espiral, etc).
 
 \subsection{Classificação \emph{Multi-Class / Multi-Label}}
 Quando há várias classes possíveis (mais de duas) e cada objeto pode pertencer a mais de uma classe, chama-se o problema de \emph{multi-class / multi-label}. Este é o mais difícil dos três problemas apresentados, uma vez que há diversas possíveis combinações de classes para cada objeto.
 
-A classificação de textos é um exemplo clássico de classificação \emph{multi-class / multi-label}, uma vez que o texto pode pertencer a uma ou varias classes simultaneamente.
+A classificação de textos é um clássico exemplo de classificação \emph{multi-class / multi-label}, já que o texto pode pertencer a uma ou varias classes simultaneamente.
 
 Para resolver o problema de classificação \emph{multi-class / multi-label} podem ser utilizadas duas abordagens diferentes. Uma delas é a abordagem \emph{one vs all} e a outra é a abordagem dos subconjuntos.
 
-Na abordagem \emph{one vs all}, para cada classe, realiza-se a classificação binaria do objeto em \emph{pertence} ou \emph{não pertence} a esta classe. Desta forma determina-se todas as classes às quais o dado objeto pertence. O problema desta abordagem é que pequenos erros que façam com que o classificador de uma das classes não fique bom (dados ruins para uma classe por exemplo) torna o resultado inteiro ruim.
+Na abordagem \emph{one vs all}, para cada classe, realiza-se a classificação binária do objeto em \emph{pertence} ou \emph{não pertence} a esta classe. Desta forma, determina-se todas as classes às quais o dado objeto pertence. O problema desta abordagem é que pequenos erros que façam com que o classificador de uma das classes não fique bom (dados ruins para uma classe por exemplo) torna o resultado inteiro ruim.
 
 Na abordagem de subconjuntos, consideram-se todos os possíveis subconjuntos das classes (com 1, 2, 3, ..., L elementos, onde L é o total de classes) e escolhe-se o subconjunto desejado (utilizando um classificador multi-class). O grande problema desta abordagem é que ha $2^{L - 1}$ possíveis subconjuntos da classes (o que pode ser muito).
 
