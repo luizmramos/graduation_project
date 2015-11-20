@@ -1,3 +1,4 @@
+import os
 from tokenizer import extract_tokens_from_story, LinkCache
 from naive_bayes import NaiveBayes, Document
 from collections import defaultdict
@@ -39,7 +40,15 @@ stories = storyMap.values()
 INITIAL_DOCUMENTS_SIZE = 20
 DOCUMENTS_INCREASE_STEP = 20
 N_TRIES_PER_STEP = 7
-link_cache = LinkCache()
+
+DIR = os.path.dirname(__file__)
+CACHE_FILE = os.path.join(DIR, 'link_cache.dat')
+if os.path.isfile(CACHE_FILE):
+    with open(CACHE_FILE, 'r') as f:
+        serialized = f.read()
+        link_cache = LinkCache.load(serialized)
+else:
+    link_cache = LinkCache()
 
 # for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories), DOCUMENTS_INCREASE_STEP):
 for n_stories in [len(stories) - 1]:
@@ -64,6 +73,7 @@ for n_stories in [len(stories) - 1]:
             i += 1
 
             story_tokens = extract_tokens_from_story(story, link_cache)
+
             if len(story_tokens) < 5:
                 continue
             best_count = max(story.classification.values())
@@ -155,3 +165,9 @@ for n_stories in [len(stories) - 1]:
 
     # print str(global_accuracay * 1.0 / global_count)
     print str(global_kappa * 1.0 / global_count) + ' / ' + str(global_accuracy * 1.0 / global_count)
+
+
+# Write CACHE
+with open(CACHE_FILE, 'w') as f:
+    f.write(link_cache.dump())
+    f.write(os.linesep)
