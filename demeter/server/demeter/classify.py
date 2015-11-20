@@ -40,7 +40,6 @@ stories = storyMap.values()
 filteredStories = []
 all_tags = set([])
 for story in stories:
-    story_tokens = extract_tokens_from_story(story)
     if "Outros" in story.classification or "Curiosidades" in story.classification: 
         continue
     all_tags.add(story.classification.items()[0][0])
