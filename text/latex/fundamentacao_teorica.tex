@@ -388,6 +388,7 @@ Neste trabalho será utilizada esta última definição por ser mais intuitiva e dar
 Observa-se que a acurácia também é numericamente igual à abrangência e à precisão com média micro.
 
 \subsubsection{Medida Kappa}
+\label{sec:kappa}
 Como já foi discutido previamente, a acurácia é uma medida muito ruim pois é possível desenvolver classificadores com comportamento trivial que possuem uma boa acurácia. Para resolver este problema, utilizam-se outras estatísticas em vez da acurácia que possuem mais valor semântico e dão mais informações sobre a performance do classificador. Já foram explicadas outras medidas que possuem mais informações (abrangência, precisão e Fscore micros e macros) e a matriz de confusão que permite a visualização de problemas recorrentes no classificador. Entretanto, para o problema \emph{multi-class} é comum utilizar uma outra métrica (chamada de Kappa) para avaliar a performance do classificador em questão.
 
 A estatística Kappa é utilizada para comparar a Acurácia Observada com a Acurácia Esperada. Esta estatística é muito poderosa e permite a realização de comparações até mesmo entre classificadores diferentes \cite{kappa_statistic}. Ela utiliza a comparação em relação a um classificador aleatório de modo a tornar esta estatística mais confiável que uma simples acurácia.

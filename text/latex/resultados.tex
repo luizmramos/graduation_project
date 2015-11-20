@@ -1,6 +1,7 @@
 \externaldocument{metodologia}
 \externaldocument{fundamentacao_teorica}
 \externaldocument{proposta_de_classificador}
+\externaldocument{problema}
 
 \section{Base de dados}
 A base de dados para a classificação de postagens foi adquirida a partir da extensão do Chrome descrita na Seção \ref{sec:plugin_chrome}. A classificação foi feita manualmente por diversos supervisores, classificando cada postagem nas diferentes categorias explicitadas na Seção \ref{ref:classes_adotadas}. 
@@ -36,9 +37,14 @@ A acurácia esperada para este classificador, utilizando a Equação \ref{eq:acurac
 	\label{fig:nb_apenas_com_texto_kappa_graph}
 \end{figure}
 
+
+Como pode ser observado nas figuras \ref{fig:nb_apenas_com_texto_accuracy_graph} e \ref{fig:nb_apenas_com_texto_kappa_graph}, quanto maior a base de dados, melhor o classificador fica. Alem disso, como este crescimento ainda não se estabilizou, fica claro que se a base de dados fosse substancialmente maior (dezenas de milhares de postagens), os resultados seriam muito melhores.
+
+Entretanto, não é viável, para os propósitos deste trabalho, acumular tantos dados. Portanto trabalhou-se com essa quantidade reduzida de postagens, tentando-se introduzir melhoras qualitativas ao classificador com as modificações descritas na Seção \ref{sec:proposta_de_classificador}.
+
 Para se compreender onde exatamente o classificador está ruim, rodou-se novamente o programa com apenas uma iteração e construiu-se a matriz de confusão para os resultados obtidos, como pode ser visto na Tabela \ref{tab:nb_apenas_com_o_texto}.
 
-Para este exemplo tem-se:
+Para este exemplo teve-se:
 
 $acuracia=0.529101$
 
@@ -47,7 +53,7 @@ $acuracia\_esperada=0.138154$
 $Kappa=0.453615$
 
 
-A Tabela \ref{tab:nb_apenas_com_o_texto} apresenta a matriz de confusao.
+A Tabela \ref{tab:nb_apenas_com_o_texto} apresenta a matriz de confusão obtida. A Figura \ref{fig:nb_apenas_com_o_texto} consiste numa representação gráfica da matriz, para facilitar a sua visualização. Nesta representação, quanto mais vermelha a célula, mais próximo seu valor está do 0. O amarelo representa valores maiores ou iguais a 7. Números intermediários possuem cores intermediárias.
 
 
 \begin{table}[tph]
@@ -77,14 +83,13 @@ A Tabela \ref{tab:nb_apenas_com_o_texto} apresenta a matriz de confusao.
 	\label{tab:nb_apenas_com_o_texto}
 \end{table}
 
-
-A Figura \ref{fig:nb_apenas_com_o_texto} consiste numa representação gráfica da matriz de confusão.
-
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{nb_apenas_com_o_texto.png}
 	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:nb_apenas_com_o_texto}}
 	\label{fig:nb_apenas_com_o_texto}
 \end{figure}
+
+O Heatmap da Figura \ref{fig:nb_apenas_com_o_texto} e a Tabela \ref{tab:nb_apenas_com_o_texto} deixam claros vários problemas do classificador. Por exemplo, a linha de política está muito amarela como um todo. Isso mostra que o classificador está com alta tendência de escolher política como assunto, mesmo quando isso não está certo. Isto ocorre porque há muito mais postagens de política do que de outros assuntos, então é mais provável que uma nova postagem seja de política. Isso acaba gerando uma alta abrangência, porém baixa precisão para a este assunto, como pode ser visto na tabela \ref{tab:nb_apenas_com_o_texto_prec_rec}.
 
 Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:nb_apenas_com_o_texto_prec_rec}.
 
@@ -117,6 +122,8 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 	\label{tab:nb_apenas_com_o_texto_prec_rec}
 \end{table}
 
+Como pode ser visto na tabela \ref{tab:nb_apenas_com_o_texto_prec_rec}, os resultados das precisões e abrangências estão muito ruins. Isso é reiterado pelo Heatmap da Figura \ref{fig:nb_apenas_com_o_texto}. As classificações ainda estão muito espalhadas.
+
 
 \section{Naïve Bayes com Features Adicionais}
 % Isso piora o classificador pois adiciona redundancia (e quebra a nocao de independencia condicional)
@@ -125,7 +132,7 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 
 A acurácia média obtida depois da adição das features extras foi de 51.1\%. A métrica Kappa foi de 42.5\%. Observa-se portanto que houve uma pequena melhora em relação as redes Bayesianas com o texto puro(o Kappa variou de 41.4\% para 42.5\%). 
 
-O motivo da melhoria ser tão pequena é que ocorrem dois efeitos opostos quando se adicionam essas novas features. Por um lado, essas novas features adicionam novas informações que possibilitam que haja uma melhor classificação. Por outro lado, essas novas features são muitas vezes dependentes condicionalmente das palavras do texto. Como as NB assumem, independência condicional, a adição de features dependentes pode piorar a rede. O resultado da soma desses dois efeitos foi ligeiramente positivo neste caso.
+O motivo da melhoria ser tão pequena é que ocorrem dois efeitos opostos quando se incluem essas novas features. Por um lado, essas features adicionam novas informações que possibilitam que haja uma melhor classificação. Por outro lado, elas são muitas vezes dependentes condicionalmente das palavras do texto (e entre si). Como as NB assumem independência condicional, a adição de features dependentes pode piorar a rede. O resultado da soma desses dois efeitos foi ligeiramente positivo neste caso.
 
 A Figura \ref{fig:nb_features_extras_accuracy_graph} abaixo mostra a evolução da acurácia das NB com features extras em função do tamanho da base de dados. A Figura \ref{fig:nb_features_extras_kappa_graph} mostra a relação do Kappa com o tamanho da base de dados. A Figura \ref{fig:nb_features_extras_vs_apenas_texto_kappa_graph} compara os gráficos do Kappa para as NB com e sem features extras.
 
@@ -148,7 +155,7 @@ A Figura \ref{fig:nb_features_extras_accuracy_graph} abaixo mostra a evolução da
 	\label{fig:nb_features_extras_vs_apenas_texto_kappa_graph}
 \end{figure}
 
-Para este exemplo tem-se:
+O programa foi executado novamente, desta vez com apenas uma única iteração para se analisa a matriz de confusão gerada. Para este exemplo teve-se:
 
 $acuracia=0.513228$
 
@@ -157,7 +164,7 @@ $acuracia\_esperada=0.140058$
 $Kappa=0.433948$
 
 
-A Tabela \ref{tab:nb_com_features_adicionais} apresenta a matriz de confusao.
+A Tabela \ref{tab:nb_com_features_adicionais} apresenta a matriz de confusão obtida.
 
 
 \begin{table}[tph]
@@ -188,7 +195,7 @@ A Tabela \ref{tab:nb_com_features_adicionais} apresenta a matriz de confusao.
 \end{table}
 
 
-A Figura \ref{fig:nb_com_features_adicionais} consiste numa representação gráfica da matriz de confusão.
+A Figura \ref{fig:nb_com_features_adicionais} consiste numa representação gráfica da matriz de confusão. Como pode ser observado neste Heatmap, os resultados ainda são bem ruins, com uma quantidade significativa de erros e alta tendência do classificador de escolher as classes Política ou Pessoal (as duas classes com maior quantidade de postagens na base de dados).
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{nb_com_features_adicionais.png}
@@ -196,7 +203,7 @@ A Figura \ref{fig:nb_com_features_adicionais} consiste numa representação gráfic
 	\label{fig:nb_com_features_adicionais}
 \end{figure}
 
-Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:nb_com_features_adicionais_prec_rec}.
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:nb_com_features_adicionais_prec_rec}. Estas estatísticas também estão bem ruins. Na maior parte das classes nem a abrangência nem a precisão foram boas. As classes mais comuns (como Política e Pessoal) tiveram boa abrangência, porém baixa precisão.
 
 \begin{table}[tph]
 	\begin{center}
@@ -229,9 +236,12 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 
 
 \section{Weighted Naïve Bayes utilizando apenas o texto}
-%notar que apesar da acuracia ter melhorado pouco, o Kappa melhorou muito
 
-A acurácia média obtida, depois da adição de pesos nas features e utilizando apenas as palavras do texto, foi de 53.5\%. A métrica Kappa foi de 48.2\%. Observa-se portanto que houve uma melhora considerável na métrica Kappa em relação às abordagens anteriores e uma melhora pequena na acurácia.
+A acurácia média obtida, depois da adição de pesos nas features e utilizando apenas as palavras do texto, foi de 53.5\%. A métrica Kappa foi de 48.2\%. 
+
+Observa-se portanto que houve uma melhora considerável na métrica Kappa em relação às abordagens anteriores e uma melhora pequena na acurácia. A interpretação para isso é que o classificador está acertando mais de classes diversificadas. Enquanto nos casos anteriores, o classificador se limitava a escolher as classes mais frequentes e errar muito as menos frequentes, agora ele está acertando um pouco de cada classe. Isso faz com que o Kappa melhore mais do que a acurácia.
+
+As Figuras \ref{fig:wnb_somente_texto_accuracy_graph} e \ref{fig:wnb_somente_texto_accuracy_graph} mostram, respectivamente, a evolução da acurácia e do Kappa em função do tamanho da base de dados. Ambos estão crescendo de forma semelhante, o que reitera a ideia de que quantidade de dados é muito importante independentemente do classificador usado. A Figura \ref{fig:nb_somente_texto_vs_wnb_kappa_graph} compara o Kappa do NB tradicional com o Kappa do Weighted NB pro caso de só se considerar o texto da postagem. Dá pra se observar a melhora obtida. Isso comprova o fato de que é ingênuo se assumir a independência condicional entre as palavras do texto. Ao se ponderar de forma diferente as palavras, aliviou-se essa hipótese, tornando o classificador melhor. 
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{wnb_somente_texto_accuracy_graph.png}
@@ -252,7 +262,7 @@ A acurácia média obtida, depois da adição de pesos nas features e utilizando ape
 	\label{fig:nb_somente_texto_vs_wnb_kappa_graph}
 \end{figure}
 
-Para este exemplo tem-se:
+Para analisar melhor os erros que este classificador está cometendo, rodou-se o mesmo novamente, gerando-se a matriz de confusão. Para este exemplo teve-se:
 
 $acuracia=0.544974$
 
@@ -261,7 +271,7 @@ $acuracia\_esperada=0.104000$
 $Kappa=0.492158$
 
 
-A Tabela \ref{tab:weighted_nb_apenas_com_texto} apresenta a matriz de confusao.
+A Tabela \ref{tab:weighted_nb_apenas_com_texto} apresenta a matriz de confusão obtida. A Figura \ref{fig:weighted_nb_apenas_com_texto} consiste numa representação gráfica da matriz de confusão.
 
 
 \begin{table}[tph]
@@ -292,15 +302,16 @@ A Tabela \ref{tab:weighted_nb_apenas_com_texto} apresenta a matriz de confusao.
 \end{table}
 
 
-A Figura \ref{fig:weighted_nb_apenas_com_texto} consiste numa representação gráfica da matriz de confusão.
-
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{weighted_nb_apenas_com_texto.png}
 	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:weighted_nb_apenas_com_texto}}
 	\label{fig:weighted_nb_apenas_com_texto}
 \end{figure}
 
-Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:weighted_nb_apenas_com_texto_prec_rec}.
+
+Como pode ser visto na Figura \ref{fig:weighted_nb_apenas_com_texto}, este novo classificador é qualitativamente melhor que os anteriores. O Heatmap possui muito menos células fora da diagonal principal com tonalidades fortes de amarelo. Ele tambem deixa claro o erro mais comum do classificador: considerar como Minorias várias postagens de Política. Este erro é de certa forma aceitável e justificável, podendo ser cometido até por um ser humano. Muitas das postagens de Minorias podem falar sobre medidas públicas a favor ou contra determinadas classes de pessoas, ou falar de partidos e deputados apoiadores (Jean Wyllys do PSOL, por exemplo) e criticar ou defender ideologias políticas. A verdade é que estas postagens deveriam ter sido classificadas com ambas as classes em um classificador \emph{multi-class / multi-label} como explicado na Seção \ref{sec:multi_label}.
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:weighted_nb_apenas_com_texto_prec_rec}. Apesar de eles ainda estarem ruins, melhoraram em comparação com os classificadores anteriores.
 
 \begin{table}[tph]
 	\begin{center}
@@ -334,6 +345,10 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 
 \section{Weighted Naïve Bayes com Features Adicionais}
 % Nesse caso nao tem problema adicionar features redundantes pois os pesos aliviam a hipotese de independencia condicional
+Como será apresentado a seguir, adicionar as features extras no classificador com Weighted NB trás uma melhora considerável no resultado obtido. Isto ocorre pois as Weighted NB não fazem a consideração de independência e muitas dessas features extras são muito determinantes na classificação. Por exemplo, postagens Pessoais costumam ter pessoas e lugais marcados, certas páginas do Facebook costumam postar sempre sobre o mesmo assunto (partidos políticos postam de Política, páginas de produtos fazem propaganda, páginas de humor sempre postam humor, etc). Todas essas informações introduzidas pelas features extras são muito bem capturadas pelas Weighted NB.
+
+A acurácia média obtida neste caso, depois da adição das features extras nas Weighted NB, foi de 61.0\%. A métrica Kappa foi de 56.6\%. Este resultado mostra uma melhora considerável em relação a todos os outros classificadores desenvolvidos, conforme pode ser visto na Figura \ref{fig:nb_vs_wnb}. As Figuras \ref{fig:wnb_features_extras_accuracy_graph} e \ref{fig:wnb_features_extras_kappa_graph} mostram, respectivamente, a acurácia e o Kappa em função do tamanho da base de dados para este classificador.
+
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{wnb_features_extras_accuracy_graph.png}
@@ -355,7 +370,7 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 \end{figure}
 
 
-Para este exemplo tem-se:
+Analisou-se a matriz de confusão para este classificador, rodando novamente o programa. Para este exemplo teve-se:
 
 $acuracia=0.656085$
 
@@ -363,8 +378,9 @@ $acuracia\_esperada=0.108060$
 
 $Kappa=0.614419$
 
+Uma observação interessante é que com este valor de Kappa, este classificador em específico poderia ser considerado \emph{`Substantial'} pela interpretação do Kappa citada na Seção \ref{sec:kappa}.
 
-A Tabela \ref{tab:weighted_nb_com_features_extras} apresenta a matriz de confusao.
+A Tabela \ref{tab:weighted_nb_com_features_extras} apresenta a matriz de confusão gerada. A Figura \ref{fig:weighted_nb_com_features_extras} consiste numa representação gráfica da matriz.
 
 
 \begin{table}[tph]
@@ -394,16 +410,15 @@ A Tabela \ref{tab:weighted_nb_com_features_extras} apresenta a matriz de confusa
 	\label{tab:weighted_nb_com_features_extras}
 \end{table}
 
-
-A Figura \ref{fig:weighted_nb_com_features_extras} consiste numa representação gráfica da matriz de confusão.
-
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{weighted_nb_com_features_extras.png}
 	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:weighted_nb_com_features_extras}}
 	\label{fig:weighted_nb_com_features_extras}
 \end{figure}
 
-Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:weighted_nb_com_features_extras_prec_rec}.
+Como pode ser visto na Figura \ref{fig:weighted_nb_com_features_extras} o resultado obtido melhorou consideravelmente. Agora ao Heatmap possui uma diagonal principal com uma tonalidade forte de amarelo e algumas outras células com alguns erros. A confusão entre Minorias e Política ainda acontece, porém numa intensidade bem menor que anteriormente.
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:weighted_nb_com_features_extras_prec_rec}. Observa-se uma melhora considerável. Os f1score micro e macro estão em torno de 65\% agora.
 
 \begin{table}[tph]
 	\begin{center}
