@@ -1,3 +1,4 @@
+import os
 from tokenizer import extract_tokens_from_story, LinkCache
 from naive_bayes import NaiveBayes, Document
 from collections import defaultdict
@@ -70,7 +71,18 @@ if mode == 'mean':
     N_TRIES_PER_STEP = 100
     INITIAL_DOCUMENTS_SIZE = len(stories)
 
-link_cache = LinkCache()
+INITIAL_DOCUMENTS_SIZE = 20
+DOCUMENTS_INCREASE_STEP = 20
+N_TRIES_PER_STEP = 7
+
+DIR = os.path.dirname(__file__)
+CACHE_FILE = os.path.join(DIR, 'link_cache.dat')
+if os.path.isfile(CACHE_FILE):
+    with open(CACHE_FILE, 'r') as f:
+        serialized = f.read()
+        link_cache = LinkCache.load(serialized)
+else:
+    link_cache = LinkCache()
 
 for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
@@ -187,3 +199,9 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
 
     # print str(global_accuracay * 1.0 / global_count)
     print str(global_kappa * 1.0 / global_count) + ' / ' + str(global_accuracy * 1.0 / global_count)
+
+
+# Write CACHE
+with open(CACHE_FILE, 'w') as f:
+    f.write(link_cache.dump())
+    f.write(os.linesep)

@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import unicodedata
@@ -7,6 +8,18 @@ import time
 DIR=os.path.dirname(os.path.realpath(__file__))
 CLASSIFY_LINK_BINARY = os.path.join(DIR, '../../../../articles/classify_single.sh')
 assert os.path.isfile(CLASSIFY_LINK_BINARY), "Article classifier not found"
+
+
+def bytefy(input):
+    if isinstance(input, dict):
+        return {bytefy(key): bytefy(value) for key, value in input.iteritems()}
+    elif isinstance(input, list):
+        return [bytefy(element) for element in input]
+    elif isinstance(input, unicode):
+        return input.encode('utf-8')
+    else:
+        return input
+
 
 def parse_acronyms(text):
     s = re.search("(\s|^)([A-Z]+)(\s|$)", text)
@@ -24,34 +37,43 @@ class LinkCache(object):
 
     TOTAL_ELAPSED_TIME = 0.0
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         self._cache = {}
+        self._verbose = verbose
 
     def classify_link(self, link):
         if link in self._cache:
-            if self._cache[link]:
-                print '(cache:{:.2f}s) {} = {}'.format(self.TOTAL_ELAPSED_TIME, link, self._cache[link])
-            else:
-                print '(cache:{:.2f}s)'.format(self.TOTAL_ELAPSED_TIME)
+            if self._verbose:
+                if self._cache[link]:
+                    print '(cache:{:.2f}s) {} = {}'.format(self.TOTAL_ELAPSED_TIME, link, self._cache[link])
+                else:
+                    print '(cache:{:.2f}s)'.format(self.TOTAL_ELAPSED_TIME)
             return self._cache[link]
 
         t = time.time()
         self._cache[link] = self._classify_link_no_cache(link)
         t = time.time() - t
         self.TOTAL_ELAPSED_TIME += t
-        if self._cache[link]:
-            print '({:.2f}s:{:.2f}s) {} = {}'.format(t, self.TOTAL_ELAPSED_TIME, link, self._cache[link])
-        else:
-            print '({:.2f}s:{:.2f}s)'.format(t, self.TOTAL_ELAPSED_TIME)
+        if self._verbose:
+            if self._cache[link]:
+                print '({:.2f}s:{:.2f}s) {} = {}'.format(t, self.TOTAL_ELAPSED_TIME, link, self._cache[link])
+            else:
+                print '({:.2f}s:{:.2f}s)'.format(t, self.TOTAL_ELAPSED_TIME)
         return self._cache[link]
 
     def _classify_link_no_cache(self, link):
-        return None
-        #if not re.search("glo.bo", link):
-        #    return None
         p = subprocess.Popen([CLASSIFY_LINK_BINARY, link], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         out, err = p.communicate()
         return out.strip() if p.returncode == 0 else None
+
+    def dump(self):
+        return json.dumps(self._cache, indent=4)
+
+    @classmethod
+    def load(cls, serialized):
+        instance = cls()
+        instance._cache = bytefy(json.loads(serialized))
+        return instance
 
 
 def replace_links_with_classification(match, link_cache):
