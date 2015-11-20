@@ -7,6 +7,20 @@ class Document:
         self.tag = tag
 
 class NaiveBayes:
+
+    TAG_MAP = {
+        'Curiosidades': 'Curiosidades / Humor',
+        'Humor': 'Curiosidades / Humor',
+        'Celebridade': 'Celebridade / Filme',
+        'Filme': 'Celebridade / Filme',
+        'Noticias': 'Noticias',
+        'Turismo': 'Noticias',
+        'Medicina': 'Outros',
+        'Propaganda': 'Outros',
+        'Esportes': 'Outros',
+    }
+    TAG_COUNT = defaultdict(lambda: 0)
+
     def __init__(self):
         self.n_words_per_tag_per_token = defaultdict(lambda: defaultdict(lambda: 0))
         self.n_documents_per_tag = defaultdict(lambda: 0)
@@ -15,6 +29,8 @@ class NaiveBayes:
         self.vocabulary = set()
 
     def increment(self, document):
+        tag = self.TAG_MAP[document.tag] if document.tag in self.TAG_MAP else document.tag
+        self.TAG_COUNT[tag] += 1
         self.tags.add(document.tag)
         self.n_documents_per_tag[document.tag] += 1
         for token in document.tokens:
