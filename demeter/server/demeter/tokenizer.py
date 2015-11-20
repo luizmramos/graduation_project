@@ -4,6 +4,7 @@ import re
 import unicodedata
 import subprocess
 import time
+import nltk as nltk
 
 DIR=os.path.dirname(os.path.realpath(__file__))
 CLASSIFY_LINK_BINARY = os.path.join(DIR, '../../../../articles/classify_single.sh')
@@ -292,6 +293,10 @@ def filter_words(words):
 def tokenize(words):
     return map(lambda w: w if re.match('^{.+}$', w) else '{w:' + w + '}', words)
 
+
+STEMMER = nltk.stem.RSLPStemmer()
+
+
 def extract_tokens_from_text(text, link_cache):
     text = parse_links(text, link_cache)
     text = remove_unicode_characters(text)
@@ -302,7 +307,8 @@ def extract_tokens_from_text(text, link_cache):
     words = list(map(parse_laughter, words))
     words = list(map(remove_double_letters, words))
     words = normalize(words)
-    words = filter_words(words) 
+    words = filter_words(words)
+    words = [STEMMER.stem(w) for w in words]
     tokens = tokenize(words)
     print_tokens = [t for t in tokens if re.search("link", t)]
     # if print_tokens:
