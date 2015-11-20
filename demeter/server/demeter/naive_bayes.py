@@ -1,5 +1,8 @@
 from collections import defaultdict
 import math
+import os
+import re
+
 
 class Document:
     def __init__(self, tokens, tag):
@@ -41,13 +44,15 @@ class NaiveBayes:
 
     def train(self, documents):
         for document in documents:
-            self.increment(document) 
+            self.increment(document)
+        self.weights = self._compute_weights()
 
     def load(self, n_words_per_tag_per_token, n_documents_per_tag, tags, vocabulary):
         self.n_words_per_tag_per_token = n_words_per_tag_per_token
         self.n_documents_per_tag = n_documents_per_tag
         self.tags = tags
         self.vocabulary = vocabulary
+        self.weights = self._compute_weights()
 
     def write(self):
         naive_bayes_json = {
@@ -58,18 +63,37 @@ class NaiveBayes:
         }
         #print(json.dumps(naive_bayes_json))
 
-    def get_weight(self, token): 
+    def _compute_weights(self):
+        weights = {}
+        grs = {}
+
+        n_tokens = sum(sum(self.n_words_per_tag_per_token[tag].values()) for tag in self.tags)
+        n_tokens_per_tag = {}
+        for tag in self.tags:
+            n_tokens_per_tag[tag] = sum(self.n_words_per_tag_per_token[tag].values())
+        for token in self.vocabulary:
+            N = 0
+            n_t = sum(self.n_words_per_tag_per_token[tag][token] for tag in self.tags)
+            for tag in self.tags:
+                n_tc = self.n_words_per_tag_per_token[tag].get(token, 0)
+                n_c_tokens = n_tokens_per_tag[tag]
+                p_tc = float(n_tc) / n_tokens
+                if n_tc > 0:
+                    N += p_tc * math.log(float(n_tc) * n_tokens / n_c_tokens / n_t, 2)
+            p_t = float(n_t) / n_tokens
+            D = - p_t * math.log(p_t, 2)
+            grs[token] = N / D
+
+        gr_avg = sum(grs.values()) / len(grs)
+        for token in self.vocabulary:
+            weights[token] = grs[token] / gr_avg
+
+        return weights
+
+    def get_weight(self, token):
         if not token in self.vocabulary:
             return 0.01
-        w = 0
-        ndocs = sum(self.n_documents_per_tag.values())
-        L = len(self.tags)
-        for tag in self.tags:
-            pc_given_t = (self.n_words_per_tag_per_token[tag][token] + 1) * 1.0 / (sum([self.n_words_per_tag_per_token[c][token] for c in self.tags]) + L)
-            pc = float(self.n_documents_per_tag[tag] + 1) / (ndocs + L)
-            w += pc_given_t * math.log(pc_given_t / pc)
-        p_token = (sum([self.n_words_per_tag_per_token[c][token] for c in self.tags]) + 1) * 1.0 / (sum([self.n_words_per_tag[c] for c in self.tags]) + L)
-        return -w/(p_token * math.log(p_token))
+        return self.weights[token]
 
     def classify(self, tokens):
         max_tag = (-float('inf'), None)
