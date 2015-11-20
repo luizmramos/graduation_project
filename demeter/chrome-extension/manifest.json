@@ -25,7 +25,7 @@
     }
   ],
 
-  "permissions": [ "tabs", "https://*.facebook.com/*", "https://*.wikipedia.org/*", "http://localhost/*", "https://demeter-1075.appspot.com/*" ],
+  "permissions": [ "tabs", "https://*.facebook.com/*", "https://demeter-1075.appspot.com/*" ],
 
   "web_accessible_resources": [ 
     "contentscript.js", 

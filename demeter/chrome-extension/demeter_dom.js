@@ -29,6 +29,7 @@ var classesList = [
 	"Minorias",
 	"Educacao",
 	"Noticias",
+	"Musica",
 	"Bebes / Animais",
 	"Medicina"
 ]
