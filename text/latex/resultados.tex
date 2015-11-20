@@ -1,12 +1,438 @@
+\externaldocument{metodologia}
+\externaldocument{fundamentacao_teorica}
+\externaldocument{proposta_de_classificador}
+
+\section{Base de dados}
+A base de dados para a classificação de postagens foi adquirida a partir da extensão do Chrome descrita na Seção \ref{sec:plugin_chrome}. A classificação foi feita manualmente por diversos supervisores, classificando cada postagem nas diferentes categorias explicitadas na Seção \ref{ref:classes_adotadas}. 
+
+O gráfico da Figura \ref{fig:classes_freq} ilustra a proporção entre as diferentes classes na base de dados obtida.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{classes_freq.png}
+	\caption{Histograma representativo da base de dados de postagens adquirida}
+	\label{fig:classes_freq}
+\end{figure}
+
+A menor base é de `Notícias', com apenas 16 postagens, e a maior é `Política / Economia' com 172 postagens. O total de postagens é 757. Observa-se que este não é um número muito grande para uma base de dados, ainda mais com um total de 14 classes, mas foi o que foi possível de se adquirir.
+
 \section{Naïve Bayes utilizando apenas o texto}
+
+Nesta primeira abordagem, o classificador obteve uma acurácia média (ao longo de 100 partições aleatórias diferentes da base de dados em treinamento e validação, conforme o explicado na Seção \ref{sec:validacao}) de 49.7\%, ou seja, o classificador acerta basicamente 1 a cada 2 postagens. Como já foi dito na Seção \ref{sec:acuracia}, a acurácia é uma métrica bem ruim para avaliar um classifiador. Desta forma, foram consideradas as outras estatísticas explicadas no capítulo de metodologia, para uma análise mais profunda.
+
+A acurácia esperada para este classificador, utilizando a Equação \ref{eq:acuracia_esperada}, é de 14.16\%. O $Kappa$ neste caso foi de 41.4\%. Segundo o benchmark de Landis e Koch \cite{landis1977measurement}, trata-se de um resultado moderado. Note que a estatística $Kappa$ agrega muito mais informação que uma simples acurácia.
+
+É interessante observar como o Kappa e a acurácia variam conforme se aumenta o tamanho da base de dado. Para tal, repetiu-se o processo de treinamento e validação com a base de dados de tamanho variável (pegando-se subconjuntos aleatórios da base de dados original). Manteve-se sempre uma proporção de 75\% pra treinamento e 25\% para validação. A Figura \ref{fig:nb_apenas_com_texto_accuracy_graph} mostra o crescimento da acurácia, enquanto que a Figura \ref{fig:nb_apenas_com_texto_kappa_graph} mostra o crescimento do Kappa.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_apenas_com_texto_accuracy_graph.png}
+	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para NB simples}
+	\label{fig:nb_apenas_com_texto_accuracy_graph}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_apenas_com_texto_kappa_graph.png}
+	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para NB simples}
+	\label{fig:nb_apenas_com_texto_kappa_graph}
+\end{figure}
+
+Para se compreender onde exatamente o classificador está ruim, rodou-se novamente o programa com apenas uma iteração e construiu-se a matriz de confusão para os resultados obtidos, como pode ser visto na Tabela \ref{tab:nb_apenas_com_o_texto}.
+
+Para este exemplo tem-se:
+
+$acuracia=0.529101$
+
+$acuracia\_esperada=0.138154$
+
+$Kappa=0.453615$
+
+
+A Tabela \ref{tab:nb_apenas_com_o_texto} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Edu & Esp & Fil & Hum & Min & Not & Pes & Pol & Pro & Sau & Tur\\
+			\hline
+			7 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 2 & 0 & 0\\
+			0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 1 & 2 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0\\
+			0 & 0 & 2 & 8 & 0 & 1 & 1 & 0 & 0 & 0 & 1 & 0 & 1 & 0\\
+			0 & 0 & 0 & 1 & 5 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+			0 & 0 & 1 & 0 & 0 & 4 & 1 & 0 & 0 & 1 & 0 & 0 & 0 & 0\\
+			0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 1 & 1 & 1 & 0 & 1 & 1 & 9 & 1 & 3 & 2 & 1 & 0 & 1\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			3 & 3 & 0 & 1 & 2 & 0 & 0 & 1 & 0 & 21 & 0 & 3 & 0 & 1\\
+			1 & 1 & 4 & 2 & 2 & 1 & 7 & 4 & 3 & 1 & 38 & 2 & 4 & 1\\
+			0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 2 & 1 & 2\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 3\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a NB apenas com o texto}
+	\label{tab:nb_apenas_com_o_texto}
+\end{table}
+
+
+A Figura \ref{fig:nb_apenas_com_o_texto} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_apenas_com_o_texto.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:nb_apenas_com_o_texto}}
+	\label{fig:nb_apenas_com_o_texto}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:nb_apenas_com_o_texto_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.636364 & 0.636364 & 0.636364 \\
+			Celebridade & 0.500000 & 0.125000 & 0.200000 \\
+			Ciencia & 0.400000 & 0.153846 & 0.222222 \\
+			Educacao & 0.571429 & 0.615385 & 0.592593 \\
+			Esporte & 0.714286 & 0.555556 & 0.625000 \\
+			Filmes & 0.571429 & 0.500000 & 0.533333 \\
+			Humor & 0.500000 & 0.083333 & 0.142857 \\
+			Minorias & 0.409091 & 0.642857 & 0.500000 \\
+			Noticias & 1.000000 & 0.000000 & 1.000000 \\
+			Pessoal & 0.600000 & 0.777778 & 0.677419 \\
+			Politica & 0.535211 & 0.883721 & 0.666667 \\
+			Propaganda & 0.000000 & 1.000000 & 0.000000 \\
+			Saude & 0.142857 & 0.166667 & 0.153846 \\
+			Turismo & 1.000000 & 0.333333 & 0.500000 \\
+			Media Micro & 0.529101 & 0.529101 & 0.529101 \\
+			Media Macro & 0.541476 & 0.462417 & 0.498833 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para NB apenas com o texto}
+	\label{tab:nb_apenas_com_o_texto_prec_rec}
+\end{table}
+
 
 \section{Naïve Bayes com Features Adicionais}
 % Isso piora o classificador pois adiciona redundancia (e quebra a nocao de independencia condicional)
 
+% citar a secao que explica essas features
+
+A acurácia média obtida depois da adição das features extras foi de 51.1\%. A métrica Kappa foi de 42.5\%. Observa-se portanto que houve uma pequena melhora em relação as redes Bayesianas com o texto puro(o Kappa variou de 41.4\% para 42.5\%). 
+
+O motivo da melhoria ser tão pequena é que ocorrem dois efeitos opostos quando se adicionam essas novas features. Por um lado, essas novas features adicionam novas informações que possibilitam que haja uma melhor classificação. Por outro lado, essas novas features são muitas vezes dependentes condicionalmente das palavras do texto. Como as NB assumem, independência condicional, a adição de features dependentes pode piorar a rede. O resultado da soma desses dois efeitos foi ligeiramente positivo neste caso.
+
+A Figura \ref{fig:nb_features_extras_accuracy_graph} abaixo mostra a evolução da acurácia das NB com features extras em função do tamanho da base de dados. A Figura \ref{fig:nb_features_extras_kappa_graph} mostra a relação do Kappa com o tamanho da base de dados. A Figura \ref{fig:nb_features_extras_vs_apenas_texto_kappa_graph} compara os gráficos do Kappa para as NB com e sem features extras.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_features_extras_accuracy_graph.png}
+	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para NB com features extras (alem das palavras do texto)}
+	\label{fig:nb_features_extras_accuracy_graph}
+\end{figure}
+
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_features_extras_kappa_graph.png}
+	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para NB com features extras (alem das palavras do texto)}
+	\label{fig:nb_features_extras_kappa_graph}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_features_extras_vs_apenas_texto_kappa_graph.png}
+	\caption{Sobreposição dos gráficos do Kappa em função da quantidade de postagens na base de dados para NB com e sem as features extras}
+	\label{fig:nb_features_extras_vs_apenas_texto_kappa_graph}
+\end{figure}
+
+Para este exemplo tem-se:
+
+$acuracia=0.513228$
+
+$acuracia\_esperada=0.140058$
+
+$Kappa=0.433948$
+
+
+A Tabela \ref{tab:nb_com_features_adicionais} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Edu & Esp & Fil & Hum & Min & Not & Pes & Pol & Pro & Sau & Tur\\
+			\hline
+			6 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 1 & 3 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 0 & 1 & 1 & 0\\
+			0 & 0 & 3 & 3 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+			0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 5 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			1 & 0 & 0 & 2 & 1 & 1 & 0 & 6 & 2 & 1 & 1 & 0 & 1 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			4 & 3 & 0 & 3 & 6 & 3 & 4 & 2 & 1 & 22 & 1 & 1 & 1 & 2\\
+			0 & 2 & 2 & 4 & 1 & 2 & 2 & 5 & 5 & 2 & 39 & 0 & 7 & 0\\
+			0 & 0 & 1 & 0 & 1 & 3 & 0 & 0 & 0 & 0 & 0 & 3 & 0 & 1\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 2 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 4\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a NB com features adicionais}
+	\label{tab:nb_com_features_adicionais}
+\end{table}
+
+
+A Figura \ref{fig:nb_com_features_adicionais} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_com_features_adicionais.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:nb_com_features_adicionais}}
+	\label{fig:nb_com_features_adicionais}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:nb_com_features_adicionais_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.750000 & 0.545455 & 0.631579 \\
+			Celebridade & 1.000000 & 0.000000 & 0.000000 \\
+			Ciencia & 0.375000 & 0.333333 & 0.352941 \\
+			Educacao & 0.375000 & 0.250000 & 0.300000 \\
+			Esporte & 1.000000 & 0.090909 & 0.166667 \\
+			Filmes & 1.000000 & 0.230769 & 0.375000 \\
+			Humor & 1.000000 & 0.416667 & 0.588235 \\
+			Minorias & 0.375000 & 0.461538 & 0.413793 \\
+			Noticias & 1.000000 & 0.000000 & 0.000000 \\
+			Pessoal & 0.415094 & 0.880000 & 0.564103 \\
+			Politica & 0.549296 & 0.928571 & 0.690265 \\
+			Propaganda & 0.333333 & 0.500000 & 0.400000 \\
+			Saude & 0.666667 & 0.166667 & 0.266667 \\
+			Turismo & 1.000000 & 0.500000 & 0.666667 \\
+			Media Micro & 0.513228 & 0.513228 & 0.513228 \\
+			Media Macro & 0.702814 & 0.378850 & 0.492317 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para NB com features adicionais}
+	\label{tab:nb_com_features_adicionais_prec_rec}
+\end{table}
+
+
 \section{Weighted Naïve Bayes utilizando apenas o texto}
+%notar que apesar da acuracia ter melhorado pouco, o Kappa melhorou muito
+
+A acurácia média obtida, depois da adição de pesos nas features e utilizando apenas as palavras do texto, foi de 53.5\%. A métrica Kappa foi de 48.2\%. Observa-se portanto que houve uma melhora considerável na métrica Kappa em relação às abordagens anteriores e uma melhora pequena na acurácia.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{wnb_somente_texto_accuracy_graph.png}
+	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB utilizando apenas o texto}
+	\label{fig:wnb_somente_texto_accuracy_graph}
+\end{figure}
+
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{wnb_somente_texto_kappa_graph.png}
+	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB utilizando apenas o texto}
+	\label{fig:wnb_somente_texto_kappa_graph}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_somente_texto_vs_wnb_kappa_graph.png}
+	\caption{Sobreposição dos gráficos do Kappa em função da quantidade de postagens na base de dados para o NB Simples e o Weighted NB}
+	\label{fig:nb_somente_texto_vs_wnb_kappa_graph}
+\end{figure}
+
+Para este exemplo tem-se:
+
+$acuracia=0.544974$
+
+$acuracia\_esperada=0.104000$
+
+$Kappa=0.492158$
+
+
+A Tabela \ref{tab:weighted_nb_apenas_com_texto} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Edu & Esp & Fil & Hum & Min & Not & Pes & Pol & Pro & Sau & Tur\\
+			\hline
+			7 & 0 & 1 & 0 & 0 & 1 & 0 & 2 & 0 & 1 & 0 & 1 & 0 & 0\\
+			0 & 1 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 6 & 1 & 0 & 0 & 1 & 0 & 0 & 0 & 1 & 0 & 1 & 1\\
+			1 & 0 & 3 & 8 & 1 & 0 & 0 & 1 & 0 & 0 & 2 & 1 & 2 & 0\\
+			0 & 0 & 0 & 0 & 8 & 0 & 0 & 0 & 0 & 0 & 2 & 1 & 0 & 0\\
+			0 & 1 & 0 & 0 & 0 & 12 & 0 & 0 & 0 & 1 & 2 & 1 & 0 & 2\\
+			0 & 0 & 0 & 0 & 0 & 0 & 2 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			2 & 1 & 1 & 1 & 0 & 0 & 2 & 9 & 1 & 4 & 12 & 0 & 0 & 2\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			1 & 0 & 0 & 0 & 2 & 0 & 1 & 1 & 0 & 12 & 0 & 0 & 0 & 1\\
+			1 & 2 & 0 & 1 & 0 & 1 & 3 & 0 & 0 & 2 & 24 & 0 & 2 & 1\\
+			0 & 0 & 0 & 1 & 0 & 1 & 1 & 1 & 0 & 0 & 1 & 3 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 6 & 0\\
+			0 & 0 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 5\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a Weighted NB apenas com texto}
+	\label{tab:weighted_nb_apenas_com_texto}
+\end{table}
+
+
+A Figura \ref{fig:weighted_nb_apenas_com_texto} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{weighted_nb_apenas_com_texto.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:weighted_nb_apenas_com_texto}}
+	\label{fig:weighted_nb_apenas_com_texto}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:weighted_nb_apenas_com_texto_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.538462 & 0.583333 & 0.560000 \\
+			Celebridade & 0.500000 & 0.200000 & 0.285714 \\
+			Ciencia & 0.545455 & 0.545455 & 0.545455 \\
+			Educacao & 0.421053 & 0.615385 & 0.500000 \\
+			Esporte & 0.727273 & 0.615385 & 0.666667 \\
+			Filmes & 0.631579 & 0.800000 & 0.705882 \\
+			Humor & 1.000000 & 0.200000 & 0.333333 \\
+			Minorias & 0.257143 & 0.642857 & 0.367347 \\
+			Noticias & 1.000000 & 0.000000 & 0.000000 \\
+			Pessoal & 0.666667 & 0.600000 & 0.631579 \\
+			Politica & 0.648649 & 0.533333 & 0.585366 \\
+			Propaganda & 0.375000 & 0.428571 & 0.400000 \\
+			Saude & 1.000000 & 0.545455 & 0.705882 \\
+			Turismo & 0.625000 & 0.416667 & 0.500000 \\
+			Media Micro & 0.544974 & 0.544974 & 0.544974 \\
+			Media Macro & 0.638306 & 0.480460 & 0.548248 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para Weighted NB apenas com texto}
+	\label{tab:weighted_nb_apenas_com_texto_prec_rec}
+\end{table}
+
 
 \section{Weighted Naïve Bayes com Features Adicionais}
 % Nesse caso nao tem problema adicionar features redundantes pois os pesos aliviam a hipotese de independencia condicional
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{wnb_features_extras_accuracy_graph.png}
+	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB com features extras}
+	\label{fig:wnb_features_extras_accuracy_graph}
+\end{figure}
+
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{wnb_features_extras_kappa_graph.png}
+	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB com features extras}
+	\label{fig:wnb_features_extras_kappa_graph}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{nb_vs_wnb.png}
+	\caption{Comparação dos quatro classificadores propostos, mostrando o Kappa de cada um como uma função do tamanho da base de dados.}
+	\label{fig:nb_vs_wnb}
+\end{figure}
+
+
+Para este exemplo tem-se:
+
+$acuracia=0.656085$
+
+$acuracia\_esperada=0.108060$
+
+$Kappa=0.614419$
+
+
+A Tabela \ref{tab:weighted_nb_com_features_extras} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Edu & Esp & Fil & Hum & Min & Not & Pes & Pol & Pro & Sau & Tur\\
+			\hline
+			5 & 1 & 1 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+			0 & 3 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 6 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 0 & 0 & 0\\
+			0 & 0 & 5 & 7 & 1 & 1 & 0 & 3 & 0 & 0 & 4 & 1 & 1 & 0\\
+			0 & 0 & 1 & 0 & 7 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+			0 & 0 & 0 & 1 & 0 & 7 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 5 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			2 & 1 & 0 & 0 & 0 & 0 & 0 & 14 & 2 & 0 & 5 & 0 & 1 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 0\\
+			2 & 1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 24 & 1 & 2 & 0 & 2\\
+			1 & 0 & 0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 30 & 0 & 1 & 1\\
+			0 & 0 & 1 & 1 & 0 & 1 & 0 & 0 & 0 & 1 & 1 & 4 & 0 & 0\\
+			0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 & 1 & 0 & 2 & 0 & 6 & 0\\
+			0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 5\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a Weighted NB com features extras}
+	\label{tab:weighted_nb_com_features_extras}
+\end{table}
+
+
+A Figura \ref{fig:weighted_nb_com_features_extras} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{weighted_nb_com_features_extras.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:weighted_nb_com_features_extras}}
+	\label{fig:weighted_nb_com_features_extras}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:weighted_nb_com_features_extras_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.555556 & 0.500000 & 0.526316 \\
+			Celebridade & 1.000000 & 0.428571 & 0.600000 \\
+			Ciencia & 0.666667 & 0.428571 & 0.521739 \\
+			Educacao & 0.304348 & 0.636364 & 0.411765 \\
+			Esporte & 0.777778 & 0.875000 & 0.823529 \\
+			Filmes & 0.700000 & 0.636364 & 0.666667 \\
+			Humor & 1.000000 & 1.000000 & 1.000000 \\
+			Minorias & 0.560000 & 0.736842 & 0.636364 \\
+			Noticias & 0.500000 & 0.200000 & 0.285714 \\
+			Pessoal & 0.727273 & 0.923077 & 0.813559 \\
+			Politica & 0.857143 & 0.666667 & 0.750000 \\
+			Propaganda & 0.444444 & 0.444444 & 0.444444 \\
+			Saude & 0.545455 & 0.600000 & 0.571429 \\
+			Turismo & 0.833333 & 0.555556 & 0.666667 \\
+			Media Micro & 0.656085 & 0.656085 & 0.656085 \\
+			Media Macro & 0.676571 & 0.616533 & 0.645158 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para Weighted NB com features extras}
+	\label{tab:weighted_nb_com_features_extras_prec_rec}
+\end{table}
 
 \section{Utilização dos links}
  

@@ -1,28 +1,86 @@
-% TODO: Esse capítulo te que citar os classificadores mas nao tem que citar os resultados
 
-% TODO: Escrever uma breve introdução
+
+\externaldocument{fundamentacao_teorica}
+\externaldocument{metodologia}
+
+Foram propostas diversas formas diferentes de classificadores, e cada uma será posteriormente avaliada e comparada.
+
+\section{Classes adotadas}
+\label{ref:classes_adotadas}
+Foram consideradas as seguintes classes para todos os classificadores desenvolvidos:
+
+\begin{itemize}
+	\item Politica / Economia 
+	\item Propaganda
+	\item Filmes / Series
+	\item Humor
+	\item Celebridade
+	\item Esporte
+	\item Pessoal
+	\item Turismo
+	\item Ciencia / Tecnologia / Meio Ambiente
+	\item Minorias
+	\item Educacao
+	\item Noticias
+	\item Bebes / Animais
+	\item Saude
+\end{itemize}
 
 \section{Naïve Bayes utilizando apenas o texto}
+O classificador mais simples que pode ser criado utilizando NB, consiste em utilizar apenas as palavras do texto como features. 
 
-% TODO: Falar da NB usando apenas o texto (citar o pre processamento que ja foi explicado no outro capitulo)
+Neste caso, realizou-se primeiramente o processamento conforme o descrito na Seção \ref{sec:processamento_do_texto}, normalizando as palavras de forma apropriada. Durante o processo de normalização, foram realizadas as seguintes modificações.
+
+\begin{itemize}
+	\item Todos os links foram trocados pelo token '\{link\}'
+	\item Todas as referências feitas com @ (por exemplo @NomeDaPessoa) foram trocadas pelo token '\{tag\}'
+	\item Todos os valores monetários (tanto em real como em dólar) foram trocados pelo token '{money}'
+	\item Todas as percentagens foram trocadas pelo token '\{percentage\}'
+	\item Todas as datas foram trocadas pelo token '\{date\}'
+	\item Todos os outros números foram trocados pelo token '\{number\}'
+\end{itemize}
+
+Em seguida, realizou-se o treinamento utilizando base de dados obtida, realizando-se a contagem da ocorrência dos tokens em cada uma das classes. Finalmente testou-se a performance do classificador obtido em um conjunto de testes.
 
 \section{Naïve Bayes com Features Adicionais}
+\label{sec:bayes_features_adicionais}
+Várias outras features foram adicionadas na tentativa de melhorar a performance do classificador. As postagens em redes sociais em geral contem muito mais informações do que o texto escrito. Tentaram-se capturá-las utilizando as seguintes features:
 
-% TODO: Falar das features extras utilizadas (ter foto, ter video, tamanho do texto, tipo da postagem, etc... tem tudo la no codigo no arquivo tokenize)
+\begin{itemize}
+	\item Usuário ou página que é autor(a) da postagem
+	\item Tipo de compartilhamento (se é apenas um status update, ou se é um vídeo ou uma foto que estão sendo compartilhados)
+	\item Se a postagem possui uma localização de origem (o valor do local em si de onde a postagem foi feita não foi considerado, pois seria necessária uma base de dados muito grande para que este local fizesse diferença)
+	\item Se há algum outro usuário marcado na postagem (considerou-se esta feature interessante pelo fato de que postagens pessoas costumam ter pessoas marcadas).
+	\item Se a postagem foi promovida por meio de pagamentos (tem a tag Sponsor no Facebook) ou não
+	\item O tamanho do texto (discretizou-se o tamanho em 4 categorias: tiny, small, medium, large)
+\end{itemize}
+
+É importante notar que o ideal seria recuperar informações a partir das imagens e vídeos compartilhados, entretanto este problema foge ao escopo deste trabalho.
+
+
 
 \section{Weighted Naïve Bayes utilizando apenas o texto}
-
-% TODO: Falar sobre utilizacao de pesos nas redes
+Utilizaram-se as Weighted Naïve Bayes descritas na Seção \ref{sec:weighted_naive_bayes} para ponderar a importância das features relevando a noção independência condicional das NBs.
 
 \section{Weighted Naïve Bayes com Features Adicionais}
 
-% TODO: Só citar a combinacao dos dois tweaks
+Repetiu-se a mesma ideia exposta na Seção \ref{sec:bayes_features_adicionais}, porem desta vez com a NB ponderada.
 
 \section{Utilização dos links}
- % TODO: Falar da ideia de usar o resultado do link como feature
+Até agora, o conteúdo dos links compartilhados tinha sido completamente ignorado. Por exemplo, se alguém postasse um link sobre economia e escrevesse algo do tipo `Muito interessante esta análise', o classificador iria tentar classificar a potagem utilizando apenas o texto (o que é bem complicado). Para evitar este problema, fez-se um HTTP GET request para o link, extraiu-se o texto principal e ele foi classificado por um segundo classificador. O resultado deste segundo classificador passa a ser uma feature do classificador de postagens.
+
+Este segundo classificador (que será referenciado como classificador de artigos) foi treinado a partir da base de dados adquirida pelo crawler.
  
 \section{Concatenação do texto dos links}
 % TODO: Falar da concatenação do texto dos links no post (se a gente efetivamente fizer isto)
+% Uma outra abordagem utilizada foi a de concatenar o texto contido no link com o texto da postagem. Desta forma ambos são treinados e classificados simultaneamente.
 
 \section{Fusão de classes pequenas}
 % TODO: Falar das classes pouco frequentes
+% Uma outra mudança considerada para melhorar a qualidade do classificador foi a fusão de classes pequenas.
+
+% Muitas das classes consideradas não são tão recorrentes no Facebook dos supervisores e portanto conseguiram poucos exemplos para os conjuntos de treinamento e teste. Isto faz com que o classificador não possua informação suficiente para realizar a classificação de forma adequada.
+
+% Além disso, existem algumas classes que possuem domínios bem proximos que, muitas vezes, são de difícil distinção até para um ser humado (cita-se como exemplo `Celebridades' vs `Filmes'). Isto tambem aumenta a taxa de errodo classificador.
+
+% A solução adotada foi a fusão destas classes em outra mais abrangentes.

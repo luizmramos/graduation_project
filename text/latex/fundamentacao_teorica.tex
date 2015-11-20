@@ -190,6 +190,7 @@ Esta representação não leva em consideração a frequência com a qual cada palavra
 Para o caso específico de postagens em redes sociais existem ainda outras features que podem ser incluídas. Pode-se considerar o autor da postagem, o momento em que ela foi publicada, a presença de fotos, vídeos ou links, etc.
 
 \section{Weighted Naïve Bayes}
+\label{sec:weighted_naive_bayes}
 Um dos problemas das NB é que muitas vezes nas aplicações reais não é possível assumir a independência condicional das features. Muitas vezes uma das features tem um peso maior que as outras, por exemplo.
 
 Um modo inicial de relaxar essa hipótese de independência, é eliminar features com alta correlação, fazendo com que o subconjunto restante se encaixe melhor na hipótese de independência condicional. Isto é chamado de seleção de features.
@@ -252,6 +253,7 @@ A tabela \ref{tab:avaliacao_classificador_binario} resume as diferentes medidas 
 \end{table}
 
 \subsubsection{Acurácia}
+\label{sec:acuracia}
 A acurácia mede a quantidade total de acertos (verdadeiro positivos ou verdadeiro negativos) em relação à quantidade total de objetos classificados.
 
 $acuracia = \frac{tp+tn}{tp+fn+fp+tn}$
@@ -404,7 +406,11 @@ $E[c_1,c_2,...,c_L] = \sum_{i=1}^{L} {(tp_i + fp_i)\frac{tp_i + fn_i}{N}}$
 
 Como a Acurácia Esperada é a porcentagem de acertos desse classificador aleatório tem-se:
 
-$acuracia\_esperada = \frac{E[c_1,c_2,...,c_L]}{N} =  \frac{\sum_{i=1}^{L}{(tp_i + fp_i)(tp_i + fn_i)}}{N^2}$
+\begin{equation}
+acuracia\_esperada = \frac{E[c_1,c_2,...,c_L]}{N} =  \frac{\sum_{i=1}^{L}{(tp_i + fp_i)(tp_i + fn_i)}}{N^2}
+\label{eq:acuracia_esperada}
+\end{equation}
+
 
 Em termos da matriz de confusão, a acurácia esperada é a somatória dos produtos entre cada linha com a sua respectiva coluna (linha 1 com coluna 1, linha 2 com coluna 2 e assim por diante) dividida pela quantidade total de elementos ao quadrado.
 
@@ -414,6 +420,30 @@ A estatística $Kappa$ indica a porcentagem de melhoria que o classificador tem e
 
 $Kappa = \frac{acuracia\_observada - acuracia\_esperada}{1 - acuracia\_esperada}$
 
+A interpretação do $Kappa$ é interessante pois permite a comparação de diversos classificadores. Como pode ser visto na fórmula, a estatística $Kappa$ indica o ganho percentual entre um classificador randômico (que classifique com mesma proporção de classes que o classificador desenvolvido) e o classificador dado. Um $Kappa$ de 0\% significa que não há ganho enquanto que um $Kappa$ indica uma classificação perfeita. Landis e Koch fizeram um estudo dos diferentes valores de Kappa e chegaram à Tabela \ref{tab:kappa_table} abaixo de benchmarks para o $Kappa$ \cite{landis1977measurement}.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{c c}
+			\hline
+			$Kappa$ & Strength of Agreement \\
+			\hline 
+			<0.00 & Poor \\
+			0.00-0.20 & Slight \\
+			0.21-0.40 & Fair \\
+			0.41-0.60 & Moderate \\
+			0.61-0.80 & Substantial \\
+			0.81-1.00 & Almost Perfect \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Nomeclatura para diferentes intervalos de $Kappa$ segundo os pesquisadores Landis e Koch}
+	\label{tab:kappa_table}
+\end{table}
+
+
+Estas divisões foram arbitradas pelos autores supracitados e elas criam um benchmark útil para a verificação da qualidade de um classificador, definindo uma nomeclatura que pode ser utilizada pelo meio acadêmico. Obviamente, dependendo da aplicação pode ser necessário e desejável que se tenha um $Kappa$ de 0.9. Em outras aplicações um $Kappa$ de 0.4 pode já ser suficiente.
 
 \section{Revisão Bibliográfica}
 % TODO: Colocar aqui outros trabalhos de assuntos relacionados que ja existem na literatura e explicar porque o nosso trabalho é diferente (dizer que rede social adiciona uma complexidade a mais?)
