@@ -24,6 +24,8 @@ def mock_stories(data):
         stories.append(st)
     return stories
 
+mode = 'confusion'
+
 data = raw_input()
 
 stories = mock_stories(json.loads(data))
@@ -33,18 +35,38 @@ for story in stories:
     storyMap[story.text] = story
 stories = storyMap.values()
 filteredStories = []
+all_tags = set([])
 for story in stories:
     story_tokens = extract_tokens_from_story(story)
-    if len(story_tokens) < 5:
+    if "Outros" in story.classification or "Curiosidades" in story.classification: 
         continue
-    if "Outros" in story.classification: 
-        continue
+    all_tags.add(story.classification.items()[0][0])
     filteredStories.append(story)
 stories = filteredStories
 
-INITIAL_DOCUMENTS_SIZE = len(stories)
+#print len(stories)
+megacount = defaultdict(lambda: 0)
+for story in stories:
+    megacount[story.classification.items()[0][0]]+=1
+
+#for item in megacount.items():
+#    print str(item[0]) + ' ' + str(item[1])
+
+all_tags = sorted(list(all_tags))
+
+for line in all_tags:
+    if mode == 'confusion': 
+        print '%s' % line
+
+INITIAL_DOCUMENTS_SIZE = 50
 DOCUMENTS_INCREASE_STEP = 50
-N_TRIES_PER_STEP =  100
+N_TRIES_PER_STEP =  25
+if mode == 'confusion':
+    N_TRIES_PER_STEP = 1
+    INITIAL_DOCUMENTS_SIZE = len(stories)
+if mode == 'mean':
+    N_TRIES_PER_STEP = 100
+    INITIAL_DOCUMENTS_SIZE = len(stories)
 
 for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
@@ -90,7 +112,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
         for document in test_data:
             chosen = [naive_bayes.classify(document.tokens)]
             for c in chosen: 
-                confusion_matrix[document.tag][c] += 1
+                confusion_matrix[c][document.tag] += 1
             #print '<divisor>'
             #print chosen
             #print document.textoCompleto
@@ -111,7 +133,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
             
         n_test_documents = 1.0*len(test_data)
         global_count += 1
-        for tag in naive_bayes.tags:
+        for tag in all_tags:
             if true_positives[tag] + false_positives[tag] == 0:
                 precision = 1 # check corner cases
             else:
@@ -129,9 +151,10 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
             global_recall[tag] += recall
             
             #print tag + ' TP: ' + str(true_positives[tag]) + ' / ' + str(total[tag]) + ' TN: ' + str(true_negatives[tag]) + ' / '  + str(nDocs - total[tag]) 
-            #print tag + ': Precision: ' + str(precision),
-            #print ' # Recall: ' + str(recall),   
-            #print ' # F1: ' + str(2 * precision * recall / (precision + recall)) 
+            if mode == 'confusion': 
+                print str(precision),
+                print str(recall),   
+                print str(f1) 
     
         accuracy = accuracy * 1.0/ n_test_documents
         global_accuracy += accuracy
@@ -140,10 +163,12 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
        
         expected_accuracy = 0
         total = 0
-        for line in confusion_matrix:
-            #for column in confusion_matrix:
-            #    print '%5d' % confusion_matrix[line][column],
-            #print
+        
+        for line in all_tags:
+            if mode == 'confusion': 
+                for column in all_tags:
+                    print '%5d' % confusion_matrix[line][column],
+                print
             sum_column = sum([confusion_matrix[l][line] for l in confusion_matrix])
             sum_line = sum(confusion_matrix[line].values())
             expected_accuracy += sum_column*sum_line

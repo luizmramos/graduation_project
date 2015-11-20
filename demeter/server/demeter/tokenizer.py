@@ -260,7 +260,7 @@ def get_text_size_token(text):
 
 def extract_tokens_from_story(story):
     tokens = extract_tokens_from_text(story.text) 
-    return tokens
+    #return tokens
     tokens.append(extract_user_token_from_id(story.id))
     links_token = get_links_token(story.links)
     for link_token in links_token:

@@ -43,7 +43,7 @@ class NaiveBayes:
         #print(json.dumps(naive_bayes_json))
 
     def get_weight(self, token): 
-        return 1
+        #return 1
         if not token in self.vocabulary:
             return 0.01
 
