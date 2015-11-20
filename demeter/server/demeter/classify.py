@@ -37,7 +37,19 @@ for story in stories:
     storyMap[story.text] = story
 stories = storyMap.values()
 
-INITIAL_DOCUMENTS_SIZE = 20
+filteredStories = []
+all_tags = set([])
+for story in stories:
+    story_tokens = extract_tokens_from_story(story)
+    if "Outros" in story.classification or "Curiosidades" in story.classification: 
+        continue
+    all_tags.add(story.classification.items()[0][0])
+    filteredStories.append(story)
+
+all_tags = sorted(list(all_tags))
+stories = filteredStories
+
+INITIAL_DOCUMENTS_SIZE = len(stories)
 DOCUMENTS_INCREASE_STEP = 20
 N_TRIES_PER_STEP = 7
 
@@ -97,7 +109,7 @@ for n_stories in [len(stories) - 1]:
 
         for document in test_data:
             chosen = [naive_bayes.classify(document.tokens)]
-            confusion_matrix[document.tag][chosen[0]] += 1
+            confusion_matrix[chosen[0]][document.tag] += 1
             # print '<divisor>'
             # print chosen
             # print document.textoCompleto
@@ -118,7 +130,7 @@ for n_stories in [len(stories) - 1]:
 
         n_test_documents = 1.0 * len(test_data)
         global_count += 1
-        for tag in naive_bayes.tags:
+        for tag in all_tags:
             if true_positives[tag] + false_positives[tag] == 0:
                 precision = 1  # check corner cases
             else:
@@ -147,8 +159,8 @@ for n_stories in [len(stories) - 1]:
 
         expected_accuracy = 0
         total = 0
-        for line in confusion_matrix:
-            # for column in confusion_matrix:
+        for line in all_tags:
+            # for column in all_tags:
             #    print '%5d' % confusion_matrix[line][column],
             # print
             sum_column = sum([confusion_matrix[l][line] for l in confusion_matrix])
