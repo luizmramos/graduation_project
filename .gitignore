@@ -305,3 +305,9 @@ target/
 # Simulink Code Generation
 slprj/
 
+
+*.exe
+~$*
+*.zip
+*.txt
+out
