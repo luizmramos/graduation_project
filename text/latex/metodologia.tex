@@ -39,7 +39,11 @@ No caso do classificador de artigos, como, geralmente, os textos contém uma ling
 
 \subsection{Criação dos classificadores de Redes Bayesianas}
 
+% TODO: [minor] Falar sobre o pq do classificador de artigos somewhere
+
 Foram criados classificadores de NB e suas performances foram avaliadas contra um conjunto de validação. Os métodos mais efetivos foram selecionados, combinando os classificadores de postagens e de artigos e ajustando seus parâmetros para obter um bom resultado final. 
+
+Os classificadores de artigos e de postagens, apesar de utilizarem o mesmo algoritmo apresentam significativas diferenças. Enquanto o primeiro tira proveito de textos grandes e com muito menos erros, o classificador de posts tem de lidar com conteúdos muito menores, muitas vezes uma só palavra e a mesma podendo ser um riso ou semelhante, o que limita bastante o poder de classificação dele, tendo que se utilizar de outras features como, principalmente, metadados do post.
 
 Onde, neste texto, não for elucidado sobre qual classificador esteja se falando (seja explicitamente ou pelo contexto), assume-se que é sobre o classificador de postagens do Facebook.
 
@@ -200,10 +204,8 @@ Existem vários posts que contém links para páginas de internet de artigos sobre 
 
 Assim, foi feito também um classificador de artigos nos mesmos moldes do classificador de posts, utilizando \emph{Naïve Bayes} e algumas otimizações como \emph{Stemming} e \emph{Weighting}. A ideia é que quando o classificador de posts se deparasse com um link iria chamar o classificador de artigos, que classificaria o artigo contido no link em determinada classe (não necessariamente igual a alguma das classes do classificador de post) e devolveria esse resultado em forma de feature para o classificador de post, como uma forma de pré-processamento do texto.
 
-% TODO: Explain DOM below
-
 Para realizar tal procedimento seria necessário não só construir um classificador mas também um \emph{Parser} e  \emph{Crawler} para coletar os dados para a base de treinamento. 
-O \emph{Parser} é responsável por ler o conteúdo de determinada url como texto, estruturá-lo como uma árvore DOM (TODO: Explicar DOM?) e daí extrair informação relevante.
+O \emph{Parser} é responsável por ler o conteúdo de determinada url como texto, estruturá-lo como uma árvore DOM e daí extrair informação relevante.
 \emph{Crawler} é um programa que segue links e navega em seu conteúdo extraindo informação relevante.
 Primeiramente foi construído o \emph{Parser} pois o mesmo precisa ser utilizado pelo \emph{Crawler} para poder resgatar o conteúdo das páginas.
 
@@ -219,7 +221,7 @@ Não é realístico esperar sucesso de qualquer entrada, contudo, com sorte, isso n
 \item Codificação de caracteres da página difere do acusado pelo header da resposta, gerando erros em bibliotecas de nível mais baixo
 \end{enumerate}
 
-% TODO : Colocar DOM e HTML nas abreviações
+% TODO: [minor] Colocar DOM e HTML nas abreviações
 
 Attempts to locate and extract the largest cluster of text in a webpage. It does this by walking the DOM-tree, identifying all text segments and their depth inside the DOM, appends all text at roughly the same depth, and then returns the chunk with the largest total length.
 
@@ -373,13 +375,11 @@ Para o classificador de posts, foram feitas as seguintes etapas de pré processam
 
 \section{Processamento do texto do classificador de artigos}
 
-TODO: ...
-% TODO: Write...
+O pré-processamento do classificador de artigos é bem semelhante ao pré-processamento do classificador de posts, fazendo uso de remoção de letra maiúscula, substituição de caracteres unicode por seu equivalente ASCII, substituição de números por \texttt{<number>}, dinheiro por \texttt{<money>}, datas por \texttt{<date>} e tempo por \texttt{<time>}, remoção de pontuação e stemming. 
 
-\subsection{Tokenização}
-\subsection{Stemming}
-\subsection{Processamento utilizado}
+Contudo, experimentalmente comprovou-se que stemming apresentava os mesmos (modestos) ganhos de acurácia quando aplicado somente a palavras com 7 ou mais caracteres, portanto para evitar perda de perfomance, resolveu-se aplica-lo somente a essas palavras. 
 
+A remoção de palavras como artigos, preposições, etc. não apresentou melhoras significativas. Os demais problemas decorrentes de utilização de linguagem coloquial (risadas, erros de gramática, palavras intencionalmente mal redigidas, etc.) não estão presentes no classificador de artigos.
 
 \section{Tecnologias utilizadas}
 
@@ -391,8 +391,4 @@ Para se desenvolver a extensão do Chrome utilizou-se o framework disponibilizado
 
 O servidor foi feito no Google App Engine, que permite a utilização da infraestrutura do Google de forma gratuita e simples. O utilizou-se a API do NDB para o gerenciamento do banco de dados.
 
-<<<<<<< HEAD
 O classificador foi inteiramente desenvolvido em Python 2.7 por conta de sua versatilidade e facilidade de programação.
-=======
-
->>>>>>> Add crawler, parser, provider and modify notation in theory
