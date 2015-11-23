@@ -65,7 +65,7 @@ A Figura \ref{fig:naive_bayes_example} mostra um exemplo de uma NB comum. Ela po
 
 \begin{figure}[ht!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{naive_bayes_example.png}
+	\includegraphics[width=0.9\textwidth]{naive_bayes_example.jpg}
 	\caption{Exemplo de uma Naïve Bayes}
 	\label{fig:naive_bayes_example}
 \end{figure}
@@ -87,7 +87,7 @@ $$P(A,B) = P(A)P(B|A) = P(A)P(B)$$
 \subsubsection{Inferência}
 A regra de Bayes seguida pela propriedade de independência condicional pode ser utilizada para a realização de inferência em NB da seguinte forma.
 
-Sejam $C=\{c_1,c_2,c_3, ..., c_J\}$ um conjunto de classes e $x_1, x_2, x_3, ..., x_n$ as features a serem analisadas. Como trata-se de NB, assume-se independência condicional das features. Deseja-se saber para cada $i$:
+Sejam $C=\{c_1,c_2,c_3, ..., c_J\}$ um conjunto de classes e $x_1, x_2, x_3, x_4 ..., x_n$ as features a serem analisadas. Como trata-se de NB, assume-se independência condicional das features. Deseja-se saber para cada $i$:
 
 $$P(C=c_i|x_1,x_2,...,x_n)$$
 
@@ -388,10 +388,10 @@ Intuitivamente, $MI(X, Y)$ mede o quanto de informação $X$ e $Y$ compartilham. S
 Em luz de \ref{eq:entropy} e \ref{eq:mutual_information} define-se Razão de Ganho \emph{GR} (do inglês \emph{Gain Ratio}) de uma feature $X_i$ como sendo:
 
 \begin{equation}
-GR(i) = \frac{I(X_i, C)}{H(X_i)} = \frac{\sum_{c \in C}\sum_{x_1 \in X_1}P(x_1, c)log\left(\frac{P(x_1, c)}{P(x_1)P(c)}\right)}{-\sum_{x_1}P(x_1)log(P(x_1))}
+GR(i) = \frac{MI(X_i, C)}{H(X_i)} = \frac{\sum_{c \in C}\sum_{x_1 \in X_1}P(x_1, c)log\left(\frac{P(x_1, c)}{P(x_1)P(c)}\right)}{-\sum_{x_1}P(x_1)log(P(x_1))}
 \end{equation}
 
-Observe que quanto mais dependentes forem $X_i$ de $C$, isto é, quanto mais os valores de $X_i$ contribuírem para classificar o documento como pertencendo a determinada classe, mais alto será $I(X_i, C)$, justificando um aumento em $GR(i)$. 
+Observe que quanto mais dependentes forem $X_i$ de $C$, isto é, quanto mais os valores de $X_i$ contribuírem para classificar o documento como pertencendo a determinada classe, mais alto será $MI(X_i, C)$, justificando um aumento em $GR(i)$. 
 
 Agora, resta-se somente normalizar as razões de ganho, de forma que o peso de cada feature é a sua razão de ganho dividia pela média de todas as razões de ganho.
 

@@ -200,6 +200,8 @@ O banco de dados contem postagens indexadas por sua url (que é um valor único pa
 
 \subsection{Crawler}
 
+% TODO: Talk about cache
+
 Existem vários posts que contém links para páginas de internet de artigos sobre determinado assunto, sendo esse considerado o assunto do post em si. Não são poucos os casos em que existe pouco texto escrito pelo autor e somente um link para algum artigo. Nesses casos, se ignorássemos o link, não seria possível dizer muito sobre a classificação do post.
 
 Assim, foi feito também um classificador de artigos nos mesmos moldes do classificador de posts, utilizando \emph{Naïve Bayes} e algumas otimizações como \emph{Stemming} e \emph{Weighting}. A ideia é que quando o classificador de posts se deparasse com um link iria chamar o classificador de artigos, que classificaria o artigo contido no link em determinada classe (não necessariamente igual a alguma das classes do classificador de post) e devolveria esse resultado em forma de feature para o classificador de post, como uma forma de pré-processamento do texto.
