@@ -40,15 +40,15 @@ Para realizar inferências nas redes Bayesianas utiliza-se a regra de Bayes, como
 
 Sejam $A$ e $B$ dois eventos com probabilidades de ocorrência $P(A)$ e $P(B)$ e sendo $P(A|B)$ e $P(B|A)$ as probabilidades condicionais de $A$ dado $B$ e de $B$ dado $A$, respectivamente, tem-se que:
 
-$P(A|B) = \frac{{P(A) P(B|A)}}{P(B)}$
+$$P(A|B) = \frac{{P(A) P(B|A)}}{P(B)}$$
 
 Esse resultado parte da noção probabilidade conjunta $P(A,B)$.
 
-$P(A,B)=P(A) P(B|A) = P(B) P(A|B) \rightarrow P(A|B) = \frac{{P(A) P(B|A)}}{P(B)}$
+$$P(A,B)=P(A) P(B|A) = P(B) P(A|B) \rightarrow P(A|B) = \frac{{P(A) P(B|A)}}{P(B)}$$
 
 No caso do exemplo da Figura \ref{fig:bayesian_networks}, podemos calcular a probabilidade conjunta da rede da seguinte forma:
 
-$P(D,I,G,S,L)=P(D)P(I)P(G|I,D)P(S|I)P(L|G)$ 
+$$P(D,I,G,S,L)=P(D)P(I)P(G|I,D)P(S|I)P(L|G)$$
 
 Onde $D=Difficulty$, $G=Grade$, $I=Intelligence$, $S=SAT$ e $L=Letter$.
 
@@ -77,19 +77,19 @@ Antes de explicar a inferência em NB é importante entender o que significa o con
 
 Dados dois eventos $A$ e $B$, dizemos que eles são independentes se a probabilidade de ocorrência de um deles não é influenciada pelo fato do outro ter ocorrido. Ou seja:
 
-$P(A|B) = P(A)$
-$P(B|A) = P(B)$
+$$P(A|B) = P(A)$$
+$$P(B|A) = P(B)$$
 
 Esta propriedade é muito relevante na simplificação de expressões pois podemos usar o fato de que a probabilidade conjunta é igual ao produto das probabilidades individuais.
 
-$P(A,B) = P(A)P(B|A) = P(A)P(B)$
+$$P(A,B) = P(A)P(B|A) = P(A)P(B)$$
 
 \subsubsection{Inferência}
 A regra de Bayes seguida pela propriedade de independência condicional pode ser utilizada para a realização de inferência em NB da seguinte forma.
 
 Sejam $C=\{c_1,c_2,c_3, ..., c_J\}$ um conjunto de classes e $x_1, x_2, x_3, ..., x_n$ as features a serem analisadas. Como trata-se de NB, assume-se independência condicional das features. Deseja-se saber para cada $i$:
 
-$P(C=c_i|x_1,x_2,...,x_n)$
+$$P(C=c_i|x_1,x_2,...,x_n)$$
 
 Ou seja, deseja-se saber qual a probabilidade da classe possuir o valor $c_i$, dadas as features observadas.
 
@@ -109,7 +109,8 @@ P(x_1,x_2,...,x_n|C=c_i) &= P(x_1,x_2,...,x_{n-1}|x_n,C=c_i)P(x_n|C=c_i) \\
 &= P(x_1,x_2,...,x_{n-1}|C=c_i)P(x_n|C=c_i) \\
 &= P(x_1,x_2,...,x_{n-2}|x_{n-1},C=c_i)P(x_{n-1}|C=c_i)P(x_n|C=c_i) \\
 &= P(x_1,x_2,...,x_{n-2}|C=c_i)P(x_{n-1}|C=c_i)P(x_n|C=c_i) \\
-&= ... = P(x_1|C=c_i)P(x_2|C=c_i)P(x_3|C=c_i)...P(x_n|C=c_i)  \\
+&= ... \\  
+&= P(x_1|C=c_i)P(x_2|C=c_i)P(x_3|C=c_i)...P(x_n|C=c_i)  \\
 &= \prod_{j=1}^{n}P(x_j|C=c_i)
 \end{split}
 \label{eq:produtorio}
@@ -124,34 +125,27 @@ P(C=c_i|x_1,x_2,...,x_n) = \frac{P(C=c_i){\prod_{j=1}^{n}P(x_j|C=c_i)}}{P(x_1,x_
 \end{equation}
 
 \subsubsection{Classificação utilizando Naïve Bayes}
-No problema de classificação temos um documento $d$ que será representado pelas features $x_1,x_2,...,x_n$ e deseja-se saber a qual classe $c \in C$ este documento pertence. Matematicamente, deseja-se saber a qual classe é mais provável que o documento pertença, isto é, a classe que maximiza $P(d|c)$.
+No problema de classificação temos um documento $d$ que será representado pelas features $x_1,x_2,...,x_n$ e deseja-se saber a qual classe $c_i \in C$ este documento pertence. Matematicamente, deseja-se saber à qual classe é mais provável que o documento pertença, isto é, a classe que maximiza $P(C=c_i|d)$.
 
-$$\gamma(d)=argmax_c(P(d|c))=argmax_c(P(x_1,x_2,...,x_n|c))$$
-
-Pela equação \ref{eq:naive_bayes_probability}, temos que:
-
-$$argmax_c(P(x_1,x_2,...,x_n|c)) = argmax_c(\frac{P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)})}{P(x_1,x_2,...,x_n)})$$
-
-Como $P(x_1,x_2,...,x_n)$ não depende de c, pode-se eliminá-lo do denominador, chegando em:
-
-$$\gamma(d) = argmax_c(P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)})$$
+\begin{align*}
+\gamma(d) &= argmax_{c_i \in C}(P(C=c_i|d)) \\
+&= argmax_{c_i \in C}(P(C = c_i|x_1,x_2,...,x_n))
+\end{align*}
 
 
-% TODO: Agora depende dos modelos, deletar texto abaixo!
+Pela equação \ref{eq:bayes_inference} e eliminando-se os termos comuns a todas as classes, tem-se que:
 
-% Agora, para descobrir a classe do documento, basta calcular $P(C=c_i)$ e $P(x_k|C=c_i)$ e ambas estas probabilidades são fáceis de serem estimadas (se tivermos um conjunto de treino suficientemente grande).
+\begin{equation}
+\gamma(d) = argmax_{c_i \in C}(P(x_1,x_2,...,x_n|C=c_i)P(C=c_i))
+\label{eq:nb_doc}
+\end{equation}
 
-% Assumindo que as features sejam binarias, isto é, ou estão presentes no documento, ou não estão. Seja $\#(x)$ um operador que indica quantas vezes a feature x aparece no conjunto de treinamento e $\#(c)$ quantos documentos do conjunto de treinamento possuem a classe c. Além disso, seja $\#(x \wedge c)$ a quantidade de vezes que a feature x aparece num documento de classe c e seja N o total de documentos do conjunto de treinamento. É fácil ver que:
+Aplicando-se \ref{eq:naive_bayes_probability} e eliminando-se os termos comuns novamente, tem-se que:
 
-% $P(C=c_i) \simeq \frac{\#(c_i)}{N}$
-
-% e
-
-% $P(x_j|C=c_i) \simeq \frac{\#(x_j \wedge c_i)}{\#(c_i)}$
-
-% Ou seja, o problema de classificação se tornou basicamente um problema de contagem.
-
-% \fi
+\begin{equation}
+\gamma(d) = argmax_{c_i \in C}\left(P(C=c_i)\prod_{j=1}^{n}P(x_j|C=c_i)\right)
+\label{eq:nb_doc_indep}
+\end{equation}
 
 \subsection{Modelagens para classificação de texto}
 
@@ -197,8 +191,6 @@ Em alguns casos pode-se calcular a representação \emph{Bag-of-words} de um docum
 
 Como pode-se perceber ao final da \ref{fig:bag_of_words_4} gerou-se um mapa de palavra para número de ocorrência das mesmas, onde a ordem não é considerada. Apesar de ignorar a ordem das palavras (e dependendo do pré-processamento outras informações como pontuação) é importante manter em mente que um humano facilmente classificaria artigos com taxa relativamente alta de acerto se fossem fornecidas algumas palavras-chave do texto fora de contexto e ordem. Pela sua simplicidade e eficiência para uso em classificação de texto, foi decidido utilizar a representação de documentos por Bag-of-words.
 
-
-
 \subsubsection{Naïve Bayes de Bernoulli}
 
 Na modelagem de Bernoulli, o documento é representado por um vetor de features onde cada coordenada indica se determinada palavra está presente ou não no documento, isto é, o documento é um vetor $\boldsymbol{x}$ de tamanho $|V|$, onde $V$ é o vocabulário, e $x_i \in \{0, 1\}$ indica se a palavra $w_i$ está ou não presente no documento (caso apareça mais de uma vez $x_i$ permanece sendo $1$). Assim:
@@ -206,11 +198,15 @@ Na modelagem de Bernoulli, o documento é representado por um vetor de features o
 \begin{align}
 P(\boldsymbol{X} = \boldsymbol{x} | c) &= \prod_{i=1}^{|V|}P(U_i=1|c)^{x_i}P(U_i=0|c)^{(1-x_i)}\notag\\
 &= \prod_{i=1}^{|V|}P(U_i=1|c)^{x_i}(1-P(U_i=1|c))^{(1-x_i)}\notag\\
+&= \prod_{i=1}^{|V|}p_i^{x_i}(1-p_i)^{(1-x_i)}
 \end{align}
 
-Onde $U_i$ é uma variável aleatória que indica a se a palavra $w_i$ está ou não presente num documento de classe $c$.
+$$p_i = P(U_i|c)$$
 
-% TODO: Estimar P(U=1)
+Onde $U_i$ é uma variável aleatória que indica a se a palavra $w_i$ está ou não presente num documento de classe $c$.
+$p_i$ é estimado como a fração de documentos com class $c$ que possui a palavra $w_i$, isto é:
+
+$$p_i = P(U_i = 1|c) \approx \frac{\#(\text{documentos de classe } c \text{ que contém } 1 \text{ ou mais ocorrências de } w_i) }{\#(\text{documentos de classe } c)} $$
 
 \subsubsection{Multinomial Naïve Bayes}
  
@@ -218,11 +214,13 @@ Nessa modelagem, o número de vezes em que uma determinada palavra aparece em um 
 
 No Multinomial NB, também representa-se o texto por uma \emph{Bag-of-words}. Utiliza-se a distribuição multinomial para modelar as probabilidades das features. Para derivar a expressão que representa $P(x_1,x_2,...,x_n|c)$ primeiro define-se o modelo de cada documento e o que representa seu conjunto de features.
 
-Suponha que $\boldsymbol{d}$ seja um documento que gere o vetor de features	$\boldsymbol{x}(\boldsymbol{d}) = (x_1, x_2, ..., x_{|V|})$, onde $x_i$ representa a quantidade de vezes em que a palavra $w_i$ ocorreu no documento $\boldsymbol{d}$.
-Note que dessa forma dois documentos cuja ordem das palavras mude possui o mesmo vetor de features, como esperado pela hipótese de "Bag of words". 
-Um documento $\boldsymbol{d}$ pode ser representado por um vetor de tamanho $|\boldsymbol{d}|$, o número de palavras do documento, onde cada coordenada é o índice da palavra do vocabulário que está naquela posição. Isto é, $\boldsymbol{d} = (d_1, d_2, ..., d_{|\boldsymbol{d}|})$, onde $d_j \in \{1, 2, ..., |V|\}$, o que significa que a palavra na $j$-ésima posição é $w_{d_j}$. Daí:
+Suponha que o documento $d$ seja representado por $\boldsymbol{d}$, um vetor, que gere o vetor de features	$\boldsymbol{x}(\boldsymbol{d}) = (x_1, x_2, ..., x_{|V|})$, onde $x_i$ representa a quantidade de vezes em que a palavra $w_i$ ocorreu no documento $\boldsymbol{d}$. Note que dessa forma dois documentos cuja ordem das palavras mude possui o mesmo vetor de features, como esperado pela hipótese \emph{Bag-of-words}. 
+
+Um documento $d$ pode ser representado por um vetor $\boldsymbol{d}$ de tamanho $|\boldsymbol{d}|$, o número de palavras do documento, onde cada coordenada é o índice da palavra do vocabulário que está naquela posição. Isto é, $\boldsymbol{d} = (d_1, d_2, ..., d_{|\boldsymbol{d}|})$, onde $d_j \in \{1, 2, ..., |V|\}$, o que significa que a palavra na $j$-ésima posição é $w_{d_j}$. Daí:
 
 $$x_i = |\{d_j | j \in \{1, 2, ..., |d|\} \land d_j = i\}|$$
+
+Abusando-se da notação utilizar-se-á $\boldsymbol{d}$ para representar o documento $d$, já que o mesmo torna-se unicamente definido.
 
 Por exemplo, um documento "$w_6 w_4 w_5 w_9 w_6 $" é representado por $\boldsymbol{d} = (6, 4, 5, 9, 6)$ onde $|\boldsymbol{d}| = 5$. Supondo $|V| = 10$, esse documento gera um vetor de features $\boldsymbol{x}(\boldsymbol{d}) = (0, 0, 0, 1, 1, 2, 0, 0, 1, 0)$, observe que existem $\frac{5!}{2!}$ documentos que geram o mesmo vetor de features, o que nada mais é que o número de permutações de $\boldsymbol{d}$. 
 
@@ -252,7 +250,7 @@ $$\forall k \in \{1, 2, ..., |V|\}$$
 
 Em outras palavras, a distribuição de probabilidade de quais palavras aparecem no documento dado sua classe independe da posição da palavra. A essa hipótese dá-se o nome de \emph{Independência Posicional}. Assim, podemos eliminar o subscrito e escrever $D$ para representar essa distribuição.
 
-Pela hipótese de \emph{Independência Condicional} de NB, tem-se também que:
+Pela hipótese de \emph{Independência Condicional} de NB aplicada às distribuições $D$, tem-se também que:
 \begin{equation}
 P(D_i|D_j,c) = P(D_i|c)
 \label{eq:multi_conditional_indep}
@@ -270,6 +268,7 @@ P(\boldsymbol{X} = \boldsymbol{x} | c) &= \sum_{d \in docs(\boldsymbol{x})} P(\b
 &= \sum_{d \in docs(\boldsymbol{x})} \prod_{i=1}^{|V|}P(D=i|c)^{x_i}\notag\\
 &= |docs(\boldsymbol{x})| \prod_{i=1}^{|V|}P(D=i|c)^{x_i}\notag\\
 &= \frac{(\sum_{i=1}^{|V|}x_i)!}{\prod_{i=1}^{|V|}x_i!} \prod_{i=1}^{|V|}P(D=i|c)^{x_i}
+\label{eq:multinomial_nb}
 \end{align}
 
 Pode-se chegar a essa equação através da hipótese da distribuição multinomial. Nessa distribuição existem $n$ tentativas independentes, cada uma gerando uma de $k$ categorias distintas, cada categoria com uma chance distinta de sucesso. Considera-se cada tentativa a ocorrência de determinada palavra em uma posição do documento (que contém $n$ palavras) dada sua classe $c$ e cada categoria como sendo uma palavra do vocabulário, de tal forma que $k = |V|$. 
@@ -282,8 +281,27 @@ P(\boldsymbol{X} = \boldsymbol{x} | c) &= \frac{n!}{x_1!x_2!...x_3!}p_1^{x_1}p_2
 &= \frac{(\sum_{i=1}^{|V|}x_i)!}{\prod_{i=1}^{|V|}x_i!}\prod_{i=1}^{|V|}P(D=i|c)^{x_i}
 \end{align*}
 
-% TODO: Colocar formula dentro do argmax do naive bayes
-% TODO: Estimar P(D=j)
+Voltando à função $\gamma$ para determinação da classe de um documento, sabemos que:
+
+$$P(x_1, x_2, ..., x_n | C = c_i) = P(\boldsymbol{X}=\boldsymbol{x}|c_i)$$
+
+Então, com \ref{eq:nb_doc}, vem:
+
+$$\gamma(d) = argmax_{c_i \in C}(P(\boldsymbol{X}=\boldsymbol{x}|c_i)P(C=c_i))$$
+
+Utilizando-se \ref{eq:multinomial_nb} e eliminando os termos comuns a todas as classes.
+
+$$\gamma(x_1, x_2, ..., x_N) = argmax_{c_i \in C}\left(P(C=c_i)\prod_{j=1}^{|V|}P(D=j|C = c_i)^{x_j}\right)$$
+
+Agora, resta-se estimar $P(C=c_i)$, a probabilidade do documento ser de classe $c_i$, e $P(D=j|C=c_i)$, a probabilidade de encontrar $w_j$ num documento de classe $c_i$. Com um conjunto de treinamento suficientemente grande a estimativa fica bem próxima aos valores reais para o domínio. Logo, temos:
+
+$$P(C=c_i) \approx \frac{\#(\text{documentos de classe } c_i)}{\#(\text{todos os documentos})}$$
+
+$$P(D=j|C=c_i) \approx \frac{\#(\text{palavras } w_j \text{ em documentos de classe } c_i)}{\#(\text{total de palavras em documentos de classe } c_i)}$$
+
+Note que apesar de ter-se utilizado a nomenclatura "palavra", qualquer feature que representasse outra entidade poderia ser utilizada. 
+
+Finalmente, o problema de classificação torna-se um problema de contagem.
 
 \subsubsection{Outras features}
 É possível enriquecer o classificador utilizando outras features (que não sejam as próprias palavras do texto). Exemplos de features que podem ser utilizadas são: combinações de palavras, o tamanho do texto, quantidade de sinais de pontuação, quantidade de palavras com iniciais maiúsculas, etc.
@@ -291,19 +309,18 @@ P(\boldsymbol{X} = \boldsymbol{x} | c) &= \frac{n!}{x_1!x_2!...x_3!}p_1^{x_1}p_2
 Para o caso específico de postagens em redes sociais existem ainda outras features que podem ser incluídas. Pode-se considerar o autor da postagem, o momento em que ela foi publicada, a presença de fotos, vídeos ou links, etc.
 
 \subsubsection{Smoothing}
+
 Um dos problemas práticos encontrados por NB é a ocorrência de contagens nulas. O grande problema do 0 é que se ele for apenas um dos fatores da multiplicação o resultado inteiro será 0, inutilizando o método.
 
 Isto não é algo incomum, principalmente se o conjunto de treinamento for pequeno. Basta ter uma palavra no conjunto de teste que nunca ocorreu em uma determinada classe no conjunto de treinamento.
 
-Existem técnicas que são utilizadas para resolver este problema e elas são chamadas de Smoothing. Neste trabalho utilizou-se Laplace Smoothing, uma das mais comuns.
+Existem técnicas que são utilizadas para resolver este problema e elas são chamadas de Smoothing. Neste trabalho utilizou-se \emph{Laplace Smoothing}, uma das mais comuns.
 
-A técnica consiste em assumir que todas as features foram vistas pelo menos $\alpha$ vezes em cada uma das classes. Isso se traduz nas seguintes formulas, sendo $L$ o número total de classes e $V$ o numero total de features.
+A técnica consiste em assumir que todas as features foram vistas pelo menos $\alpha$ vezes em cada uma das classes. Isso se traduz nas seguintes formulas, sendo $L$ o número total de classes, $V$ o numero total de features, $N$ o número total de documentos e $n(c)$ o número de documentos de classe $c$.
 
-$P(C=c_i) \simeq \frac{\#(c_i) + \alpha}{N + \alpha L}$
+$$P(C=c_i) \approx \frac{\#(\text{documentos de classe } c_i)  + \alpha}{\#(\text{todos os documentos}) + \alpha L}$$
 
-e
-
-$P(x_j|C=c_i) \simeq \frac{\#(x_j \wedge c_i) + \alpha}{\#(c_i) + \alpha V}$
+$$P(D=j|C=c_i) \approx \frac{\#(\text{palavras } w_j \text{ em documentos de classe } c_i) + \alpha}{\#(\text{total de palavras em documentos de classe } c_i) + \alpha V}$$
 
 No caso especial em que $\alpha = 1$, tem-se o \emph{Add-One Smoothing}.
 
@@ -313,7 +330,7 @@ Um dos problemas das NB é que muitas vezes nas aplicações reais não é possível a
 
 Neste caso temos:
 
-$$\gamma(d) = argmax_c(P(C=c_i)({\prod_{j=1}^{n}P(x_j|C=c_i)^{I(j)}})$$
+$$\gamma(d) = argmax_c\left(P(C=c_i){\prod_{j=1}^{n}P(x_j|C=c_i)^{I(j)}}\right)$$
 
 Onde:
 
@@ -321,7 +338,7 @@ $$I(j) \in \{0,1\}$$
 
 Existem bastantes features que são dependentes de outras, dessa forma quando coloca-se ambas no produtorio acaba-se prejudicando o resultado. Logo, colocar peso nas features é uma forma de amenizar a forte hipótese de independência das NB. Uma abordagem mais genérica, então, é ponderar cada feature de acordo com sua relevância. Ou seja:
 
-$$\gamma(d) = argmax_c(P(C=c_i){\prod_{j=1}^{n}P(x_j|C=c_i)^{w(j)}})$$
+$$\gamma(d) = argmax_c\left(P(C=c_i){\prod_{j=1}^{n}P(x_j|C=c_i)^{w(j)}}\right)$$
 
 Onde:
 
@@ -333,7 +350,7 @@ Tendo decidido realizar feature weighting, o grande problema passa a ser determi
 
 Neste trabalho, estudou-se a utilização de um método baseado na Teoria da Informação, que além de ser comum na literatura (\cite{weighted_naive_bayes} e \cite{zaidi2013alleviating}), possui fundamentos teóricos bem embasados, onde o \emph{Gain Ratio} de um atributo é utilizado como seu peso.
  
- \subsection{Entropy Weighted Naïve Bayes}
+ \subsection{Weighted Naïve Bayes por Entropia}
 
 Em Teoria da Informação, entropia é o valor esperado de informação contido em uma mensagem. Praticamente falando, a distribuição de probabilidade de eventos, junto com a quantidade de informação de cada evento, compõe uma variável aleatória cujo valor esperado é a quantidade média de informação, ou entropia, gerada por essa distribuição. Assim entropia $H$ é:
 
@@ -361,10 +378,8 @@ Entropia pode ser entendida como uma medida da incerteza de determinada variável
 
 Semelhante à entropia, define-se o conceito de Informação Mútua entre duas variáveis aleatórias, que mede sua dependência. Formalmente, a informação mútua entre duas variáveis discretas $X$ e $Y$ é:
 
-% TODO: Increase parens size below
-
 \begin{equation}
-MI(X, Y)=\sum_{y \in Y}\sum_{x \in X}P(X=x, Y=y)log(\frac{P(X=x,Y=y)}{P(X=x)P(Y=y)})
+MI(X, Y)=\sum_{y \in Y}\sum_{x \in X}P(X=x, Y=y)log\left(\frac{P(X=x,Y=y)}{P(X=x)P(Y=y)}\right)
 \label{eq:mutual_information}
 \end{equation}
 
@@ -372,11 +387,11 @@ Intuitivamente, $MI(X, Y)$ mede o quanto de informação $X$ e $Y$ compartilham. S
 
 Em luz de \ref{eq:entropy} e \ref{eq:mutual_information} define-se Razão de Ganho \emph{GR} (do inglês \emph{Gain Ratio}) de uma feature $X_i$ como sendo:
 
-% TODO: Explicar pq é a MI entre feature e classe e o que isso representa
-
 \begin{equation}
-GR(i) = \frac{I(X_i, C)}{H(X_i)} = \frac{\sum_{c \in C}\sum_{x_1 \in X_1}P(x_1, c)log(\frac{P(x_1, c)}{P(x_1)P(c)})}{-\sum_{x_1}P(x_1)log(P(x_1))}
+GR(i) = \frac{I(X_i, C)}{H(X_i)} = \frac{\sum_{c \in C}\sum_{x_1 \in X_1}P(x_1, c)log\left(\frac{P(x_1, c)}{P(x_1)P(c)}\right)}{-\sum_{x_1}P(x_1)log(P(x_1))}
 \end{equation}
+
+Observe que quanto mais dependentes forem $X_i$ de $C$, isto é, quanto mais os valores de $X_i$ contribuírem para classificar o documento como pertencendo a determinada classe, mais alto será $I(X_i, C)$, justificando um aumento em $GR(i)$. 
 
 Agora, resta-se somente normalizar as razões de ganho, de forma que o peso de cada feature é a sua razão de ganho dividia pela média de todas as razões de ganho.
 
@@ -387,12 +402,14 @@ w(j) = \frac{GR(j)}{\frac{1}{N}\sum_{i=1}^{N}GR(i)}
 Onde $N$ é o número de features.
 
 \section{Métodos de avaliação de um classificador}
+
 Uma vez desenvolvido o classificador é importante ser capaz de avaliá-lo a fim de determinar o quão bom ele é. A utilização de métricas numéricas para avaliar os classificadores é interessante pois permite a realização de comparações entre as diferentes versões implementadas, tornando possível determinar se as modificações que foram feitas estão fazendo efeito.
 
 Existem diversas métricas que podem ser utilizadas para avaliar classificadores, algumas delas serão analisadas nesta seção \cite{sokolova2009systematic}.
 
 
 \subsection{Classificador Binário}
+
 Primeiro serão explorados os métodos de avaliação da performance do classificador binário, que é o classificador mais simples. 
 
 A tabela \ref{tab:avaliacao_classificador_binario} resume as diferentes medidas que podem ser utilizadas, onde $tp$ é o verdadeiro positivo, $tn$ é o verdadeiro negativo, $fp$ é o falso positivo e $fn$ é o falso negativo.

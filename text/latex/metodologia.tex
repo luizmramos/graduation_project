@@ -27,36 +27,42 @@ Foram propostas duas formas possíveis de aquisição de dados.
 
 \begin{itemize}
 \item Uma delas foi desenvolver um plugin que colete as postagens e pergunte o assunto para o usuário. A utilização deste plugin por várias pessoas permitiu a aquisição de uma base de dados considerável.
-\item Paralelamente desenvolveram-se crawlers para vasculhar sites que contenham artigos e textos sobre cada assunto que se deseja classificar. É importante ter a capacidade de classificar artigos de sites genéricos, pois muitas das postagens em rede social possuem links para tais sites.
+\item Paralelamente desenvolveu-se uma versão simplificada de um \emph{Crawler} para vasculhar sites que contenham artigos e textos sobre cada assunto que se deseja classificar. É importante ter a capacidade de classificar artigos de sites genéricos, pois muitas das postagens em rede social possuem links para tais sites. Foi treinado um classificador separado e ajustado para esses artigos.
 \end{itemize}
 
-\subsection{Pré-processamento dos textos e normalização}
-Como trata-se de linguagem natural e ainda por cima coloquial, para atingir um bom resultado com o classificador é essencial que haja um bom pré-processamento do texto corrigindo palavras erradas, frases mal-construídas, normalizando termos parecidos, etc.
 
+\subsection{Pré-processamento dos textos e normalização}
+
+Para o classificador de posts, como trata-se de linguagem natural e ainda por cima coloquial, para atingir um bom resultado com o classificador é essencial que haja um bom pré-processamento do texto corrigindo palavras erradas, frases mal-construídas, normalizando termos parecidos, etc.
+
+No caso do classificador de artigos, como, geralmente, os textos contém uma linguagem mais formal e com quase nenhum erro, menos pré-processamento é necessário para melhorar o resultado. Contudo foram utilizadas algumas técnicas que melhoraram modestamente mas significativamente o resultado final.
 
 \subsection{Criação dos classificadores de Redes Bayesianas}
-Foram criados classificadores de NB e suas performances foram avaliadas contra um conjunto de validação. Os métodos mais efetivos foram selecionados, combinando os classificadores de postagens e de artigos e ajustando seus parâmetros para obter um bom resultado final.
+
+Foram criados classificadores de NB e suas performances foram avaliadas contra um conjunto de validação. Os métodos mais efetivos foram selecionados, combinando os classificadores de postagens e de artigos e ajustando seus parâmetros para obter um bom resultado final. 
+
+Onde, neste texto, não for elucidado sobre qual classificador esteja se falando (seja explicitamente ou pelo contexto), assume-se que é sobre o classificador de postagens do Facebook.
 
 \subsection{Estudo dos resultados obtidos no conjunto de validação para diferentes features e parâmetros}
 \label{sec:validacao}
+
 Foi realizado um estudo detalhado dos resultados obtidos pelos classificadores para diferentes features, parâmetros e técnicas de classificação (NB e NB com pesos). A avaliação final da rede foi realizada em um conjunto de teste separado. 
 
 Separou-se a base de dados total em dois conjuntos. Um de treinamento e um de validação de forma aleatória, sendo 25\% para validação e 75\% para treinamento. Para a análise da qualidade do classificador realizou-se a média das estatísticas avaliadas para varias divisões aleatórias diferentes de modo a obter um resultado estável.
 
+De forma semelhante, o classificador de artigos também foi separadamente otimizado para poupar tempo.
+
 \subsection{Definição da arquitetura do classificador e sua implementação}
+
 Definiu-se que a rede seria treinada e armazenada em um servidor central. Considerou-se também a possibilidade da rede ser dinâmica (ou seja, se a interação com o usuário fazer com
 que a rede aprenda online com as novas informações).
 
 \subsection{Desenvolvimento do plugin}
+
 Por fim desenvolveu-se o plugin para o Google Chrome, com uma interface gráfica amigável para o usuário para que ele entenda de forma fácil como filtrar as postagens em seu feed de notícias. %TODO: Nao fizemos isto ainda
 
-\subsection{Testes de usabilidade}
-% TODO: Tirar isso daqui?
-Por fim foram realizados testes de usabilidade com colegas de turma baseados nas heurísticas de Nielsen.
-
-
 \section{Aquisição de dados}
-Como já foi dito, foram desenvolvidas duas formas diferente de realizar a aquisição de dados. Uma delas consiste numa extensão para o Google Chrome que possibilita o usuário classificar cada postagens à qual ele se depara no Facebook, enviando os dados e a classificação da mesma para o banco de dados. A outra forma de aquisição de dados é o desenvolvimento de um crawler que faz o download diversos artigos online.
+Como já foi dito, foram desenvolvidas duas formas diferente de realizar a aquisição de dados. Uma delas consiste numa extensão para o Google Chrome que possibilita o usuário classificar cada postagens à qual ele se depara no Facebook, enviando os dados e a classificação da mesma para o banco de dados. A outra forma de aquisição de dados é o desenvolvimento de um Crawler que faz o download de artigos online e treina sua base de dados com eles.
 
 \subsection{Extensão do Chrome de classificação de postagens}
 \label{sec:plugin_chrome}
@@ -122,7 +128,7 @@ As extensões do Chrome possuem um arquivo de configuração chamado de manifesto. 
 
 \end{lstlisting}
 
-O código \ref{lst:manifest_chrome_extension} ilustra o manifesto da extensão desenvolvida. Ele identifica o nome da extensão (Demeter), a sua versão, os ícones utilizados, os scripts de conteúdo e as permissões (acessar o facebook e o servidor desenvolvido).
+O código \ref{lst:manifest_chrome_extension} ilustra o tensão desenvolvida. Ele identifica o nome da extensão (Demeter), a sua versão, os ícones utilizados, os scripts de conteúdo e as permissões (acessar o facebook e o servidor desenvolvido).
 
 Note que além dos códigos desenvolvidos, utilizou-se a biblioteca do JQuery para facilitar a manipulação do DOM.
 
@@ -188,12 +194,154 @@ O banco de dados contem postagens indexadas por sua url (que é um valor único pa
 
 É importante notar que não é apenas o texto da postagem que é salva no banco de dados. Também armazena-se o usuário que realizou criou a postagem, o momento em que ela foi publicada (timestamp), a presença de fotos ou vídeos, a existência de informações sobre o local de onde o usuário postou, etc. Essas informações podem ser relevantes na hora de se criar features para a NB.
 
+\subsection{Crawler}
 
-\subsubsection{Crawler}
+Existem vários posts que contém links para páginas de internet de artigos sobre determinado assunto, sendo esse considerado o assunto do post em si. Não são poucos os casos em que existe pouco texto escrito pelo autor e somente um link para algum artigo. Nesses casos, se ignorássemos o link, não seria possível dizer muito sobre a classificação do post.
 
-% TODO: Write about crawler
+Assim, foi feito também um classificador de artigos nos mesmos moldes do classificador de posts, utilizando \emph{Naïve Bayes} e algumas otimizações como \emph{Stemming} e \emph{Weighting}. A ideia é que quando o classificador de posts se deparasse com um link iria chamar o classificador de artigos, que classificaria o artigo contido no link em determinada classe (não necessariamente igual a alguma das classes do classificador de post) e devolveria esse resultado em forma de feature para o classificador de post, como uma forma de pré-processamento do texto.
 
-\section{Processamento do texto}
+% TODO: Explain DOM below
+
+Para realizar tal procedimento seria necessário não só construir um classificador mas também um \emph{Parser} e  \emph{Crawler} para coletar os dados para a base de treinamento. 
+O \emph{Parser} é responsável por ler o conteúdo de determinada url como texto, estruturá-lo como uma árvore DOM (TODO: Explicar DOM?) e daí extrair informação relevante.
+\emph{Crawler} é um programa que segue links e navega em seu conteúdo extraindo informação relevante.
+Primeiramente foi construído o \emph{Parser} pois o mesmo precisa ser utilizado pelo \emph{Crawler} para poder resgatar o conteúdo das páginas.
+
+\subsubsection{Parser}
+
+Responsável por, dado uma url, resgatar o conteúdo (html) da mesma, estruturá-lo e obter o conteúdo principal do mesmo, que, nos presentes casos, trata-se do artigo ou notícia propriamente dita. Essa não é uma tarefa fácil, pois o \emph{Parser} deve funcionar basicamente para páginas de qualquer site, formatadas e com estruturas DOM completamente diferentes. Utilizou-se uma biblioteca aberta que faz algumas hipóteses para simplificar o trabalho, também foram feitas modificações nos parâmetros para que se adequassem aos principais sites de notícias utilizados. Tais hipóteses (ou heurísticas) utilizadas não funcionam perfeitamente em todos os casos e em alguns acusam a parte errada como sendo o conteúdo principal do site.
+
+Não é realístico esperar sucesso de qualquer entrada, contudo, com sorte, isso não será necessário pois a quantidade de urls provenientens do \emph{Crawler} será grande o suficiente. Típicas formas de fracasso na obtenção do conteúdo da página são: 
+\begin{enumerate}
+\item Timeout do request
+\item Heurísticas acusam conteúdo errado
+\item Heurísticas acusam nenhum conteúdo
+\item Codificação de caracteres da página difere do acusado pelo header da resposta, gerando erros em bibliotecas de nível mais baixo
+\end{enumerate}
+
+% TODO : Colocar DOM e HTML nas abreviações
+
+Attempts to locate and extract the largest cluster of text in a webpage. It does this by walking the DOM-tree, identifying all text segments and their depth inside the DOM, appends all text at roughly the same depth, and then returns the chunk with the largest total length.
+
+This approach usually works well with typical news sites where one news article is displayed per URL. This approach usually fails with URLs displaying multiple news blurbs (e.g. news aggregators).
+
+Agora, analisemos o algoritmo utilizado para extrair o conteúdo principal da página. O mesmo tenta localizar e extrair o maior \emph{Cluster} de texto da página. Para tal, ele caminha na árvore DOM do documento identificando todos os segmentos de texto e seu caminho desde a raiz, agrega todos os textos com um prefixo deste caminho em comum e depois retorna o que contém o comprimento maior. Como exemplo, suponha um documento HTML como abaixo:
+
+\begin{lstlisting}[language=html, firstnumber=1, caption={Documento HTML exemplo}, label={lst:parser_html_example}]
+<div>
+    <div>
+        <div>
+            <ul>
+                <li>Item 1</li>
+                <li>Item 2</li>
+                <li>Item 3</li>
+            </ul>
+            <p>This is the <b>first</b> paragraph</p>
+            <p>This is the seconds paragraph</p>
+        </div>
+        <div>
+            <p>This is the third paragraph</p>
+            <p>This is the fourth paragraph</p>
+        </div>
+        <div>
+            <p>This is the <i>fifth</i> paragraph</p>
+            <p>This is the sixth paragraph</p>
+        </div>
+    </div>
+    <div>
+        <ul>
+            <li>Item 1</li>
+            <li>Item 2</li>
+        </ul>
+        <form>
+            <label>Username: </label> <input type="text" /> <br />
+            <label>Password: </label> <input type="password"/> <br />
+        </form>
+    </div>
+</div>
+\end{lstlisting}
+
+Antes de tudo, o \emph{Parser} ignora tags que não tenham conteúdo tais como \texttt{<br/>} e \texttt{<input/>}. A árvore correspondente ao documento HTML em questão encontra-se na figura \ref{fig:parser_example_tree}, com tais tags removidas.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=1\textwidth]{parser_example_tree.png}
+	\caption{Exemplo de árvore para o documento \ref{lst:parser_html_example}, com tags sem conteúdo ignoradas.}
+	\label{fig:parser_example_tree}
+\end{figure}
+
+Cada nó desta árvore pode ser identificado unicamente pelo seu caminho desde a raiz. Para cada elemento do caminho de um nó utilize o índice de sua posição entre seus irmãos e forme para esse caminho uma lista com esses valores. Por exemplo, \texttt{<root>} será identificado por \texttt{0}, o primeiro \texttt{div} será identificado por \texttt{00}, o primeiro filho deste \texttt{div} como \texttt{000}, o segundo como \texttt{001}, etc. Na figura \ref{fig:parser_example_tree_with_paths} encontra-se a mesma árvore da figura \ref{fig:parser_example_tree} com os identificadores citados.
+
+\begin{figure}[ht!]
+	\makebox[\textwidth][c]{\includegraphics[width=1.22\textwidth]{parser_example_tree_with_paths.png}}%
+	\caption{Exemplo de árvore para o documento \ref{lst:parser_html_example}, com tags sem conteúdo ignoradas e com os caminhos dos nós.}
+	\label{fig:parser_example_tree_with_paths}
+\end{figure}
+
+Pode-se, por exemplo, agregar o conteúdo do \texttt{<p> 00010} com o \texttt{<p> 00011} e considerar isso um texto ou adicionar a isso o conteúdo de \texttt{<p> 00020} e \texttt{<p> 00021} e dizer que o resultado final é um texto. Ainda pode-se questionar se o conteúdo do \texttt{<i>} (tag de formatação que indica sublinhado) \texttt{000200} deveria ser incluído ou não. Essas decisões não são triviais de serem tomadas e variam de site para site. Muitas vezes, somente através da estrutura DOM do documento não é fácil discernir quais pedaços de texto pertencem ou não ao mesmo artigo, somente renderizando visualmente e com o auxilio de um ser humano é possível ter certeza do que é considerado um texto. 
+
+Dito isso, existem regras que funcionam muito bem para a maioria dos sites de notícias de interesse. No presente caso, considera-se como parcelas de um mesmo texto todos aqueles textos contidos em nós que apresentam o mesmo prefixo do caminho até o penúltimo elemento do mesmo. Isto é, \texttt{<p> 00010} e \texttt{<p> 00011} apresentam o prefixo \texttt{0001} em comum, então são considerados partes de um mesmo texto, enquanto \texttt{<p> 00020} não, pois seu prefixo é \texttt{0002}. Assim, cria-se um mapa com parcelas de texto indexadas pelos prefixos de caminho citados.
+
+Além disso, conteúdos de texto de nós são adicionados aos textos dos prefixos formados até o ante-penúltimo elemento também, para capturar os casos de tags de marcação como o itálico citado. Contudo, essas parcelas de texto são tratadas especialmente para evitar que, por exemplo, o prefixo \texttt{000} contivesse os conteúdos dos \texttt{<p>}s \texttt{00010}, \texttt{00011}, \texttt{00020} e \texttt{00021}. Após adicionadas e depois de toda a estrutura DOM percorrida, é feita uma passada pelos conteúdos de texto coletados (que são indexados por prefixo) e esses tipos de adição são removidas caso não haja palavras de texto antes ou depois das mesmas. Essa regra distingue o caso citado neste paragrafo do caso do texto em itálico (em \texttt{<i> 000200}), removendo as parcelas errôneas do primeiro caso e mantendo as do segundo (espaços em branco e quebras de linha são ignorados a menos que estejam entre outros tipos de caracteres).
+
+Finalmente, esse mapa é percorrido, é feito um pequeno processamento nos textos coletados (como condensar espaços em branco, por exemplo) e o maior texto formado (em cumprimento) é considerado o conteúdo principal da página. Embora não foram feitas medidas quantitativas, esses ajustes realizados apresentaram ótimos resultados para a maioria dos sites de notícias principais, extraindo corretamente o texto das páginas.
+
+% http://g1.globo.com/mundo/noticia/2015/11/franca-oferece-ao-brasil-informacoes-sobre-terrorismo-para-olimpiadas.html
+Como exemplo, a matéria contida na figura \ref{fig:parser_example_article} teve seu conteúdo principal corretamente extraído pelo \emph{Parser} na \ref{lst:parser_example_article}, após algumas modificações feitas pelo \emph{Crawler}.
+
+\begin{figure}[ht!]
+	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{parser_example_article.png}}%
+	\caption{Exemplo de página cujo conteúdo principal foi corretamente extraído pelo classificador. O texto foi cortado para que coubesse nessa captura de tela.}
+	\label{fig:parser_example_article}
+\end{figure}
+
+
+\begin{lstlisting}[breaklines=true, label={lst:parser_example_article_text}, caption={Texto extraído de página após pós-processamento}]
+    em visita ao brasil o ministro dos negocios estrangeiros e do desenvolvimento internacional da franca laurent fabius disse neste domingo 22 que ofereceu a presidente dilma rousseff a troca de informacoes sobre terrorismo para a realizacao das olimpiadas no rio de janeiro em 2016 segundo o ministro das relacoes exteriores mauro vieira a oferta foi aceita o ministro frances se reuniu na manha deste domingo com dilma no palacio da alvorada para tratar dos preparativos para a 21 conferencia das nacoes unidas sobre mudanca do clima cop21 que acontece entre 30 de novembro a 11 de dezembro em paris
+    ... 
+    segundo o ministro frances cameron sera recebido amanha na franca para tratar disso e nos proximos dias o governo frances tambem ira conversar com o presidente dos estados unidos barack obama a chanceler da alemanha angela merkel e com o presidente russo vladimir putin
+\end{lstlisting}
+
+\subsubsection{Provider}
+
+Para obter uma base de treinamento útil, é necessário conseguir exemplos já classificados já que NB trata-se de um algoritmo de aprendizado supervisionado. No entanto, note que as classificações do classificador de artigos não precisam ser as mesmas do classificador de posts, uma vez que os links e suas classificações serão utilizados como features. Felizmente, sites como \emph{Google Notícias} (\url{https://news.google.com.br}) já possuem categorizações úteis para classificar os artigos., como "Negócios", "Ciência e Tecnologia", "Entretenimento", "Esportes" e "Saúde", como mostra a figura \ref{fig:provider_gn_ss}
+
+% TODO: [minor] Fix JSON
+O \emph{Crawler} em questão é considerado uma simplificação pois o mesmo não segue links mais que uma vez. Criou-se o que foi chamado de \emph{Provider}, que fornece os links para os artigos e a classificação dos mesmos, e, então, os artigos são recuperados pelo \emph{Parser}, pós-processados e armazenados em um banco de dados em texto estruturado em JSON, juntamente com algumas meta-informações. Foram testados alguns sites e o mais útil foi de fato o \emph{Google Notícias}, de onde pode-se facilmente inferir a estrutura DOM de cada informação desejada e criar um programa que extraía os links e suas classificações. Juntamente com o banco de dados em texto foi criado um índice (também em arquivo texto) que contém todas os links já seguidos, para não ser preciso segui-los novamente, já que um mesmo artigo pode aparecer de novo.
+
+No caso do \emph{Google Notícias} existem classificações não desejáveis para os artigos como "Últimas notícias", "Mais notícias principais", "Mundo" e "Brasil", já que elas pouco dizem sobre o assunto do post da pessoa que primeiramente criou o link para o artigo. Decidiu-se deliberadamente ignorar essas categorias já que os artigos nelas contidos geralmente encontram-se em outras categorias como "Negócios", "Entretenimento", etc., que são mais elucidativas.
+
+Todas as páginas de categorias do \emph{Google Notícias} (figura \ref{fig:provider_gn_ss}) foram percorridas pelo \emph{Provider}, seus artigos e classificações coletados e fornecidos ao \emph{Parser}.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.28\textwidth]{provider_gn_ss.png}
+	\caption{Categorias do \emph{Google Notícias} utilizadas como classificações}
+	\label{fig:provider_gn_ss}
+\end{figure}
+
+Por fim, a base de dados coletado pelo \emph{Crawler} acumulou um total de quase 900 artigos. Para exemplificação, em \ref{lst:crawler_example_database} encontra-se uma parcela da base de dados.
+
+\begin{lstlisting}[breaklines=true, label={lst:crawler_example_database}, caption={Parcela da base de dados de artigos}]
+...
+{
+"tag": "ENTRETENIMENTO",
+"content": "ainda em fase de producao a proxima novela das 21h ja teve a primeira mudanca no elenco sai leticia sabatella entra camila pitanga...",
+"source": "dc",
+"url": "http://dc.clicrbs.com.br/sc/noticia/2015/11/camila-pitanga-substitui-leticia-sabatella-na-proxima-novela-das-21h-4901860.html"
+},
+{
+"tag": "ESPORTES",
+"content": "o classico entre brasil e argentina nas eliminatorias sulamericanas para a copa do mundo da russia foi cancelado nesta quintafeira...",
+"source": "terra",
+"url": "http://noticias.terra.com.br/mundo/jogo-entre-brasil-e-argentina-e-cancelado-devido-a-chuva,3799539560fd2d318b795618daa62aa59nm5v9tk.html"
+},
+...
+\end{lstlisting}
+
+
+
+\section{Processamento do texto do classificador de postagens}
 \label{sec:processamento_do_texto}
 
 Um bom pré processamento do texto é essencial para um bom resultado de classificação. Isso é especificamente válido em um ambiente como uma rede social, onde muitas vezes há abreviações, interjeições, utilização de linguagem informal, etc.
@@ -211,8 +359,7 @@ Stemming é o processo de trocar todas as palavras que possuem sentidos parecidos
 
 \subsection{Processamento utilizado}
 
-%TODO: Se implementarmos stemming ele tem que entrar nessa secao
-Para este trabalho foram feitas as seguintes etapas de pré processamento do texto.
+Para o classificador de posts, foram feitas as seguintes etapas de pré processamento do texto.
 
 \begin{itemize}
 \item \textbf{Remover caracteres unicode:} Acentos, cedilhas, tremas e outros caracteres unicode são substituídos por seus equivalentes em ASCII.
@@ -224,6 +371,16 @@ Para este trabalho foram feitas as seguintes etapas de pré processamento do text
 \item \textbf{Filtrar palavras comuns e que não agregam muito valor ao classificador:} Palavras comuns do português como artigos, preposições, etc, são desconsideradas.
 \end{itemize} 
 
+\section{Processamento do texto do classificador de artigos}
+
+TODO: ...
+% TODO: Write...
+
+\subsection{Tokenização}
+\subsection{Stemming}
+\subsection{Processamento utilizado}
+
+
 \section{Tecnologias utilizadas}
 
 Para o desenvolvimento deste projeto, foram utilizadas diversas tecnologias e ferramentas computacionais diferentes.
@@ -234,4 +391,8 @@ Para se desenvolver a extensão do Chrome utilizou-se o framework disponibilizado
 
 O servidor foi feito no Google App Engine, que permite a utilização da infraestrutura do Google de forma gratuita e simples. O utilizou-se a API do NDB para o gerenciamento do banco de dados.
 
+<<<<<<< HEAD
 O classificador foi inteiramente desenvolvido em Python 2.7 por conta de sua versatilidade e facilidade de programação.
+=======
+
+>>>>>>> Add crawler, parser, provider and modify notation in theory
