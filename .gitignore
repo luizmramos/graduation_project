@@ -314,3 +314,7 @@ out
 tg.pdf
 tg.loa
 tg.lol
+
+# PyCharm
+.idea/
+demeter/server/demeter/.idea/
