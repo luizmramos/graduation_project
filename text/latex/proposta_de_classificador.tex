@@ -3,7 +3,7 @@
 \externaldocument{fundamentacao_teorica}
 \externaldocument{metodologia}
 
-Foram propostas diversas formas diferentes de classificadores, e cada uma será posteriormente avaliada e comparada.
+Foram propostas diversas formas diferentes de classificadores de postagens, e cada uma será posteriormente avaliada e comparada.
 
 \section{Classes adotadas}
 \label{ref:classes_adotadas}
@@ -44,7 +44,7 @@ Em seguida, realizou-se o treinamento utilizando base de dados obtida, realizand
 
 \section{Naïve Bayes com Features Adicionais}
 \label{sec:bayes_features_adicionais}
-Várias outras features foram adicionadas na tentativa de melhorar a performance do classificador. As postagens em redes sociais em geral contem muito mais informações do que o texto escrito. Tentaram-se capturá-las utilizando as seguintes features:
+Várias outras features foram adicionadas na tentativa de melhorar a performance do classificador. As postagens em redes sociais em geral contem muito mais informações do que o texto escrito. Tentou-se capturá-las utilizando as seguintes features:
 
 \begin{itemize}
 	\item Usuário ou página que é autor(a) da postagem
@@ -60,27 +60,24 @@ Várias outras features foram adicionadas na tentativa de melhorar a performance 
 
 
 \section{Weighted Naïve Bayes utilizando apenas o texto}
-Utilizaram-se as Weighted Naïve Bayes descritas na Seção \ref{sec:weighted_naive_bayes} para ponderar a importância das features relevando a noção independência condicional das NBs.
+Utilizaram-se as Weighted Naïve Bayes descritas na Seção \ref{sec:weighted_naive_bayes}, que nada mais são que as mesmas NB porém onde cada feature pode ter um peso correspondente. Dessa forma, diminui-se a forte hipótese de que as features são independentes já que o peso pode diminuir essa independência.
 
 \section{Weighted Naïve Bayes com Features Adicionais}
 
 Repetiu-se a mesma ideia exposta na Seção \ref{sec:bayes_features_adicionais}, porem desta vez com a NB ponderada.
 
 \section{Utilização dos links}
+
 Até agora, o conteúdo dos links compartilhados tinha sido completamente ignorado. Por exemplo, se alguém postasse um link sobre economia e escrevesse algo do tipo `Muito interessante esta análise', o classificador iria tentar classificar a potagem utilizando apenas o texto (o que é bem complicado). Para evitar este problema, fez-se um HTTP GET request para o link, extraiu-se o texto principal e ele foi classificado por um segundo classificador. O resultado deste segundo classificador passa a ser uma feature do classificador de postagens.
 
-Este segundo classificador (que será referenciado como classificador de artigos) foi treinado a partir da base de dados adquirida pelo crawler.
+Este segundo classificador (que será referenciado como classificador de artigos) foi treinado a partir da base de dados adquirida pelo \emph{Crawler}.
  
-\section{Concatenação do texto dos links}
-% TODO: Falar da concatenação do texto dos links no post (se a gente efetivamente fizer isto)
-% Uma outra abordagem utilizada foi a de concatenar o texto contido no link com o texto da postagem. Desta forma ambos são treinados e classificados simultaneamente.
-
 \section{Fusão de classes pequenas}
-% TODO: Falar das classes pouco frequentes
-% Uma outra mudança considerada para melhorar a qualidade do classificador foi a fusão de classes pequenas.
 
-% Muitas das classes consideradas não são tão recorrentes no Facebook dos supervisores e portanto conseguiram poucos exemplos para os conjuntos de treinamento e teste. Isto faz com que o classificador não possua informação suficiente para realizar a classificação de forma adequada.
+Uma outra mudança considerada para melhorar a qualidade do classificador foi a fusão de classes pequenas (com poucos exemplos na base de treinamento).
 
-% Além disso, existem algumas classes que possuem domínios bem proximos que, muitas vezes, são de difícil distinção até para um ser humado (cita-se como exemplo `Celebridades' vs `Filmes'). Isto tambem aumenta a taxa de errodo classificador.
+Muitas das classes consideradas não são tão recorrentes no Facebook dos supervisores e portanto conseguiram poucos exemplos para os conjuntos de treinamento e teste. Isto faz com que o classificador não possua informação suficiente para realizar a classificação de forma adequada.
 
-% A solução adotada foi a fusão destas classes em outra mais abrangentes.
+Além disso, existem algumas classes que possuem domínios bem proximos que, muitas vezes, são de difícil distinção até para um ser humado (cita-se como exemplo "Celebridades" e "Filmes"). Isto também aumenta a taxa de erro do classificador.
+
+A solução adotada foi a fusão destas classes em outra mais abrangentes.
