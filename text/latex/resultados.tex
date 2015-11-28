@@ -449,18 +449,186 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 	\label{tab:weighted_nb_com_features_extras_prec_rec}
 \end{table}
 
-\section{Utilização dos links}
-
-% TODO: Números de utilização dos links!
-
 \section{Fusão de classes pequenas}
+
+Para este exemplo tem-se:
+
+$acuracia=0.634921$
+
+$acuracia\_esperada=0.132051$
+
+$Kappa=0.579377$
+
+
+A Tabela \ref{tab:wnm_com_fusao_de_classes} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Cur & Edu & Esp & Min & Not & Pes & Pol & Sau\\
+			\hline
+			9 & 1 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 1 & 0\\
+			1 & 9 & 1 & 0 & 0 & 1 & 0 & 2 & 0 & 1 & 3\\
+			0 & 0 & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 2 & 1\\
+			0 & 1 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+			0 & 0 & 2 & 0 & 10 & 0 & 1 & 0 & 0 & 0 & 3\\
+			0 & 0 & 2 & 0 & 0 & 5 & 0 & 0 & 0 & 0 & 0\\
+			1 & 0 & 0 & 0 & 3 & 0 & 5 & 0 & 1 & 5 & 1\\
+			0 & 1 & 1 & 0 & 0 & 0 & 0 & 6 & 0 & 0 & 0\\
+			4 & 2 & 3 & 0 & 2 & 2 & 1 & 0 & 22 & 3 & 2\\
+			0 & 1 & 1 & 0 & 0 & 0 & 2 & 0 & 0 & 39 & 3\\
+			0 & 2 & 1 & 0 & 0 & 0 & 0 & 2 & 0 & 0 & 8\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a WNM com fusao de classes}
+	\label{tab:wnm_com_fusao_de_classes}
+\end{table}
+
+
+A Figura \ref{fig:wnm_com_fusao_de_classes} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{heatmap_merge.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:wnm_com_fusao_de_classes}}
+	\label{fig:wnm_com_fusao_de_classes}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:wnm_com_fusao_de_classes_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.750000 & 0.600000 & 0.666667 \\
+			Celebridade & 0.500000 & 0.529412 & 0.514286 \\
+			Ciencia & 0.571429 & 0.266667 & 0.363636 \\
+			Curiosidades & 0.600000 & 1.000000 & 0.750000 \\
+			Educacao & 0.625000 & 0.625000 & 0.625000 \\
+			Esporte & 0.714286 & 0.625000 & 0.666667 \\
+			Minorias & 0.312500 & 0.555556 & 0.400000 \\
+			Noticias & 0.750000 & 0.600000 & 0.666667 \\
+			Pessoal & 0.536585 & 0.956522 & 0.687500 \\
+			Politica & 0.847826 & 0.764706 & 0.804124 \\
+			Saude & 0.615385 & 0.363636 & 0.457143 \\
+			Media Micro & 0.634921 & 0.634921 & 0.634921 \\
+			Media Macro & 0.620274 & 0.626045 & 0.623146 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para WNM com fusao de classes}
+	\label{tab:wnm_com_fusao_de_classes_prec_rec}
+\end{table}
 
 % TODO: Números da fusão de classes pequenas!
 
+
+\section{Utilização dos links}
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{wnb_wnb_com_link_accuracy_graph.png}
+	\caption{Gráfico que mostra a influência da fusão de classes e da utilização de links na acurácia classificador}
+	\label{fig:wnb_wnb_com_link_accuracy_graph}
+\end{figure}
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{wnb_wnb_com_link_kappa_graph.png}
+	\caption{Gráfico que mostra a influência da fusão de classes e da utilização de links no kappa classificador}
+	\label{fig:wnb_wnb_com_link_kappa_graph}
+\end{figure}
+
+Para este exemplo tem-se:
+
+$acuracia=0.719577$
+
+$acuracia\_esperada=0.133395$
+
+$Kappa=0.676412$
+
+
+A Tabela \ref{tab:wnb_com_tags_dos_links} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Cur & Edu & Esp & Min & Not & Pes & Pol & Sau\\
+			\hline
+			9 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 2\\
+			1 & 12 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 1\\
+			0 & 1 & 2 & 0 & 0 & 0 & 0 & 1 & 1 & 0 & 1\\
+			0 & 0 & 0 & 9 & 0 & 0 & 0 & 0 & 0 & 1 & 1\\
+			0 & 0 & 0 & 0 & 10 & 0 & 0 & 1 & 0 & 1 & 1\\
+			0 & 0 & 0 & 1 & 0 & 3 & 0 & 0 & 0 & 0 & 2\\
+			0 & 0 & 0 & 1 & 0 & 0 & 13 & 0 & 0 & 1 & 1\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 4 & 0 & 2 & 0\\
+			1 & 0 & 2 & 3 & 3 & 0 & 1 & 2 & 31 & 2 & 0\\
+			1 & 1 & 3 & 0 & 1 & 0 & 0 & 1 & 0 & 36 & 3\\
+			0 & 1 & 1 & 0 & 0 & 0 & 1 & 3 & 0 & 0 & 7\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a WNB com tags dos links}
+	\label{tab:wnb_com_tags_dos_links}
+\end{table}
+
+
+A Figura \ref{fig:wnb_com_tags_dos_links} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{heatmap_linktag.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:wnb_com_tags_dos_links}}
+	\label{fig:wnb_com_tags_dos_links}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:wnb_com_tags_dos_links_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.750000 & 0.750000 & 0.750000 \\
+			Celebridade & 0.800000 & 0.800000 & 0.800000 \\
+			Ciencia & 0.333333 & 0.222222 & 0.266667 \\
+			Curiosidades & 0.818182 & 0.600000 & 0.692308 \\
+			Educacao & 0.769231 & 0.714286 & 0.740741 \\
+			Esporte & 0.500000 & 1.000000 & 0.666667 \\
+			Minorias & 0.812500 & 0.866667 & 0.838710 \\
+			Noticias & 0.666667 & 0.333333 & 0.444444 \\
+			Pessoal & 0.688889 & 0.968750 & 0.805195 \\
+			Politica & 0.782609 & 0.837209 & 0.808989 \\
+			Saude & 0.538462 & 0.368421 & 0.437500 \\
+			Media Micro & 0.719577 & 0.719577 & 0.719577 \\
+			Media Macro & 0.678170 & 0.678263 & 0.678216 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para WNB com tags dos links}
+	\label{tab:wnb_com_tags_dos_links_prec_rec}
+\end{table}
+
+
+
+% TODO: Números de utilização dos links!
+
 \section{Extensão final desenvolvida}
 
-\section{Teste de usabilidade}
-% Usamos as heuristicas de Nielsen
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{pior_vs_melhor.png}
+	\caption{Gráficos da primeira e última versão do classificador desenvolvida}
+	\label{fig:pior_vs_melhor}
+\end{figure}
+
 
 \section{Análise do classificador de artigos}
  

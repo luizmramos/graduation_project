@@ -414,6 +414,8 @@ Primeiro serão explorados os métodos de avaliação da performance do classificado
 
 A tabela \ref{tab:avaliacao_classificador_binario} resume as diferentes medidas que podem ser utilizadas, onde $tp$ é o verdadeiro positivo, $tn$ é o verdadeiro negativo, $fp$ é o falso positivo e $fn$ é o falso negativo.
 
+\newcommand{\specialcell}[2][c]{%
+	\begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 
 \begin{table}[tph]
 	\begin{center}
@@ -423,9 +425,9 @@ A tabela \ref{tab:avaliacao_classificador_binario} resume as diferentes medidas 
 			\hline 
 			&&\\
 			Acurácia & $\frac{tp+tn}{tp+fn+fp+tn}$ & Eficácia global do classificador \\[0.6cm]
-			Precisão & $\frac{tp}{tp+fp}$ & Quantos dos objetos classificados como positivo são efetivamente positivos\\[0.6cm]
-			Abrangência & $\frac{tp}{tp+fn}$ & Quantos dos objetos positivos foram classificados como positivos\\[0.6cm]
-			Fscore & $\frac{(\beta^2+1)tp}{(\beta^2+1)tp + \beta^2fn + fp}$ & Uma média harmônica entre a precisão e a abrangência \\[0.2cm]
+			Precisão & $\frac{tp}{tp+fp}$ & \specialcell{Quantos dos objetos classificados como positivo \\são efetivamente positivos}\\[0.6cm]
+			Abrangência & $\frac{tp}{tp+fn}$ & \specialcell{Quantos dos objetos positivos \\ foram classificados como positivos}\\[0.6cm]
+			Fscore & $\frac{(\beta^2+1)tp}{(\beta^2+1)tp + \beta^2fn + fp}$ & \specialcell{Uma média harmônica entre \\ a precisão e a abrangência} \\[0.2cm]
 			\hline
 		\end{tabular}
 	\end{center}
