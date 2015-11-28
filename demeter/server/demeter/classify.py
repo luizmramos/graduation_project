@@ -27,7 +27,7 @@ def mock_stories(data):
         stories.append(st)
     return stories
 
-mode = 'confusion'
+mode = ''
 
 data = raw_input()
 
@@ -40,7 +40,7 @@ stories = storyMap.values()
 filteredStories = []
 all_tags = set([])
 for story in stories:
-    story_tokens = extract_tokens_from_story(story)
+    story_tokens = extract_tokens_from_story(story, None)
     if "Outros" in story.classification or "Curiosidades" in story.classification: 
         continue
     all_tags.add(story.classification.items()[0][0])
@@ -105,7 +105,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
             if i > n_stories:
                 break
             i += 1
-            story_tokens = extract_tokens_from_story(story, link_cache)
+            story_tokens = extract_tokens_from_story(story, None)
             best_count = max(story.classification.values())
             tag = max(story.classification, key=story.classification.get)
             count_total += 1

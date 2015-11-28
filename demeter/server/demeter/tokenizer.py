@@ -4,11 +4,11 @@ import re
 import unicodedata
 import subprocess
 import time
-import nltk as nltk
+#import nltk as nltk
 
 DIR=os.path.dirname(os.path.realpath(__file__))
 CLASSIFY_LINK_BINARY = os.path.join(DIR, '../../../../articles/classify_single.sh')
-assert os.path.isfile(CLASSIFY_LINK_BINARY), "Article classifier not found"
+#assert os.path.isfile(CLASSIFY_LINK_BINARY), "Article classifier not found"
 
 
 def bytefy(input):
@@ -79,7 +79,10 @@ class LinkCache(object):
 
 def replace_links_with_classification(match, link_cache):
     link = match.group(0)
-    c = link_cache.classify_link(link)
+    if link_cache:
+        c = link_cache.classify_link(link)
+    else:
+        c = None
     return '{{link:{}}}'.format(c) if c else '{link}'
 
 
@@ -97,7 +100,10 @@ def parse_in_text_tokens(text):
     return text
 
 def remove_unicode_characters(text):
-    unicode = text.decode('utf-8')
+    try:
+        unicode = text.decode('utf-8')
+    except:
+        unicode = text.encode('utf-8').decode('utf-8') # lol
     unicode = unicodedata.normalize('NFD', unicode)
     ascii = unicode.encode('ascii', 'ignore') # ignore or substitute by {unicode}
     return ascii
@@ -294,8 +300,8 @@ def tokenize(words):
     return map(lambda w: w if re.match('^{.+}$', w) else '{w:' + w + '}', words)
 
 
-STEMMER = nltk.stem.RSLPStemmer()
-
+#STEMMER = nltk.stem.RSLPStemmer()
+STEMMER = None
 
 def extract_tokens_from_text(text, link_cache):
     text = parse_links(text, link_cache)
@@ -308,7 +314,7 @@ def extract_tokens_from_text(text, link_cache):
     words = list(map(remove_double_letters, words))
     words = normalize(words)
     words = filter_words(words)
-    words = [STEMMER.stem(w) for w in words]
+    words = [STEMMER.stem(w) for w in words] if STEMMER else words
     tokens = tokenize(words)
     print_tokens = [t for t in tokens if re.search("link", t)]
     # if print_tokens:

@@ -1,0 +1,94 @@
+Para este exemplo tem-se:
+
+$acuracia=0.634921$
+
+$acuracia\_esperada=0.132051$
+
+$Kappa=0.579377$
+
+
+A Tabela \ref{tab:wnm_com_fusao_de_classes} apresenta a matriz de confusao.
+
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c  c  c  c  c  c  c  c  c  c  c }
+			\hline
+			Beb & Cel & Cie & Cur & Edu & Esp & Min & Not & Pes & Pol & Sau & 0.7 & 0.5 & 0.5\\
+			\hline
+			2 & 0 & 1 & 3 & 0 & 0 & 4 & 0 & 0 & 0 & 0 & 0 & 0 & 2\\
+			1 & 0 & 1 & 0 & 3 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0\\
+			2 & 0 & 10 & 0 & 1 & 0 & 0 & 0 & 3 & 0 & 0 & 2 & 0 & 0\\
+			5 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 & 3 & 0 & 5 & 0\\
+			1 & 5 & 1 & 0 & 1 & 1 & 0 & 0 & 0 & 0 & 6 & 0 & 0 & 0\\
+			4 & 2 & 3 & 0 & 2 & 2 & 1 & 0 & 22 & 3 & 2 & 0 & 1 & 1\\
+			0 & 0 & 0 & 2 & 0 & 0 & 39 & 3 & 0 & 2 & 1 & 0 & 0 & 0\\
+			0 & 2 & 0 & 0 & 8 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Matriz de confusao para a WNM com fusao de classes}
+	\label{tab:wnm_com_fusao_de_classes}
+\end{table}
+
+
+A Figura \ref{fig:wnm_com_fusao_de_classes} consiste numa representação gráfica da matriz de confusão.
+
+\begin{figure}[ht!]
+	\centering	\includegraphics[width=0.9\textwidth]{wnm_com_fusao_de_classes.png}
+	\caption{Heatmap da matriz de confusão da Tabela \ref{tab:wnm_com_fusao_de_classes}}
+	\label{fig:wnm_com_fusao_de_classes}
+\end{figure}
+
+Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:wnm_com_fusao_de_classes_prec_rec}.
+
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{ c  c  c  c }
+			\hline
+			Classe & Precisao & Abrangencia & F1score \\
+			\hline
+			Bebes & 0.600000 & 1.000000 & 0.750000 \\
+			Celebridade & 0.625000 & 0.625000 & 0.625000 \\
+			Ciencia & 0.714286 & 0.625000 & 0.666667 \\
+			Curiosidades & 0.312500 & 0.555556 & 0.400000 \\
+			Educacao & 0.750000 & 0.600000 & 0.666667 \\
+			Esporte & 0.536585 & 0.956522 & 0.687500 \\
+			Minorias & 0.847826 & 0.764706 & 0.804124 \\
+			Noticias & 0.615385 & 0.363636 & 0.457143 \\
+			Pessoal & 9.000000 & 1.000000 & 0.000000 \\
+			Politica & 0.000000 & 1.000000 & 0.000000 \\
+			Saude & 0.000000 & 0.000000 & 0.000000 \\
+			0.75 & 1.000000 & 0.000000 & 1.000000 \\
+			0.5 & 9.000000 & 1.000000 & 0.000000 \\
+			0.571428571429 & 0.000000 & 1.000000 & 0.000000 \\
+			Media Micro & 0.634921 & 0.634921 & 0.634921 \\
+			Media Macro & 1.714399 & 0.677887 & 0.971597 \\
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Precisão e abrangencia para WNM com fusao de classes}
+	\label{tab:wnm_com_fusao_de_classes_prec_rec}
+\end{table}
+
+
+    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+    0    2    0    0    8    0    0    0    0    0    0    0    0    0
+    0    0    0    2    0    0   39    3    0    2    1    0    0    0
+    4    2    3    0    2    2    1    0   22    3    2    0    1    1
+    1    5    1    0    1    1    0    0    0    0    6    0    0    0
+    5    0    0    0    0    0    1    0    0    0    3    0    5    0
+    2    0   10    0    1    0    0    0    3    0    0    2    0    0
+    1    0    1    0    3    0    0    0    0    0    0    1    0    0
+    2    0    1    3    0    0    4    0    0    0    0    0    0    2

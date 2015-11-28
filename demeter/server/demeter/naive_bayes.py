@@ -12,15 +12,15 @@ class Document:
 class NaiveBayes:
 
     TAG_MAP = {
-        'Curiosidades': 'Curiosidades / Humor',
-        'Humor': 'Curiosidades / Humor',
-        'Celebridade': 'Celebridade / Filme',
-        'Filme': 'Celebridade / Filme',
-        'Noticias': 'Noticias',
-        'Turismo': 'Noticias',
-        'Medicina': 'Outros',
-        'Propaganda': 'Outros',
-        'Esportes': 'Outros',
+        #'Curiosidades': 'Curiosidades / Humor',
+        #'Humor': 'Curiosidades / Humor',
+        #'Celebridade': 'Celebridade / Filme',
+        #'Filme': 'Celebridade / Filme',
+        #'Noticias': 'Noticias',
+        #'Turismo': 'Noticias',
+        #'Medicina': 'Outros',
+        #'Propaganda': 'Outros',
+        #'Esportes': 'Outros',
     }
     TAG_COUNT = defaultdict(lambda: 0)
 
@@ -47,11 +47,12 @@ class NaiveBayes:
             self.increment(document)
         self.weights = self._compute_weights()
 
-    def load(self, n_words_per_tag_per_token, n_documents_per_tag, tags, vocabulary):
+    def load(self, n_words_per_tag_per_token, n_documents_per_tag, tags, vocabulary, n_words_per_tag):
         self.n_words_per_tag_per_token = n_words_per_tag_per_token
         self.n_documents_per_tag = n_documents_per_tag
         self.tags = tags
         self.vocabulary = vocabulary
+        self.n_words_per_tag = n_words_per_tag
         self.weights = self._compute_weights()
 
     def write(self):
@@ -84,20 +85,23 @@ class NaiveBayes:
             D = - p_t * math.log(p_t, 2)
             grs[token] = N / D
 
-        gr_avg = sum(grs.values()) / len(grs)
-        for token in self.vocabulary:
-            weights[token] = grs[token] / gr_avg
+        if len(grs) > 0:
+            gr_avg = sum(grs.values()) / len(grs)
+            if gr_avg > 0:
+                for token in self.vocabulary:
+                    weights[token] = grs[token] / gr_avg
 
         return weights
 
     def get_weight(self, token):
         if not token in self.vocabulary:
             return 0.01
-        return self.weights[token]
+        return self.weights[token] if token in self.weights else 0.01
 
     def classify(self, tokens):
         max_tag = (-float('inf'), None)
         ndocs = sum(self.n_documents_per_tag.values())
+        
         V = len(self.vocabulary)
         alpha = 1
         token_weights = {}

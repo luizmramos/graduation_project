@@ -16,6 +16,7 @@ StoryClassDom.prototype.onClick = function(/* Function */ callback) {
 // class StoryClassesListDom
 
 var classesList = [
+	"Classificar",
 	"Politica / Economia", 
 	"Propaganda", 
 	"Filme", 
@@ -25,12 +26,12 @@ var classesList = [
 	"Curiosidades",
 	"Pessoal",
 	"Turismo",
+	"Bebes / Animais",
 	"Ciencia / Tecnologia",
-	"Minorias",
 	"Educacao",
 	"Noticias",
 	"Musica",
-	"Bebes / Animais",
+	"Minorias",
 	"Medicina"
 ]
 
@@ -178,6 +179,9 @@ function StoryHeaderDom(/* Function */ onChangeSelection) {
 		this._selectedClasses.push(selectedClass);
 		this._selectedClasses = $.unique(this._selectedClasses);
 		onChangeSelection(this._selectedClasses);
+		if (selectedClass === 'Classificar') {
+			selectedClass = 'Classificando...';
+		}
 		this._renderSelectedStories();
 	}.bind(this));
 
@@ -190,6 +194,13 @@ function StoryHeaderDom(/* Function */ onChangeSelection) {
 		this._renderStoryClassesList();
 	}.bind(this));
 	
+}
+
+StoryHeaderDom.prototype.setClassification = function(selectedClass){
+	this._selectedClasses = [];
+	this._selectedClasses.push(selectedClass);
+	this._selectedClasses = $.unique(this._selectedClasses);
+	this._renderSelectedStories();
 }
 
 StoryHeaderDom.prototype.getDom = function() {

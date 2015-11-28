@@ -287,7 +287,7 @@ NewsFeedStoryContentWrapper.prototype.getIdAndTimestamp = function() {
 			};
 		}
 	}
-	return undefined;
+	return {};
 }
 
 // TODO: create NewsFeedStoryContent -> .userContent

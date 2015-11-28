@@ -10,7 +10,7 @@ double recalls[20];
 double f1s[20];
 int confusion[20][20];
 double acuracia, kappa, acuraciaEsperada;
-const int MAX_CLASS = 14;
+const int MAX_CLASS = 11;
 
 int t=0;
 void tabs(){
