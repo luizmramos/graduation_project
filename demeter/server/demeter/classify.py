@@ -27,7 +27,32 @@ def mock_stories(data):
         stories.append(st)
     return stories
 
-mode = 'confusion'
+DIR = os.path.dirname(__file__)
+CACHE_FILE = os.path.join(DIR, 'link_cache.dat')
+if os.path.isfile(CACHE_FILE):
+    with open(CACHE_FILE, 'r') as f:
+        serialized = f.read()
+        link_cache = LinkCache.load(serialized)
+else:
+    link_cache = LinkCache()
+
+mode = ''
+
+
+TAG_MAP = {
+    'Curiosidades': 'Curiosidades / Humor',
+    'Humor': 'Curiosidades / Humor',
+
+    'Celebridade': 'Celebridade / Filmes / Series',
+    'Filmes / Series': 'Celebridade / Filmes / Series',
+
+    'Noticias': 'Noticias / Turismo',
+    'Turismo': 'Noticias / Turismo',
+
+    'Saude': 'Saude / Propaganda / Esportes',
+    'Propaganda': 'Saude / Propaganda / Esportes',
+    'Esportes': 'Saude / Propaganda / Esportes',
+}
 
 data = raw_input()
 
@@ -40,9 +65,15 @@ stories = storyMap.values()
 filteredStories = []
 all_tags = set([])
 for story in stories:
-    story_tokens = extract_tokens_from_story(story)
+    story_tokens = extract_tokens_from_story(story, link_cache)
     if "Outros" in story.classification or "Curiosidades" in story.classification: 
         continue
+    classes = list(story.classification.iteritems())
+    for c, n in classes:
+        if c in TAG_MAP:
+            c_new = TAG_MAP[c]
+            story.classification[c_new] = story.classification[c]
+            del story.classification[c]
     all_tags.add(story.classification.items()[0][0])
     filteredStories.append(story)
 stories = filteredStories
@@ -71,18 +102,6 @@ if mode == 'mean':
     N_TRIES_PER_STEP = 100
     INITIAL_DOCUMENTS_SIZE = len(stories)
 
-INITIAL_DOCUMENTS_SIZE = 20
-DOCUMENTS_INCREASE_STEP = 20
-N_TRIES_PER_STEP = 7
-
-DIR = os.path.dirname(__file__)
-CACHE_FILE = os.path.join(DIR, 'link_cache.dat')
-if os.path.isfile(CACHE_FILE):
-    with open(CACHE_FILE, 'r') as f:
-        serialized = f.read()
-        link_cache = LinkCache.load(serialized)
-else:
-    link_cache = LinkCache()
 
 for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREASE_STEP):
     global_precision = defaultdict(lambda: 0)
@@ -169,7 +188,7 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
             #print tag + ' TP: ' + str(true_positives[tag]) + ' / ' + str(total[tag]) + ' TN: ' + str(true_negatives[tag]) + ' / '  + str(nDocs - total[tag]) 
             if mode == 'confusion': 
                 print str(precision),
-                print str(recall),   
+                print str(recall),
                 print str(f1) 
     
         accuracy = accuracy * 1.0/ n_test_documents
@@ -200,6 +219,8 @@ for n_stories in range(INITIAL_DOCUMENTS_SIZE,len(stories) + 1, DOCUMENTS_INCREA
     # print str(global_accuracay * 1.0 / global_count)
     print str(global_kappa * 1.0 / global_count) + ' / ' + str(global_accuracy * 1.0 / global_count)
 
+#for tag, n in NaiveBayes.TAG_COUNT.iteritems():
+#    print '{} {}'.format(tag, n)
 
 # Write CACHE
 with open(CACHE_FILE, 'w') as f:

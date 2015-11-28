@@ -80,11 +80,12 @@ class LinkCache(object):
 def replace_links_with_classification(match, link_cache):
     link = match.group(0)
     c = link_cache.classify_link(link)
-    return '{{link:{}}}'.format(c) if c else '{link}'
+    return '{link}' #'{link:%s}' % c if c else '{link}'
 
 
 def parse_links(text, link_cache):
     text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', lambda match: replace_links_with_classification(match, link_cache), text)
+    #text = re.sub('((https?://(www\.)?)|(www\.))[^\s]+', '{link}', text)
     return text
 
 def parse_in_text_tokens(text):
