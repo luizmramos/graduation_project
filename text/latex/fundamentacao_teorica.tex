@@ -493,6 +493,26 @@ As mesmas métricas definidas acima podem ser aplicadas para problemas \emph{mult
 
 A tabela \ref{tab:avaliacao_classificador_multiclass} resume as diferentes medidas utilizadas na avaliação de performance de um classificador \emph{multi-class}.
 
+\begin{table}[tph]
+	\begin{center}
+		\begin{tabular}{c c c}
+			\hline
+			Medida & Fórmula & Intuição \\
+			\hline 
+			&&\\
+			\specialcell{Precisão \\ Micro} & $\frac{\sum_{i=1}^{L} {tp_i}}{\sum_{i=1}^{L} {tp_i + fp_i}}$ & \specialcell{Média das precisões ponderando cada classe \\ de acordo com a quantidade de vezes que \\ ela é escolhida pelo classificador}\\[0.6cm]
+			\specialcell{Precisão \\ Macro} & $\frac{\sum_{i=1}^{L} {\frac{tp_i}{tp_i + fp_i}}}{L}$ & \specialcell{Média das precisões dando \\ pesos iguais a cada classe}\\[0.6cm]
+			\specialcell{Abrangência \\ Micro} & $\frac{\sum_{i=1}^{L} {tp_i}}{\sum_{i=1}^{L} {tp_i + fn_i}}$ & \specialcell{Média das abrangências ponderando cada classe \\ de acordo com a quantidade de vezes que \\ ela aparece no conjunto de testes}\\[0.6cm]
+			\specialcell{Abrangência \\ Macro} & $\frac{\sum_{i=1}^{L} {\frac{tp_i}{tp_i + fn_i}}}{L}$ & \specialcell{Média das abrangências dando \\ pesos iguais a cada classe}\\[0.6cm]
+			\specialcell{Acurácia \\ Observada} & $\frac{\sum_{i=1}^{L}{tp_i}}{N}$ & Eficácia global do classificador \\[0.6cm]
+			\specialcell{Acurácia \\ Esperada} & $\frac{\sum_{i=1}^{L}{(tp_i + fp_i)(tp_i + fn_i)}}{N^2}$ & \specialcell{Eficácia esperada de classificador aleatório \\ que chute na mesma proporção \\ do classificador em analisado} \\[0.6cm]	
+			Kappa & $\frac{acc\_obs - acc\_esp}{1 - acc\_esp}$ & \specialcell{Quantos dos objetos positivos \\ foram classificados como positivos}\\[0.6cm]
+			\hline
+		\end{tabular}
+	\end{center}
+	\caption{Resumo das medidas de performance para classificadores multi class}
+	\label{tab:avaliacao_classificador_multiclass}
+\end{table}
 
 
 \subsubsection{Matriz de Confusão (\emph{Confusion Matrix})}
