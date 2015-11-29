@@ -622,6 +622,19 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 
 \section{Extensão final desenvolvida}
 
+No final do projeto foi desenvolvida uma extensão capaz de classificar as postagens. Ela seguiu a mesma estrutura da extensão inicial desenvolvida (de coleta de dados). Só que agora ela possui um botão que realiza a classificação automática, conforme a imagem \ref{fig:extensao_final}.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{extensao_final.png}
+	\caption{Extensão final desenvolvida com botão que realiza a classificação automática.}
+	\label{fig:extensao_final}
+\end{figure}
+
+A classificação é feita no servidor e realiza uma aprendizagem online baseada no feedback dos usuários sobre as classificações. Ou seja, se o usuário descordar do classificador e mudar o assunto da postagem, o classificador vai aprender.
+
+O classificador usado foi a versão final, com todas as melhorias, incluindo os pesos, as features extras e os links. A imagem  \ref{fig:pior_vs_melhor} faz uma comparação entre a primeira versão do classificador desenvolvido (NB apenas com as palavras do texto como features) e a versão final.
+
 \begin{figure}[ht!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{pior_vs_melhor.png}
