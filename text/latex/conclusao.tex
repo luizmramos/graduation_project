@@ -1,5 +1,23 @@
+\section{Conclusões}
+
 Este trabalho propôs e analisou soluções baseadas em Naïve Bayes para se resolver o problema de classificação de postagens em redes sociais (especificamente no Facebook). Foram estudadas formas de se aliviar as considerações de independência condicional, fazendo uso de pesos para as features.
 
 Os resultados finais obtidos mostraram a viabilidade de se realizar este tipo de classificação, uma vez que foi possível obter acurácias superiores a 60\% (com F1score macro também superior a 60\%) utilizando-se uma base de dados relativamente pequena. Um aumento considerável na base de dados melhoraria muito a performance obtida.
 
 Muitos dos erros cometidos pelo classificador final são justificáveis por terem ocorrido em postagens que na prática poderiam pertencer a mais de uma classe. Deste modo, como trabalho futuro propõe-se a realização de um estudo semelhante com classificadores do tipo \emph{multi-class / multi-label}.
+
+\section{Trabalhos Futuros}
+
+\begin{itemize}
+	\item \textbf{Aumentar a base de dados}\\
+		Conforme os gráficos mostram, acredita-se que aumentando a base de dados os resultados melhorarão. Para realizar isso pode-se executar o \emph{Crawler} mais vezes para obter mais dados e divulgar o plugin para mais pessoas e, assim, conseguir mais exemplos.
+	\item \textbf{Utilizar \emph{Multi-class / Multi-label}}\\
+		Muitos posts podem ser considerados como pertencendo a mais de uma categoria, o que indica que utilizando \emph{Multi-class / Multi-label} a qualidade do classificador possa aumentar significativamente.
+	\item \textbf{Utilizar mais features da rede social}\\
+		Foram utilizadas algumas features como autor do post, se é publicidade ou não, etc. Porém ainda há bastantes features que poderiam ser utilizadas, como, por exemplo, quem comentou em determinado post, o próprio texto dos comentários, entre outros.
+		Um ponto interessante é que foi utilizado apenas o autor dos posts como feature, contudo, poderia-se aprofundar as informações sobre o autor de forma a capturar um pouco a estrutura da própria rede social, como por exemplo quem são os amigos do autor, de quais grupos ele pertence, assim em diante.
+	\item \textbf{Utiliza Informação Mútua para reconhecimento de novas classes}\\
+		Outra sugestão é utilizar o conceito de Informação Mútua para criação de novas classes sob escopo do usuário. Se alguns dos posts do usuário façam com que a Informação Mútua entre duas classes seja grande isso talvez signifique que uma nova classe derivada talvez seja melhor, como por exemplo os tópicos Saúde e Engenharia para alguns posts pudessem ser substituídos por Bio-tecnologia.
+		\item \textbf{Utiliza Informação Mútua para classes com poucos exemplos}\\
+		Enquanto uma classe não atinja número de exemplos significativo (que é obtido por meio do plugin sendo utilizado por "supervisores") pode-se utilizar a classe entre cuja Informação Mútua seja maior para efeitos de classificação de novos posts para não degradar a qualidade. Uma vez atingido um número mínimo de exemplos passa-se a utilizar a própria classe.
+\end{itemize}

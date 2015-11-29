@@ -529,8 +529,6 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 	\label{tab:wnm_com_fusao_de_classes_prec_rec}
 \end{table}
 
-% TODO: Números da fusão de classes pequenas!
-
 \clearpage
 
 \section{Utilização dos links}
@@ -622,10 +620,6 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 	\label{tab:wnb_com_tags_dos_links_prec_rec}
 \end{table}
 
-
-
-% TODO: Números de utilização dos links!
-
 \clearpage
 
 \section{Extensão final desenvolvida}
@@ -653,4 +647,16 @@ O classificador usado foi a versão final, com todas as melhorias, incluindo os p
 
 \section{Análise do classificador de artigos}
  
- % TODO: Números do classificador de artigos
+O classificador de artigos encontrou acurácia bem alta com maior facilidade que o classificador de posts. Isso é esperado devido a maior abundância de informações nos dados de treinamento. Cada artigo possui muito mais palavras do que um post, e, além disso, as palavras são mais precisas, formais, com poucos erros e menos pessoais (o que dificulta classificação de posts de outras pessoas).
+
+Ao final, o classificador de artigos com pesagem e \emph{stemming} para palavras com tamanho maior que 7 caracteres atingiu acurácia de $0,87$ com uma base de dados de 484 exemplos.
+É interessante observar o efeito da técnica de pesagem conforme a base de treinamento aumentava de tamanho como verificado na figura \ref{fig:articles_classifier_accuracy}.
+
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{articles_classifier_accuracy.png}
+	\caption{Gráficos de acurácia versus tamanho de conjunto de dados com pesagem e sem pesagem}
+	\label{fig:articles_classifier_accuracy}
+\end{figure}
+
+Isso pode ser explicado pelo simples fato de que conforme a base de dados aumenta, dado o limite do classificador, a acurácia do resultado independe do algoritmo. Isto é, com a base de dados pequena a técnica de pesagem se mostrou bastante útil pois tinham-se poucos dados, contudo, conforme a base de dados aumentou o desempenho das duas variantes foi bastante semelhante. 
