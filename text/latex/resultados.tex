@@ -503,6 +503,10 @@ A Figura \ref{fig:wnm_com_fusao_de_classes} consiste numa representação gráfica 
 
 Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:wnm_com_fusao_de_classes_prec_rec}.
 
+O efeito da fusão de classes na acurácia e no kappa do classificador também podem ser observados nas figuras \ref{fig:wnb_wnb_com_link_accuracy_graph} e \ref{fig:wnb_wnb_com_link_kappa_graph}.
+
+De um modo geral, embora pequeno, o efeito da fusão de classes foi consistente. Isso encontra-se de acordo com o esperado pelo fato de as classes menores possuírem poucos exemplos, fazendo com que sua probabilidade \emph{a priori} seja pequena e contribuindo para erros do classificador quando tem-se exemplos das mesmas no conjunto de testes. Em um ambiente \emph{online} o ideal seria coletar exemplos de determinada classe e enquanto o número desses exemplos não atingir um limite mínimo utilizar outras classes semelhantes como suporte para a mesma. Conforme visto na teoria uma idéia é utilizar Informação Mútua para encontrar as classes semelhantes a determinada classe.
+
 \begin{table}[tph]
 	\begin{center}
 		\begin{tabular}{ c  c  c  c }
@@ -593,6 +597,12 @@ A Figura \ref{fig:wnb_com_tags_dos_links} consiste numa representação gráfica da
 \end{figure}
 
 Outras estatísticas analisadas são as precisões, as abrangências e os f1scores para cada uma das classes, conforme relacionado na Tabela \ref{tab:wnb_com_tags_dos_links_prec_rec}.
+
+O efeito da adição dos links na acurácia e no kappa do classificador também podem ser observados nas figuras \ref{fig:wnb_wnb_com_link_accuracy_graph} e \ref{fig:wnb_wnb_com_link_kappa_graph}.
+
+Apesar de que inicialmente acreditava-se que a utilização dos links iria contribuir bastante com a melhora do classificador, infelizmente esse não foi o caso. A razão pelo qual isso aconteceu é o fato de existirem poucos links na base de treinamento do classificador. Para cada classe a quantidade de links em relação ao restante dos \emph{tokens} é ínfima, o que faz com que a probabilidade associada ao link não altere bastante entre classes. Outra razão forte para o pequeno aumento foi o fato de a relação de classes produzidas pelo classificador de artigos e a utilizada pelo classificador de posts não ser 1:1, isto é, existem classes em um que não existem no outro e vice-versa. Embora seja esperado que o classificador de posts se adeque a isso (sem nenhum esforço manual) uma lista de classes um pouco mais semelhante seria melhor. 
+
+Como proposta de trabalhos futuros recomenda-se utilizar um mapeamento 1:1 ou mais próximo disso para as classes dos links e aumentar a base de dados. Por fim, vale ressaltar que, embora pequena, a adição dos links contribuiu consistentemente para melhora do classificador e fez com que a performance do mesmo fosse considerada substancial.
 
 \begin{table}[tph]
 	\begin{center}
