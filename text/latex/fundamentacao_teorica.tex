@@ -308,13 +308,13 @@ Finalmente, o problema de classificação torna-se um problema de contagem.
 
 Para o caso específico de postagens em redes sociais existem ainda outras features que podem ser incluídas. Pode-se considerar o autor da postagem, o momento em que ela foi publicada, a presença de fotos, vídeos ou links, etc.
 
-\subsubsection{Smoothing}
+\subsubsection{Suavização (\emph{Smoothing})}
 
 Um dos problemas práticos encontrados por NB é a ocorrência de contagens nulas. O grande problema do 0 é que se ele for apenas um dos fatores da multiplicação o resultado inteiro será 0, inutilizando o método.
 
 Isto não é algo incomum, principalmente se o conjunto de treinamento for pequeno. Basta ter uma palavra no conjunto de teste que nunca ocorreu em uma determinada classe no conjunto de treinamento.
 
-Existem técnicas que são utilizadas para resolver este problema e elas são chamadas de Smoothing. Neste trabalho utilizou-se \emph{Laplace Smoothing}, uma das mais comuns.
+Existem técnicas que são utilizadas para resolver este problema e elas são chamadas de Suavização. Neste trabalho utilizou-se \emph{Suavização de Laplace}, uma das mais comuns.
 
 A técnica consiste em assumir que todas as features foram vistas pelo menos $\alpha$ vezes em cada uma das classes. Isso se traduz nas seguintes formulas, sendo $L$ o número total de classes, $V$ o numero total de features, $N$ o número total de documentos e $n(c)$ o número de documentos de classe $c$.
 
@@ -322,7 +322,7 @@ $$P(C=c_i) \approx \frac{\#(\text{documentos de classe } c_i)  + \alpha}{\#(\tex
 
 $$P(D=j|C=c_i) \approx \frac{\#(\text{palavras } w_j \text{ em documentos de classe } c_i) + \alpha}{\#(\text{total de palavras em documentos de classe } c_i) + \alpha V}$$
 
-No caso especial em que $\alpha = 1$, tem-se o \emph{Add-One Smoothing}.
+No caso especial em que $\alpha = 1$, tem-se o \emph{Suavização Adiciona-Um (Add-One Smoothing)}.
 
 \section{Weighted Naïve Bayes}
 \label{sec:weighted_naive_bayes}
