@@ -1,6 +1,6 @@
 \section{Conclusões}
 
-Este trabalho propôs e analisou soluções baseadas em Naïve Bayes para se resolver o problema de classificação de postagens em redes sociais (especificamente no Facebook). Foram estudadas formas de se aliviar as considerações de independência condicional, fazendo uso de pesos para as features.
+Este trabalho propôs e analisou soluções baseadas em Naïve Bayes para se resolver o problema de classificação de postagens em redes sociais (especificamente no Facebook). Foram estudadas formas de se aliviar as considerações de independência condicional, fazendo uso de pesos para as características.
 
 Os resultados finais obtidos mostraram a viabilidade de se realizar este tipo de classificação, uma vez que foi possível obter acurácias superiores a 60\% (com F1score macro também superior a 60\%) utilizando-se uma base de dados relativamente pequena. Um aumento considerável na base de dados melhoraria muito a performance obtida.
 
@@ -13,9 +13,9 @@ Muitos dos erros cometidos pelo classificador final são justificáveis por terem 
 		Conforme os gráficos mostram, acredita-se que aumentando a base de dados os resultados melhorarão. Para realizar isso pode-se executar o \emph{Crawler} mais vezes para obter mais dados e divulgar o plugin para mais pessoas e, assim, conseguir mais exemplos.
 	\item \textbf{Utilizar \emph{Multi-class / Multi-label}}\\
 		Muitos posts podem ser considerados como pertencendo a mais de uma categoria, o que indica que utilizando \emph{Multi-class / Multi-label} a qualidade do classificador possa aumentar significativamente.
-	\item \textbf{Utilizar mais features da rede social}\\
-		Foram utilizadas algumas features como autor do post, se é publicidade ou não, etc. Porém ainda há bastantes features que poderiam ser utilizadas, como, por exemplo, quem comentou em determinado post, o próprio texto dos comentários, entre outros.
-		Um ponto interessante é que foi utilizado apenas o autor dos posts como feature, contudo, seria possível aprofundar as informações sobre o autor de forma a capturar um pouco a estrutura da própria rede social, como por exemplo quem são os amigos do autor, de quais grupos ele pertence, assim em diante.
+	\item \textbf{Utilizar mais características da rede social}\\
+		Foram utilizadas algumas características como autor do post, se é publicidade ou não, etc. Porém ainda há bastantes características que poderiam ser utilizadas, como, por exemplo, quem comentou em determinado post, o próprio texto dos comentários, entre outros.
+		Um ponto interessante é que foi utilizado apenas o autor dos posts como característica, contudo, seria possível aprofundar as informações sobre o autor de forma a capturar um pouco a estrutura da própria rede social, como por exemplo quem são os amigos do autor, de quais grupos ele pertence, assim em diante.
 	\item \textbf{Utilizar Informação Mútua para reconhecimento de novas classes}\\
 		Outra sugestão é utilizar o conceito de Informação Mútua para criação de novas classes sob o escopo do usuário. Se alguns dos posts do usuário façam com que a Informação Mútua entre duas classes seja grande isso talvez signifique que uma nova classe derivada seja melhor, como por exemplo os tópicos Saúde e Engenharia para alguns posts pudessem ser substituídos por Bio-tecnologia.
 		\item \textbf{Utilizar Informação Mútua para classes com poucos exemplos}\\

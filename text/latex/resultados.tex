@@ -126,33 +126,33 @@ Como pode ser visto na tabela \ref{tab:nb_apenas_com_o_texto_prec_rec}, os resul
 
 \clearpage
 
-\section{Naïve Bayes com Features Adicionais}
+\section{Naïve Bayes com Características Adicionais}
 % Isso piora o classificador pois adiciona redundancia (e quebra a nocao de independencia condicional)
 
-% citar a secao que explica essas features
+% citar a secao que explica essas características
 
-A acurácia média obtida depois da adição das features extras foi de 51.1\%. A métrica Kappa foi de 42.5\%. Observa-se portanto que houve uma pequena melhora em relação as redes Bayesianas com o texto puro(o Kappa variou de 41.4\% para 42.5\%). 
+A acurácia média obtida depois da adição das características extras foi de 51.1\%. A métrica Kappa foi de 42.5\%. Observa-se portanto que houve uma pequena melhora em relação as redes Bayesianas com o texto puro(o Kappa variou de 41.4\% para 42.5\%). 
 
-O motivo da melhoria ser tão pequena é que ocorrem dois efeitos opostos quando se incluem essas novas features. Por um lado, essas features adicionam novas informações que possibilitam que haja uma melhor classificação. Por outro lado, elas são muitas vezes dependentes condicionalmente das palavras do texto (e entre si). Como as NB assumem independência condicional, a adição de features dependentes pode piorar a rede. O resultado da soma desses dois efeitos foi ligeiramente positivo neste caso.
+O motivo da melhoria ser tão pequena é que ocorrem dois efeitos opostos quando se incluem essas novas características. Por um lado, essas características adicionam novas informações que possibilitam que haja uma melhor classificação. Por outro lado, elas são muitas vezes dependentes condicionalmente das palavras do texto (e entre si). Como as NB assumem independência condicional, a adição de características dependentes pode piorar a rede. O resultado da soma desses dois efeitos foi ligeiramente positivo neste caso.
 
-A Figura \ref{fig:nb_features_extras_accuracy_graph} abaixo mostra a evolução da acurácia das NB com features extras em função do tamanho da base de dados. A Figura \ref{fig:nb_features_extras_kappa_graph} mostra a relação do Kappa com o tamanho da base de dados. A Figura \ref{fig:nb_features_extras_vs_apenas_texto_kappa_graph} compara os gráficos do Kappa para as NB com e sem features extras.
+A Figura \ref{fig:nb_features_extras_accuracy_graph} abaixo mostra a evolução da acurácia das NB com características extras em função do tamanho da base de dados. A Figura \ref{fig:nb_features_extras_kappa_graph} mostra a relação do Kappa com o tamanho da base de dados. A Figura \ref{fig:nb_features_extras_vs_apenas_texto_kappa_graph} compara os gráficos do Kappa para as NB com e sem características extras.
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{nb_features_extras_accuracy_graph.png}
-	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para NB com features extras (alem das palavras do texto)}
+	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para NB com características extras (alem das palavras do texto)}
 	\label{fig:nb_features_extras_accuracy_graph}
 \end{figure}
 
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{nb_features_extras_kappa_graph.png}
-	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para NB com features extras (alem das palavras do texto)}
+	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para NB com características extras (alem das palavras do texto)}
 	\label{fig:nb_features_extras_kappa_graph}
 \end{figure}
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{nb_features_extras_vs_apenas_texto_kappa_graph.png}
-	\caption{Sobreposição dos gráficos do Kappa em função da quantidade de postagens na base de dados para NB com e sem as features extras}
+	\caption{Sobreposição dos gráficos do Kappa em função da quantidade de postagens na base de dados para NB com e sem as características extras}
 	\label{fig:nb_features_extras_vs_apenas_texto_kappa_graph}
 \end{figure}
 
@@ -191,7 +191,7 @@ A Tabela \ref{tab:nb_com_features_adicionais} apresenta a matriz de confusão obt
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Matriz de confusao para a NB com features adicionais}
+	\caption{Matriz de confusao para a NB com características adicionais}
 	\label{tab:nb_com_features_adicionais}
 \end{table}
 
@@ -231,7 +231,7 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Precisão e abrangencia para NB com features adicionais}
+	\caption{Precisão e abrangencia para NB com características adicionais}
 	\label{tab:nb_com_features_adicionais_prec_rec}
 \end{table}
 
@@ -239,7 +239,7 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 
 \section{Weighted Naïve Bayes utilizando apenas o texto}
 
-A acurácia média obtida, depois da adição de pesos nas features e utilizando apenas as palavras do texto, foi de 53.5\%. A métrica Kappa foi de 48.2\%. 
+A acurácia média obtida, depois da adição de pesos nas características e utilizando apenas as palavras do texto, foi de 53.5\%. A métrica Kappa foi de 48.2\%. 
 
 Observa-se portanto que houve uma melhora considerável na métrica Kappa em relação às abordagens anteriores e uma melhora pequena na acurácia. A interpretação para isso é que o classificador está acertando mais de classes diversificadas. Enquanto nos casos anteriores, o classificador se limitava a escolher as classes mais frequentes e errar muito as menos frequentes, agora ele está acertando um pouco de cada classe. Isso faz com que o Kappa melhore mais do que a acurácia.
 
@@ -346,23 +346,23 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 
 \clearpage
 
-\section{Weighted Naïve Bayes com Features Adicionais}
-% Nesse caso nao tem problema adicionar features redundantes pois os pesos aliviam a hipotese de independencia condicional
-Como será apresentado a seguir, adicionar as features extras no classificador com Weighted NB trás uma melhora considerável no resultado obtido. Isto ocorre pois as Weighted NB não fazem a consideração de independência e muitas dessas features extras são muito determinantes na classificação. Por exemplo, postagens Pessoais costumam ter pessoas e lugais marcados, certas páginas do Facebook costumam postar sempre sobre o mesmo assunto (partidos políticos postam de Política, páginas de produtos fazem propaganda, páginas de humor sempre postam humor, etc). Todas essas informações introduzidas pelas features extras são muito bem capturadas pelas Weighted NB.
+\section{Weighted Naïve Bayes com Características Adicionais}
+% Nesse caso nao tem problema adicionar características redundantes pois os pesos aliviam a hipotese de independencia condicional
+Como será apresentado a seguir, adicionar as características extras no classificador com Weighted NB trás uma melhora considerável no resultado obtido. Isto ocorre pois as Weighted NB não fazem a consideração de independência e muitas dessas características extras são muito determinantes na classificação. Por exemplo, postagens Pessoais costumam ter pessoas e lugais marcados, certas páginas do Facebook costumam postar sempre sobre o mesmo assunto (partidos políticos postam de Política, páginas de produtos fazem propaganda, páginas de humor sempre postam humor, etc). Todas essas informações introduzidas pelas características extras são muito bem capturadas pelas Weighted NB.
 
-A acurácia média obtida neste caso, depois da adição das features extras nas Weighted NB, foi de 61.0\%. A métrica Kappa foi de 56.6\%. Este resultado mostra uma melhora considerável em relação a todos os outros classificadores desenvolvidos, conforme pode ser visto na Figura \ref{fig:nb_vs_wnb}. As Figuras \ref{fig:wnb_features_extras_accuracy_graph} e \ref{fig:wnb_features_extras_kappa_graph} mostram, respectivamente, a acurácia e o Kappa em função do tamanho da base de dados para este classificador.
+A acurácia média obtida neste caso, depois da adição das características extras nas Weighted NB, foi de 61.0\%. A métrica Kappa foi de 56.6\%. Este resultado mostra uma melhora considerável em relação a todos os outros classificadores desenvolvidos, conforme pode ser visto na Figura \ref{fig:nb_vs_wnb}. As Figuras \ref{fig:wnb_features_extras_accuracy_graph} e \ref{fig:wnb_features_extras_kappa_graph} mostram, respectivamente, a acurácia e o Kappa em função do tamanho da base de dados para este classificador.
 
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{wnb_features_extras_accuracy_graph.png}
-	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB com features extras}
+	\caption{Acurácia em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB com características extras}
 	\label{fig:wnb_features_extras_accuracy_graph}
 \end{figure}
 
 
 \begin{figure}[ht!]
 	\centering	\includegraphics[width=0.9\textwidth]{wnb_features_extras_kappa_graph.png}
-	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB com features extras}
+	\caption{Kappa em função da quantidade de postagens na base de dados (treinamento + validação) para a Weighted NB com características extras}
 	\label{fig:wnb_features_extras_kappa_graph}
 \end{figure}
 
@@ -409,7 +409,7 @@ A Tabela \ref{tab:weighted_nb_com_features_extras} apresenta a matriz de confusã
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Matriz de confusao para a Weighted NB com features extras}
+	\caption{Matriz de confusao para a Weighted NB com características extras}
 	\label{tab:weighted_nb_com_features_extras}
 \end{table}
 
@@ -448,7 +448,7 @@ Outras estatísticas analisadas são as precisões, as abrangências e os f1scores p
 			\hline
 		\end{tabular}
 	\end{center}
-	\caption{Precisão e abrangencia para Weighted NB com features extras}
+	\caption{Precisão e abrangencia para Weighted NB com características extras}
 	\label{tab:weighted_nb_com_features_extras_prec_rec}
 \end{table}
 
@@ -645,7 +645,7 @@ No final do projeto foi desenvolvida uma extensão capaz de classificar as postag
 
 A classificação é feita no servidor e realiza uma aprendizagem online baseada no feedback dos usuários sobre as classificações. Ou seja, se o usuário descordar do classificador e mudar o assunto da postagem, o classificador vai aprender.
 
-O classificador usado foi a versão final, com todas as melhorias, incluindo os pesos, as features extras e os links. A imagem  \ref{fig:pior_vs_melhor} faz uma comparação entre a primeira versão do classificador desenvolvido (NB apenas com as palavras do texto como features) e a versão final.
+O classificador usado foi a versão final, com todas as melhorias, incluindo os pesos, as características extras e os links. A imagem  \ref{fig:pior_vs_melhor} faz uma comparação entre a primeira versão do classificador desenvolvido (NB apenas com as palavras do texto como características) e a versão final.
 
 \begin{figure}[ht!]
 	\centering

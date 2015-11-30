@@ -39,18 +39,16 @@ No caso do classificador de artigos, como, geralmente, os textos contém uma ling
 
 \subsection{Criação dos classificadores de Redes Bayesianas}
 
-% TODO: [minor] Falar sobre o pq do classificador de artigos somewhere
-
 Foram criados classificadores de NB e suas performances foram avaliadas contra um conjunto de validação. Os métodos mais efetivos foram selecionados, combinando os classificadores de postagens e de artigos e ajustando seus parâmetros para obter um bom resultado final. 
 
-Os classificadores de artigos e de postagens, apesar de utilizarem o mesmo algoritmo apresentam significativas diferenças. Enquanto o primeiro tira proveito de textos grandes e com muito menos erros, o classificador de posts tem de lidar com conteúdos muito menores, muitas vezes uma só palavra e a mesma podendo ser um riso ou semelhante, o que limita bastante o poder de classificação dele, tendo que se utilizar de outras features como, principalmente, metadados do post.
+Os classificadores de artigos e de postagens, apesar de utilizarem o mesmo algoritmo apresentam significativas diferenças. Enquanto o primeiro tira proveito de textos grandes e com muito menos erros, o classificador de posts tem de lidar com conteúdos muito menores, muitas vezes uma só palavra e a mesma podendo ser um riso ou semelhante, o que limita bastante o poder de classificação dele, tendo que se utilizar de outras características como, principalmente, metadados do post.
 
 Onde, neste texto, não for elucidado sobre qual classificador esteja se falando (seja explicitamente ou pelo contexto), assume-se que é sobre o classificador de postagens do Facebook.
 
-\subsection{Estudo dos resultados obtidos no conjunto de validação para diferentes features e parâmetros}
+\subsection{Estudo dos resultados obtidos no conjunto de validação para diferentes características e parâmetros}
 \label{sec:validacao}
 
-Foi realizado um estudo detalhado dos resultados obtidos pelos classificadores para diferentes features, parâmetros e técnicas de classificação (NB e NB com pesos). 
+Foi realizado um estudo detalhado dos resultados obtidos pelos classificadores para diferentes características, parâmetros e técnicas de classificação (NB e NB com pesos). 
 
 Separou-se a base de dados total em dois conjuntos. Um de treinamento e um de validação de forma aleatória, sendo 25\% para validação e 75\% para treinamento. Para a análise da qualidade do classificador realizou-se a média das estatísticas avaliadas para varias divisões aleatórias diferentes de modo a obter um resultado estável.
 
@@ -196,15 +194,13 @@ Sempre que um usuário seleciona uma classe para uma determinada postagem, é real
 
 O banco de dados contem postagens indexadas por sua url (que é um valor único para cada postagem) e é associado a um conjunto de classes e frequências. Por exemplo, se um post foi classificado 5 vezes como Política e 2 como Educação, essa informação ficará registrada no banco de dados.
 
-É importante notar que não é apenas o texto da postagem que é salva no banco de dados. Também armazena-se o usuário que realizou criou a postagem, o momento em que ela foi publicada (timestamp), a presença de fotos ou vídeos, a existência de informações sobre o local de onde o usuário postou, etc. Essas informações podem ser relevantes na hora de se criar features para a NB.
+É importante notar que não é apenas o texto da postagem que é salva no banco de dados. Também armazena-se o usuário que realizou criou a postagem, o momento em que ela foi publicada (timestamp), a presença de fotos ou vídeos, a existência de informações sobre o local de onde o usuário postou, etc. Essas informações podem ser relevantes na hora de se criar características para a NB.
 
 \subsection{Crawler}
 
-% TODO: Talk about cache
-
 Existem vários posts que contém links para páginas de internet de artigos sobre determinado assunto, sendo esse considerado o assunto do post em si. Não são poucos os casos em que existe pouco texto escrito pelo autor e somente um link para algum artigo. Nesses casos, se ignorássemos o link, não seria possível dizer muito sobre a classificação do post.
 
-Assim, foi feito também um classificador de artigos nos mesmos moldes do classificador de posts, utilizando \emph{Naïve Bayes} e algumas otimizações como \emph{Stemming} e \emph{Weighting}. A ideia é que quando o classificador de posts se deparasse com um link iria chamar o classificador de artigos, que classificaria o artigo contido no link em determinada classe (não necessariamente igual a alguma das classes do classificador de post) e devolveria esse resultado em forma de feature para o classificador de post, como uma forma de pré-processamento do texto.
+Assim, foi feito também um classificador de artigos nos mesmos moldes do classificador de posts, utilizando \emph{Naïve Bayes} e algumas otimizações como \emph{Stemming} e \emph{Weighting}. A ideia é que quando o classificador de posts se deparasse com um link iria chamar o classificador de artigos, que classificaria o artigo contido no link em determinada classe (não necessariamente igual a alguma das classes do classificador de post) e devolveria esse resultado em forma de característica para o classificador de post, como uma forma de pré-processamento do texto.
 
 Para realizar tal procedimento seria necessário não só construir um classificador mas também um \emph{Parser} e  \emph{Crawler} para coletar os dados para a base de treinamento. 
 O \emph{Parser} é responsável por ler o conteúdo de determinada url como texto, estruturá-lo como uma árvore DOM e daí extrair informação relevante.
@@ -303,9 +299,8 @@ Como exemplo, a matéria contida na figura \ref{fig:parser_example_article} teve 
 
 \subsubsection{Provider}
 
-Para obter uma base de treinamento útil, é necessário conseguir exemplos já classificados já que NB trata-se de um algoritmo de aprendizado supervisionado. No entanto, note que as classificações do classificador de artigos não precisam ser as mesmas do classificador de posts, uma vez que os links e suas classificações serão utilizados como features. Felizmente, sites como \emph{Google Notícias} (\url{https://news.google.com.br}) já possuem categorizações úteis para classificar os artigos., como "Negócios", "Ciência e Tecnologia", "Entretenimento", "Esportes" e "Saúde", como mostra a figura \ref{fig:provider_gn_ss}
+Para obter uma base de treinamento útil, é necessário conseguir exemplos já classificados já que NB trata-se de um algoritmo de aprendizado supervisionado. No entanto, note que as classificações do classificador de artigos não precisam ser as mesmas do classificador de posts, uma vez que os links e suas classificações serão utilizados como características. Felizmente, sites como \emph{Google Notícias} (\url{https://news.google.com.br}) já possuem categorizações úteis para classificar os artigos., como "Negócios", "Ciência e Tecnologia", "Entretenimento", "Esportes" e "Saúde", como mostra a figura \ref{fig:provider_gn_ss}
 
-% TODO: [minor] Fix JSON
 O \emph{Crawler} em questão é considerado uma simplificação pois o mesmo não segue links mais que uma vez. Criou-se o que foi chamado de \emph{Provider}, que fornece os links para os artigos e a classificação dos mesmos, e, então, os artigos são recuperados pelo \emph{Parser}, pós-processados e armazenados em um banco de dados em texto estruturado em JSON, juntamente com algumas meta-informações. Foram testados alguns sites e o mais útil foi de fato o \emph{Google Notícias}, de onde pode-se facilmente inferir a estrutura DOM de cada informação desejada e criar um programa que extraía os links e suas classificações. Juntamente com o banco de dados em texto foi criado um índice (também em arquivo texto) que contém todos os links já seguidos, para não ser preciso segui-los novamente, já que um mesmo artigo pode aparecer de novo.
 
 No caso do \emph{Google Notícias} existem classificações não desejáveis para os artigos como "Últimas notícias", "Mais notícias principais", "Mundo" e "Brasil", já que elas pouco dizem sobre o assunto do post da pessoa que primeiramente criou o link para o artigo. Decidiu-se deliberadamente ignorar essas categorias já que os artigos nelas contidos geralmente encontram-se em outras categorias como "Negócios", "Entretenimento", etc., que são mais elucidativas.
@@ -346,7 +341,7 @@ Por fim, a base de dados coletado pelo \emph{Crawler} acumulou um total de quase
 Um bom pré processamento do texto é essencial para um bom resultado de classificação. Isso é especificamente válido em um ambiente como uma rede social, onde muitas vezes há abreviações, interjeições, utilização de linguagem informal, etc.
 
 \subsection{Tokenização}
-Muitas vezes as palavras puras não são muito boas para utilizar como features na classificação. Por isso para cada palavra associa-se um token. Este processo é chamado de tokenização. Deve-se decidir o que será feito com a pontuação, se palavras serão modificadas, etc. As vezes um token pode ser um conjunto de palavras. Por exemplo `Rio de Janeiro' pode ser um único token.
+Muitas vezes as palavras puras não são muito boas para utilizar como características na classificação. Por isso para cada palavra associa-se um token. Este processo é chamado de tokenização. Deve-se decidir o que será feito com a pontuação, se palavras serão modificadas, etc. As vezes um token pode ser um conjunto de palavras. Por exemplo `Rio de Janeiro' pode ser um único token.
 
 Outros exemplos de tokenização são trocar todos os números por um único token (normalmente para um classificador não é tão importante o valor numérico, mas sim a presença de um número em si). O mesmo vale para datas, porcentagens, links, etc.
 

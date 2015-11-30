@@ -61,7 +61,7 @@ O que é realizado na prática é, ou realizar inferências aproximadas nas redes co
 \subsubsection{O que são Naïve Bayes}
 As Naïve Bayes (Bayes "Ingênuas") são simplificações feitas na modelagem de um problema por redes Bayesianas de modo a tornar possível realizar a inferência de forma rápida. Elas assumem que as variáveis do problema são condicionalmente independentes (mesmo que na prática elas não sejam, o que explica o nome \emph{ingênuas}).
 
-A Figura \ref{fig:naive_bayes_example} mostra um exemplo de uma NB comum. Ela possui uma variável $Classe$ que interfere em uma série de outras varáveis $x_1, x_2, x_3, ... , x_n$ (que serão chamadas a partir daqui de features). É importante notar que a estrutura da rede mostra que as features são condicionalmente independentes umas das outras e a $Classe$ depende de cada uma das features individualmente. É fácil entender a grande vantagem desta abordagem. Cada tabela de probabilidades condicionais será pequena. Alem disso a inferência da variável classe, dadas algumas das features será bem simples, como será mostrado nas próximas seções.
+A Figura \ref{fig:naive_bayes_example} mostra um exemplo de uma NB comum. Ela possui uma variável $Classe$ que interfere em uma série de outras varáveis $x_1, x_2, x_3, ... , x_n$, que serão chamadas a partir daqui de características (\emph{features}). É importante notar que a estrutura da rede mostra que as características são condicionalmente independentes umas das outras e a $Classe$ depende de cada uma das características individualmente. É fácil entender a grande vantagem desta abordagem. Cada tabela de probabilidades condicionais será pequena. Alem disso a inferência da variável classe, dadas algumas das características será bem simples, como será mostrado nas próximas seções.
 
 \begin{figure}[ht!]
 	\centering
@@ -87,11 +87,11 @@ $$P(A,B) = P(A)P(B|A) = P(A)P(B)$$
 \subsubsection{Inferência}
 A regra de Bayes seguida pela propriedade de independência condicional pode ser utilizada para a realização de inferência em NB da seguinte forma.
 
-Sejam $C=\{c_1,c_2,c_3, ..., c_J\}$ um conjunto de classes e $x_1, x_2, x_3, x_4 ..., x_n$ as features a serem analisadas. Como trata-se de NB, assume-se independência condicional das features. Deseja-se saber para cada $i$:
+Sejam $C=\{c_1,c_2,c_3, ..., c_J\}$ um conjunto de classes e $x_1, x_2, x_3, x_4 ..., x_n$ as características a serem analisadas. Como trata-se de NB, assume-se independência condicional das características. Deseja-se saber para cada $i$:
 
 $$P(C=c_i|x_1,x_2,...,x_n)$$
 
-Ou seja, deseja-se saber qual a probabilidade da classe possuir o valor $c_i$, dadas as features observadas.
+Ou seja, deseja-se saber qual a probabilidade da classe possuir o valor $c_i$, dadas as características observadas.
 
 Pela regra de Bayes temos:
 
@@ -125,7 +125,7 @@ P(C=c_i|x_1,x_2,...,x_n) = \frac{P(C=c_i){\prod_{j=1}^{n}P(x_j|C=c_i)}}{P(x_1,x_
 \end{equation}
 
 \subsubsection{Classificação utilizando Naïve Bayes}
-No problema de classificação temos um documento $d$ que será representado pelas features $x_1,x_2,...,x_n$ e deseja-se saber a qual classe $c_i \in C$ este documento pertence. Matematicamente, deseja-se saber à qual classe é mais provável que o documento pertença, isto é, a classe que maximiza $P(C=c_i|d)$.
+No problema de classificação temos um documento $d$ que será representado pelas características $x_1,x_2,...,x_n$ e deseja-se saber a qual classe $c_i \in C$ este documento pertence. Matematicamente, deseja-se saber à qual classe é mais provável que o documento pertença, isto é, a classe que maximiza $P(C=c_i|d)$.
 
 \begin{align*}
 \gamma(d) &= argmax_{c_i \in C}(P(C=c_i|d)) \\
@@ -149,11 +149,11 @@ Aplicando-se \ref{eq:naive_bayes_probability} e eliminando-se os termos comuns n
 
 \subsection{Modelagens para classificação de texto}
 
-Uma vez que já foi entendida a forma de classificar o texto, resta representá-lo por um conjunto de features adequada e adotar uma distribuição (parametrizada ou não) para suas probabilidades. A seguir é explicado o modelo de representação de documentos \emph{Bag-of-words} e as modelagens \emph{Naïve Bayes de Bernoulli} e \emph{Multinomial Naïve Bayes}, onde a principal diferença é a distribuição das probabilidades.
+Uma vez que já foi entendida a forma de classificar o texto, resta representá-lo por um conjunto de características adequada e adotar uma distribuição (parametrizada ou não) para suas probabilidades. A seguir é explicado o modelo de representação de documentos \emph{Bag-of-words} e as modelagens \emph{Naïve Bayes de Bernoulli} e \emph{Multinomial Naïve Bayes}, onde a principal diferença é a distribuição das probabilidades.
 
 \subsubsection{Representação por Bag-of-words}
 
-Em classificação de texto uma das tarefas especialmente importante é a de representação de documento e seleção das features a serem consideradas. Diz-se especialmente importante pois, diferentemente de outras tarefas de classificação, a classificação textual apresenta dimensionalidade bastante elevada e a presença de muitas features irrelevantes (\emph{noise}).
+Em classificação de texto uma das tarefas especialmente importante é a de representação de documento e seleção das características a serem consideradas. Diz-se especialmente importante pois, diferentemente de outras tarefas de classificação, a classificação textual apresenta dimensionalidade bastante elevada e a presença de muitas características irrelevantes (\emph{noise}).
 	
 O modelo \emph{Bag-of-words} é uma representação simplificada de um texto ou documento em que o mesmo é figurativamente imaginado como uma sacola onde as palavras são colocadas, ignorando gramática ou ordem das palavras, mas mantendo a multiplicidade de cada uma.
 
@@ -193,7 +193,7 @@ Como pode-se perceber ao final da \ref{fig:bag_of_words_4} gerou-se um mapa de p
 
 \subsubsection{Naïve Bayes de Bernoulli}
 
-Na modelagem de Bernoulli, o documento é representado por um vetor de features onde cada coordenada indica se determinada palavra está presente ou não no documento, isto é, o documento é um vetor $\boldsymbol{x}$ de tamanho $|V|$, onde $V$ é o vocabulário, e $x_i \in \{0, 1\}$ indica se a palavra $w_i$ está ou não presente no documento (caso apareça mais de uma vez $x_i$ permanece sendo $1$). Assim:
+Na modelagem de Bernoulli, o documento é representado por um vetor de características onde cada coordenada indica se determinada palavra está presente ou não no documento, isto é, o documento é um vetor $\boldsymbol{x}$ de tamanho $|V|$, onde $V$ é o vocabulário, e $x_i \in \{0, 1\}$ indica se a palavra $w_i$ está ou não presente no documento (caso apareça mais de uma vez $x_i$ permanece sendo $1$). Assim:
 
 \begin{align}
 P(\boldsymbol{X} = \boldsymbol{x} | c) &= \prod_{i=1}^{|V|}P(U_i=1|c)^{x_i}P(U_i=0|c)^{(1-x_i)}\notag\\
@@ -212,9 +212,9 @@ $$p_i = P(U_i = 1|c) \approx \frac{\#(\text{documentos de classe } c \text{ que 
  
 Nessa modelagem, o número de vezes em que uma determinada palavra aparece em um documento é levada em consideração. É bastante comum sua utilização em classificação de texto. 
 
-No Multinomial NB, também representa-se o texto por uma \emph{Bag-of-words}. Utiliza-se a distribuição multinomial para modelar as probabilidades das features. Para derivar a expressão que representa $P(x_1,x_2,...,x_n|c)$ primeiro define-se o modelo de cada documento e o que representa seu conjunto de features.
+No Multinomial NB, também representa-se o texto por uma \emph{Bag-of-words}. Utiliza-se a distribuição multinomial para modelar as probabilidades das características. Para derivar a expressão que representa $P(x_1,x_2,...,x_n|c)$ primeiro define-se o modelo de cada documento e o que representa seu conjunto de características.
 
-Suponha que o documento $d$ seja representado por $\boldsymbol{d}$, um vetor, que gere o vetor de features	$\boldsymbol{x}(\boldsymbol{d}) = (x_1, x_2, ..., x_{|V|})$, onde $x_i$ representa a quantidade de vezes em que a palavra $w_i$ ocorreu no documento $\boldsymbol{d}$. Note que dessa forma dois documentos cuja ordem das palavras mude possui o mesmo vetor de features, como esperado pela hipótese \emph{Bag-of-words}. 
+Suponha que o documento $d$ seja representado por $\boldsymbol{d}$, um vetor, que gere o vetor de características	$\boldsymbol{x}(\boldsymbol{d}) = (x_1, x_2, ..., x_{|V|})$, onde $x_i$ representa a quantidade de vezes em que a palavra $w_i$ ocorreu no documento $\boldsymbol{d}$. Note que dessa forma dois documentos cuja ordem das palavras mude possui o mesmo vetor de características, como esperado pela hipótese \emph{Bag-of-words}. 
 
 Um documento $d$ pode ser representado por um vetor $\boldsymbol{d}$ de tamanho $|\boldsymbol{d}|$, o número de palavras do documento, onde cada coordenada é o índice da palavra do vocabulário que está naquela posição. Isto é, $\boldsymbol{d} = (d_1, d_2, ..., d_{|\boldsymbol{d}|})$, onde $d_j \in \{1, 2, ..., |V|\}$, o que significa que a palavra na $j$-ésima posição é $w_{d_j}$. Daí:
 
@@ -222,9 +222,9 @@ $$x_i = |\{d_j | j \in \{1, 2, ..., |d|\} \land d_j = i\}|$$
 
 Abusando-se da notação utilizar-se-á $\boldsymbol{d}$ para representar o documento $d$, já que o mesmo torna-se unicamente definido.
 
-Por exemplo, um documento "$w_6 w_4 w_5 w_9 w_6 $" é representado por $\boldsymbol{d} = (6, 4, 5, 9, 6)$ onde $|\boldsymbol{d}| = 5$. Supondo $|V| = 10$, esse documento gera um vetor de features $\boldsymbol{x}(\boldsymbol{d}) = (0, 0, 0, 1, 1, 2, 0, 0, 1, 0)$, observe que existem $\frac{5!}{2!}$ documentos que geram o mesmo vetor de features, o que nada mais é que o número de permutações de $\boldsymbol{d}$. 
+Por exemplo, um documento "$w_6 w_4 w_5 w_9 w_6 $" é representado por $\boldsymbol{d} = (6, 4, 5, 9, 6)$ onde $|\boldsymbol{d}| = 5$. Supondo $|V| = 10$, esse documento gera um vetor de características $\boldsymbol{x}(\boldsymbol{d}) = (0, 0, 0, 1, 1, 2, 0, 0, 1, 0)$, observe que existem $\frac{5!}{2!}$ documentos que geram o mesmo vetor de características, o que nada mais é que o número de permutações de $\boldsymbol{d}$. 
 
-De maneira genérica, para um vetor de features $\boldsymbol{x^{(j)}}$, seja $docs(\boldsymbol{x}^{(j)})$ o conjunto de documentos que o geram:
+De maneira genérica, para um vetor de características $\boldsymbol{x^{(j)}}$, seja $docs(\boldsymbol{x}^{(j)})$ o conjunto de documentos que o geram:
 
 $$docs(\boldsymbol{x}^{(j)}) = \{\boldsymbol{d} | \boldsymbol{x}(\boldsymbol{d}) = \boldsymbol{x}^{(j)} = (x^{(j)}_1, x^{(j)}_2, ..., x^{(j)}_{|V|})\}$$
 
@@ -299,14 +299,14 @@ $$P(C=c_i) \approx \frac{\#(\text{documentos de classe } c_i)}{\#(\text{todos os
 
 $$P(D=j|C=c_i) \approx \frac{\#(\text{palavras } w_j \text{ em documentos de classe } c_i)}{\#(\text{total de palavras em documentos de classe } c_i)}$$
 
-Note que apesar de ter-se utilizado a nomenclatura "palavra", qualquer feature que representasse outra entidade poderia ser utilizada. 
+Note que apesar de ter-se utilizado a nomenclatura "palavra", qualquer característica que representasse outra entidade poderia ser utilizada. 
 
 Finalmente, o problema de classificação torna-se um problema de contagem.
 
-\subsubsection{Outras features}
-É possível enriquecer o classificador utilizando outras features (que não sejam as próprias palavras do texto). Exemplos de features que podem ser utilizadas são: combinações de palavras, o tamanho do texto, quantidade de sinais de pontuação, quantidade de palavras com iniciais maiúsculas, etc.
+\subsubsection{Outras características}
+É possível enriquecer o classificador utilizando outras características (que não sejam as próprias palavras do texto). Exemplos de características que podem ser utilizadas são: combinações de palavras, o tamanho do texto, quantidade de sinais de pontuação, quantidade de palavras com iniciais maiúsculas, etc.
 
-Para o caso específico de postagens em redes sociais existem ainda outras features que podem ser incluídas. Pode-se considerar o autor da postagem, o momento em que ela foi publicada, a presença de fotos, vídeos ou links, etc.
+Para o caso específico de postagens em redes sociais existem ainda outras características que podem ser incluídas. Pode-se considerar o autor da postagem, o momento em que ela foi publicada, a presença de fotos, vídeos ou links, etc.
 
 \subsubsection{Suavização (\emph{Smoothing})}
 
@@ -316,7 +316,7 @@ Isto não é algo incomum, principalmente se o conjunto de treinamento for pequeno
 
 Existem técnicas que são utilizadas para resolver este problema e elas são chamadas de Suavização. Neste trabalho utilizou-se \emph{Suavização de Laplace}, uma das mais comuns.
 
-A técnica consiste em assumir que todas as features foram vistas pelo menos $\alpha$ vezes em cada uma das classes. Isso se traduz nas seguintes formulas, sendo $L$ o número total de classes, $V$ o numero total de features, $N$ o número total de documentos e $n(c)$ o número de documentos de classe $c$.
+A técnica consiste em assumir que todas as características foram vistas pelo menos $\alpha$ vezes em cada uma das classes. Isso se traduz nas seguintes formulas, sendo $L$ o número total de classes, $V$ o numero total de características, $N$ o número total de documentos e $n(c)$ o número de documentos de classe $c$.
 
 $$P(C=c_i) \approx \frac{\#(\text{documentos de classe } c_i)  + \alpha}{\#(\text{todos os documentos}) + \alpha L}$$
 
@@ -326,7 +326,7 @@ No caso especial em que $\alpha = 1$, tem-se o \emph{Suavização Adiciona-Um (Add
 
 \section{Weighted Naïve Bayes}
 \label{sec:weighted_naive_bayes}
-Um dos problemas das NB é que muitas vezes nas aplicações reais não é possível assumir a independência condicional das features. Um modo inicial de relaxar essa hipótese de independência, é eliminar features com alta correlação, fazendo com que o subconjunto restante se encaixe melhor na hipótese de independência condicional. Isto é chamado de seleção de features.
+Um dos problemas das NB é que muitas vezes nas aplicações reais não é possível assumir a independência condicional das características. Um modo inicial de relaxar essa hipótese de independência, é eliminar características com alta correlação, fazendo com que o subconjunto restante se encaixe melhor na hipótese de independência condicional. Isto é chamado de seleção de características.
 
 Neste caso temos:
 
@@ -336,7 +336,7 @@ Onde:
 
 $$I(j) \in \{0,1\}$$
 
-Existem bastantes features que são dependentes de outras, dessa forma quando coloca-se ambas no produtorio acaba-se prejudicando o resultado. Logo, colocar peso nas features é uma forma de amenizar a forte hipótese de independência das NB. Uma abordagem mais genérica, então, é ponderar cada feature de acordo com sua relevância. Ou seja:
+Existem bastantes características que são dependentes de outras, dessa forma quando coloca-se ambas no produtorio acaba-se prejudicando o resultado. Logo, colocar peso nas características é uma forma de amenizar a forte hipótese de independência das NB. Uma abordagem mais genérica, então, é ponderar cada característica de acordo com sua relevância. Ou seja:
 
 $$\gamma(d) = argmax_c\left(P(C=c_i){\prod_{j=1}^{n}P(x_j|C=c_i)^{w(j)}}\right)$$
 
@@ -344,9 +344,9 @@ Onde:
 
 $$w(j) \in \mathbb{R}^+$$
 
-Nota-se que a seleção de features é um caso específico da ponderação de features (onde $w(j)$ só pode ser 0 ou 1). Existem diversos algoritmos já desenvolvidos na literatura para seleção de features, muitos dos quais envolvem alguma busca no espaço das features com testes num grupo de dados dedicado e expansão do grupo de features somente se a nova feature gerar uma melhoria na classificação nesse grupo de dados. Esses algoritmos são brevemente explorados em \cite{zaidi2013alleviating}.
+Nota-se que a seleção de características é um caso específico da ponderação de características (onde $w(j)$ só pode ser 0 ou 1). Existem diversos algoritmos já desenvolvidos na literatura para seleção de características, muitos dos quais envolvem alguma busca no espaço das características com testes num grupo de dados dedicado e expansão do grupo de características somente se a nova característica gerar uma melhoria na classificação nesse grupo de dados. Esses algoritmos são brevemente explorados em \cite{zaidi2013alleviating}.
 
-Tendo decidido realizar feature weighting, o grande problema passa a ser determinar os pesos $w(j)$ das features. Há diversos algoritmos que ja foram propostos para realizar esta tarefa. Intuitivamente, quer-se um peso maior para features que possam ser decisivas no resultado final (ajudam a distinguir determinada classe).
+Tendo decidido realizar a pesagem de característica, o grande problema passa a ser determinar os pesos $w(j)$. Há diversos algoritmos que ja foram propostos para realizar esta tarefa. Intuitivamente, quer-se um peso maior para características que possam ser decisivas no resultado final (ajudam a distinguir determinada classe).
 
 Neste trabalho, estudou-se a utilização de um método baseado na Teoria da Informação, que além de ser comum na literatura (\cite{weighted_naive_bayes} e \cite{zaidi2013alleviating}), possui fundamentos teóricos bem embasados, onde o \emph{Gain Ratio} de um atributo é utilizado como seu peso.
  
@@ -385,7 +385,7 @@ MI(X, Y)=\sum_{y \in Y}\sum_{x \in X}P(X=x, Y=y)log\left(\frac{P(X=x,Y=y)}{P(X=x
 
 Intuitivamente, $MI(X, Y)$ mede o quanto de informação $X$ e $Y$ compartilham. Se, por exemplo, $X$ e $Y$ forem independentes tem-se $MI(X, Y) = 0$.
 
-Em luz de \ref{eq:entropy} e \ref{eq:mutual_information} define-se Razão de Ganho \emph{GR} (do inglês \emph{Gain Ratio}) de uma feature $X_i$ como sendo:
+Em luz de \ref{eq:entropy} e \ref{eq:mutual_information} define-se Razão de Ganho \emph{GR} (do inglês \emph{Gain Ratio}) de uma característica $X_i$ como sendo:
 
 \begin{equation}
 GR(i) = \frac{MI(X_i, C)}{H(X_i)} = \frac{\sum_{c \in C}\sum_{x_1 \in X_1}P(x_1, c)log\left(\frac{P(x_1, c)}{P(x_1)P(c)}\right)}{-\sum_{x_1}P(x_1)log(P(x_1))}
@@ -393,13 +393,13 @@ GR(i) = \frac{MI(X_i, C)}{H(X_i)} = \frac{\sum_{c \in C}\sum_{x_1 \in X_1}P(x_1,
 
 Observe que quanto mais dependentes forem $X_i$ de $C$, isto é, quanto mais os valores de $X_i$ contribuírem para classificar o documento como pertencendo a determinada classe, mais alto será $MI(X_i, C)$, justificando um aumento em $GR(i)$. 
 
-Agora, resta-se somente normalizar as razões de ganho, de forma que o peso de cada feature é a sua razão de ganho dividia pela média de todas as razões de ganho.
+Agora, resta-se somente normalizar as razões de ganho, de forma que o peso de cada característica é a sua razão de ganho dividia pela média de todas as razões de ganho.
 
 \begin{equation}
 w(j) = \frac{GR(j)}{\frac{1}{N}\sum_{i=1}^{N}GR(i)}
 \end{equation}
 
-Onde $N$ é o número de features.
+Onde $N$ é o número de características.
 
 \section{Métodos de avaliação de um classificador}
 
@@ -650,7 +650,7 @@ A interpretação do $Kappa$ é interessante pois permite a comparação de diversos 
 Estas divisões foram arbitradas pelos autores supracitados e elas criam um benchmark útil para a verificação da qualidade de um classificador, definindo uma nomeclatura que pode ser utilizada pelo meio acadêmico. Obviamente, dependendo da aplicação pode ser necessário e desejável que se tenha um $Kappa$ de 0.9. Em outras aplicações um $Kappa$ de 0.4 pode já ser suficiente.
 
 \section{Revisão Bibliográfica}
-Muito já foi estudado no meio acadêmico sobre a utilização de Naïve Bayes para classificação de textos. McCallum e Nigam estudaram as diferentes modelagens possíveis para classificação de textos utilizando Naïve Bayes, explorando as diferenças entre modelos Multinomiais e de Bernoulli \cite{mccallum1998comparison}. Lewis e Ringuette estudam as diferenças entre a abordagem Bayesiana e a abordagem por árvores de decisão na classificação de textos \cite{lewis1994comparison}. Zaidi, Cerquides e Carman estudaram formas de aliviar a hipótese de independência condicional das Naïve Bayes, utilizando pesos para as features \cite{zaidi2013alleviating}. Lee, Dou e Gutierrez estudaram por que a métrica de Kullback-Leibler pode ser utilizada como peso \cite{weighted_naive_bayes}. Nirmala, Kumar, Velligiri, Patel e Mistry estudam vantagens e desvantagens de diferentes métodos de classificação de texto em redes sociais \cite{onlinesocialnetworks} \cite{patelreview}.
+Muito já foi estudado no meio acadêmico sobre a utilização de Naïve Bayes para classificação de textos. McCallum e Nigam estudaram as diferentes modelagens possíveis para classificação de textos utilizando Naïve Bayes, explorando as diferenças entre modelos Multinomiais e de Bernoulli \cite{mccallum1998comparison}. Lewis e Ringuette estudam as diferenças entre a abordagem Bayesiana e a abordagem por árvores de decisão na classificação de textos \cite{lewis1994comparison}. Zaidi, Cerquides e Carman estudaram formas de aliviar a hipótese de independência condicional das Naïve Bayes, utilizando pesos para as características \cite{zaidi2013alleviating}. Lee, Dou e Gutierrez estudaram por que a métrica de Kullback-Leibler pode ser utilizada como peso \cite{weighted_naive_bayes}. Nirmala, Kumar, Velligiri, Patel e Mistry estudam vantagens e desvantagens de diferentes métodos de classificação de texto em redes sociais \cite{onlinesocialnetworks} \cite{patelreview}.
 
-Muito pouco foi encontrado com relação à utilização de Redes Bayesiana em classificação de postagens de rede social. Este problema tem uma complexidade adicional pelo fato dos textos serem mais informais e com poucas palavras. Os poucos trabalhos encontrados fizeram muitas análises teóricas, porém sem muitos resultados práticos. Além de estudar os resultados numéricos do classificador desenvolvido, este trabalho explora a influência da inclusão de features não textuais (como o autor da postagem, o tipo de postagem, etc) na classificação.
+Muito pouco foi encontrado com relação à utilização de Redes Bayesiana em classificação de postagens de rede social. Este problema tem uma complexidade adicional pelo fato dos textos serem mais informais e com poucas palavras. Os poucos trabalhos encontrados fizeram muitas análises teóricas, porém sem muitos resultados práticos. Além de estudar os resultados numéricos do classificador desenvolvido, este trabalho explora a influência da inclusão de características não textuais (como o autor da postagem, o tipo de postagem, etc) na classificação.
 

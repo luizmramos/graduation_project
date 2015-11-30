@@ -27,7 +27,7 @@ Foram consideradas as seguintes classes para todos os classificadores desenvolvi
 \end{itemize}
 
 \section{Naïve Bayes utilizando apenas o texto}
-O classificador mais simples que pode ser criado utilizando NB, consiste em utilizar apenas as palavras do texto como features. 
+O classificador mais simples que pode ser criado utilizando NB, consiste em utilizar apenas as palavras do texto como características. 
 
 Neste caso, realizou-se primeiramente o processamento conforme o descrito na Seção \ref{sec:processamento_do_texto}, normalizando as palavras de forma apropriada. Durante o processo de normalização, foram realizadas as seguintes modificações.
 
@@ -42,15 +42,15 @@ Neste caso, realizou-se primeiramente o processamento conforme o descrito na Seç
 
 Em seguida, realizou-se o treinamento utilizando base de dados obtida, realizando-se a contagem da ocorrência dos tokens em cada uma das classes. Finalmente testou-se a performance do classificador obtido em um conjunto de validação.
 
-\section{Naïve Bayes com Features Adicionais}
+\section{Naïve Bayes com Características Adicionais}
 \label{sec:bayes_features_adicionais}
-Várias outras features foram adicionadas na tentativa de melhorar a performance do classificador. As postagens em redes sociais em geral contem muito mais informações do que o texto escrito. Tentou-se capturá-las utilizando as seguintes features:
+Várias outras características foram adicionadas na tentativa de melhorar a performance do classificador. As postagens em redes sociais em geral contem muito mais informações do que o texto escrito. Tentou-se capturá-las utilizando as seguintes características:
 
 \begin{itemize}
 	\item Usuário ou página que é autor(a) da postagem
 	\item Tipo de compartilhamento (se é apenas um status update, ou se é um vídeo ou uma foto que estão sendo compartilhados)
 	\item Se a postagem possui uma localização de origem (o valor do local em si de onde a postagem foi feita não foi considerado, pois seria necessária uma base de dados muito grande para que este local fizesse diferença)
-	\item Se há algum outro usuário marcado na postagem (considerou-se esta feature interessante pelo fato de que postagens pessoas costumam ter pessoas marcadas).
+	\item Se há algum outro usuário marcado na postagem (considerou-se esta característica interessante pelo fato de que postagens pessoas costumam ter pessoas marcadas).
 	\item Se a postagem foi promovida por meio de pagamentos (tem a tag Sponsor no Facebook) ou não
 	\item O tamanho do texto (discretizou-se o tamanho em 4 categorias: tiny, small, medium, large)
 \end{itemize}
@@ -60,15 +60,15 @@ Várias outras features foram adicionadas na tentativa de melhorar a performance 
 
 
 \section{Weighted Naïve Bayes utilizando apenas o texto}
-Utilizaram-se as Weighted Naïve Bayes descritas na Seção \ref{sec:weighted_naive_bayes}, que nada mais são que as mesmas NB porém onde cada feature pode ter um peso correspondente. Dessa forma, diminui-se a forte hipótese de que as features são independentes já que o peso pode diminuir essa independência.
+Utilizaram-se as Weighted Naïve Bayes descritas na Seção \ref{sec:weighted_naive_bayes}, que nada mais são que as mesmas NB porém onde cada característica pode ter um peso correspondente. Dessa forma, diminui-se a forte hipótese de que as características são independentes já que o peso pode diminuir essa independência.
 
-\section{Weighted Naïve Bayes com Features Adicionais}
+\section{Weighted Naïve Bayes com Características Adicionais}
 
 Repetiu-se a mesma ideia exposta na Seção \ref{sec:bayes_features_adicionais}, porem desta vez com a NB ponderada.
 
 \section{Utilização dos links}
 
-Até agora, o conteúdo dos links compartilhados tinha sido completamente ignorado. Por exemplo, se alguém postasse um link sobre economia e escrevesse algo do tipo `Muito interessante esta análise', o classificador iria tentar classificar a potagem utilizando apenas o texto (o que é bem complicado). Para evitar este problema, fez-se um HTTP GET request para o link, extraiu-se o texto principal e ele foi classificado por um segundo classificador. O resultado deste segundo classificador passa a ser uma feature do classificador de postagens.
+Até agora, o conteúdo dos links compartilhados tinha sido completamente ignorado. Por exemplo, se alguém postasse um link sobre economia e escrevesse algo do tipo `Muito interessante esta análise', o classificador iria tentar classificar a potagem utilizando apenas o texto (o que é bem complicado). Para evitar este problema, fez-se um HTTP GET request para o link, extraiu-se o texto principal e ele foi classificado por um segundo classificador. O resultado deste segundo classificador passa a ser uma característica do classificador de postagens.
 
 Este segundo classificador (que será referenciado como classificador de artigos) foi treinado a partir da base de dados adquirida pelo \emph{Crawler}.
  
