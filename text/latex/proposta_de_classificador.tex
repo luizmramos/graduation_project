@@ -34,13 +34,13 @@ Neste caso, realizou-se primeiramente o processamento conforme o descrito na Seç
 \begin{itemize}
 	\item Todos os links foram trocados pelo token '\{link\}'
 	\item Todas as referências feitas com @ (por exemplo @NomeDaPessoa) foram trocadas pelo token '\{tag\}'
-	\item Todos os valores monetários (tanto em real como em dólar) foram trocados pelo token '{money}'
+	\item Todos os valores monetários (tanto em real como em dólar) foram trocados pelo token '\{money\}'
 	\item Todas as percentagens foram trocadas pelo token '\{percentage\}'
 	\item Todas as datas foram trocadas pelo token '\{date\}'
 	\item Todos os outros números foram trocados pelo token '\{number\}'
 \end{itemize}
 
-Em seguida, realizou-se o treinamento utilizando base de dados obtida, realizando-se a contagem da ocorrência dos tokens em cada uma das classes. Finalmente testou-se a performance do classificador obtido em um conjunto de testes.
+Em seguida, realizou-se o treinamento utilizando base de dados obtida, realizando-se a contagem da ocorrência dos tokens em cada uma das classes. Finalmente testou-se a performance do classificador obtido em um conjunto de validação.
 
 \section{Naïve Bayes com Features Adicionais}
 \label{sec:bayes_features_adicionais}
