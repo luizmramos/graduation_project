@@ -35,7 +35,7 @@ Foram propostas duas formas possíveis de aquisição de dados.
 
 Para o classificador de posts, como trata-se de linguagem natural e ainda por cima coloquial, para atingir um bom resultado com o classificador é essencial que haja um bom pré-processamento do texto corrigindo palavras erradas, frases mal-construídas, normalizando termos parecidos, etc.
 
-No caso do classificador de artigos, como, geralmente, os textos contém uma linguagem mais formal e com quase nenhum erro, menos pré-processamento é necessário para melhorar o resultado. Contudo foram utilizadas algumas técnicas que melhoraram modestamente mas significativamente o resultado final.
+No caso do classificador de artigos, como, geralmente, os textos contém uma linguagem mais formal e com quase nenhum erro, menos pré-processamento é necessário para melhorar o resultado. Contudo foram utilizadas algumas técnicas que melhoraram o resultado final.
 
 \subsection{Criação dos classificadores de Redes Bayesianas}
 
@@ -50,7 +50,7 @@ Onde, neste texto, não for elucidado sobre qual classificador esteja se falando 
 \subsection{Estudo dos resultados obtidos no conjunto de validação para diferentes features e parâmetros}
 \label{sec:validacao}
 
-Foi realizado um estudo detalhado dos resultados obtidos pelos classificadores para diferentes features, parâmetros e técnicas de classificação (NB e NB com pesos). A avaliação final da rede foi realizada em um conjunto de teste separado. 
+Foi realizado um estudo detalhado dos resultados obtidos pelos classificadores para diferentes features, parâmetros e técnicas de classificação (NB e NB com pesos). 
 
 Separou-se a base de dados total em dois conjuntos. Um de treinamento e um de validação de forma aleatória, sendo 25\% para validação e 75\% para treinamento. Para a análise da qualidade do classificador realizou-se a média das estatísticas avaliadas para varias divisões aleatórias diferentes de modo a obter um resultado estável.
 
@@ -63,7 +63,7 @@ que a rede aprenda online com as novas informações).
 
 \subsection{Desenvolvimento do plugin}
 
-Por fim desenvolveu-se o plugin para o Google Chrome, com uma interface gráfica amigável para o usuário para que ele entenda de forma fácil como filtrar as postagens em seu feed de notícias. %TODO: Nao fizemos isto ainda
+Por fim desenvolveu-se o plugin para o Google Chrome, com uma interface gráfica amigável respeitando o design do próprio Facebook.
 
 \section{Aquisição de dados}
 Como já foi dito, foram desenvolvidas duas formas diferente de realizar a aquisição de dados. Uma delas consiste numa extensão para o Google Chrome que possibilita o usuário classificar cada postagens à qual ele se depara no Facebook, enviando os dados e a classificação da mesma para o banco de dados. A outra forma de aquisição de dados é o desenvolvimento de um Crawler que faz o download de artigos online e treina sua base de dados com eles.
@@ -86,7 +86,7 @@ A extensão consiste em um conjuntos de arquivos zipados que incluem HTML, Javasc
 
 No caso da aplicação deste trabalho, é necessário ser capaz de mandar os dados das postagens com suas classificações para um servidor central (que obviamente não é do próprio Facebook), logo scripts injetados não são uma boa solução (uma vez que o javascript do Facebook impede a execução de cross-origin requests). Ou seja, a extensão foi desenvolvida predominantemente com scripts de conteúdo. 
 
-Uma observação importante é que scripts de conteúdo ainda possuem algumas restrições de segurança ao fazer requests para outros domínios. Se o site principal for https, o script de conteúdo só poderá realizar requests para outros servidores por https também. Para tal, o servidor desenvolvido neste trabalho deve ser capaz de responder requests https.
+Uma observação importante é que scripts de conteúdo ainda possuem algumas restrições de segurança ao fazer requests para outros domínios. Se o site principal for https, o script de conteúdo só poderá realizar requests para outros servidores por https também. Como o Facebook utiliza https, o servidor desenvolvido neste trabalho deve ser capaz de responder requests https.
 
 \subsubsection{Manifesto da extensão}
 As extensões do Chrome possuem um arquivo de configuração chamado de manifesto. Este arquivo encontra-se no formato de JSON.
@@ -132,7 +132,7 @@ As extensões do Chrome possuem um arquivo de configuração chamado de manifesto. 
 
 \end{lstlisting}
 
-O código \ref{lst:manifest_chrome_extension} ilustra o tensão desenvolvida. Ele identifica o nome da extensão (Demeter), a sua versão, os ícones utilizados, os scripts de conteúdo e as permissões (acessar o facebook e o servidor desenvolvido).
+O código \ref{lst:manifest_chrome_extension} ilustra o manifesto da extensão desenvolvida. Ele identifica o nome da extensão (Demeter), a sua versão, os ícones utilizados, os scripts de conteúdo e as permissões (acessar o Facebook e o servidor desenvolvido).
 
 Note que além dos códigos desenvolvidos, utilizou-se a biblioteca do JQuery para facilitar a manipulação do DOM.
 
@@ -194,7 +194,7 @@ Observe que apesar de na hora de realizar a classificação foi feita a simplifica
 \subsubsection{Servidor}
 Sempre que um usuário seleciona uma classe para uma determinada postagem, é realizada uma requisição POST para o servidor do Demeter (nome do projeto), contendo as informações relevantes. O servidor salva estas informações em um banco de dados.
 
-O banco de dados contem postagens indexadas por sua url (que é um valor único para cada postagem) e é associado a um conjunto de classes e frequências. Por exemplo, se um post foi classificado 5 vezes como Política e 2 como educação, essa informação ficará registrada no banco de dados.
+O banco de dados contem postagens indexadas por sua url (que é um valor único para cada postagem) e é associado a um conjunto de classes e frequências. Por exemplo, se um post foi classificado 5 vezes como Política e 2 como Educação, essa informação ficará registrada no banco de dados.
 
 É importante notar que não é apenas o texto da postagem que é salva no banco de dados. Também armazena-se o usuário que realizou criou a postagem, o momento em que ela foi publicada (timestamp), a presença de fotos ou vídeos, a existência de informações sobre o local de onde o usuário postou, etc. Essas informações podem ser relevantes na hora de se criar features para a NB.
 
@@ -221,11 +221,6 @@ Não é realístico esperar sucesso de qualquer entrada, contudo, com sorte, isso n
 \item Codificação de caracteres da página difere do acusado pelo header da resposta, gerando erros em bibliotecas de nível mais baixo
 \end{enumerate}
 
-% TODO: [minor] Colocar DOM e HTML nas abreviações
-
-Attempts to locate and extract the largest cluster of text in a webpage. It does this by walking the DOM-tree, identifying all text segments and their depth inside the DOM, appends all text at roughly the same depth, and then returns the chunk with the largest total length.
-
-This approach usually works well with typical news sites where one news article is displayed per URL. This approach usually fails with URLs displaying multiple news blurbs (e.g. news aggregators).
 
 Agora, analisemos o algoritmo utilizado para extrair o conteúdo principal da página. O mesmo tenta localizar e extrair o maior \emph{Cluster} de texto da página. Para tal, ele caminha na árvore DOM do documento identificando todos os segmentos de texto e seu caminho desde a raiz, agrega todos os textos com um prefixo deste caminho em comum e depois retorna o que contém o comprimento maior. Como exemplo, suponha um documento HTML como abaixo:
 

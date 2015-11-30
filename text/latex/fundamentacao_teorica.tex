@@ -23,7 +23,7 @@ As NB possuem as vantagens de serem fáceis de se implementar, serem bem rápidas 
 \section{Redes Bayesianas}
 
 \subsection{Definição}
-Em modelagem gráfica probabilística, Redes Bayesianas são grafos direcionados que representam relações de dependência condicionais entre diferentes variáveis aleatórias \cite{introduction_to_graphical_models}. A partir da visualização de uma Rede Bayesiana é possível utilizar a regra de Bayes para realizar inferências e descobrir a probabilidade de eventos, dadas algumas variáveis observadas. As arestas direcionadas representam as noções de causalidade entre as variáveis aleatórias e geram as dependências condicionais (TODO: causalidade?). Para cada nó do gráfico deve haver uma tabela de probabilidades condicionais para a variável em questão.
+Em modelagem gráfica probabilística, Redes Bayesianas são grafos direcionados que representam relações de dependência condicionais entre diferentes variáveis aleatórias \cite{introduction_to_graphical_models}. A partir da visualização de uma Rede Bayesiana é possível utilizar a regra de Bayes para realizar inferências e descobrir a probabilidade de eventos, dadas algumas variáveis observadas. As arestas direcionadas representam noções de dependência condicional entre as variáveis. Para cada nó do gráfico deve haver uma tabela de probabilidades condicionais para a variável em questão.
 
 A Figura \ref{fig:bayesian_networks}, retirada do curso de Modelagem Gráfica Probabilística da professora Daphne Koller de Stanford \cite{probabilistic_graphical_models}, ilustra um exemplo de uma Rede Bayesiana simples. Neste caso, pode-se ver que a nota do aluno é influenciada pela dificuldade da prova e pela sua inteligencia. Alem disso a possibilidade do professor escrever uma carta de recomendação depende apenas da nota do aluno e o SAT do aluno depende apenas de sua inteligencia. Em cada nó do grafo há uma tabela de distribuições de probabilidades condicionais.
 
@@ -350,7 +350,7 @@ Tendo decidido realizar feature weighting, o grande problema passa a ser determi
 
 Neste trabalho, estudou-se a utilização de um método baseado na Teoria da Informação, que além de ser comum na literatura (\cite{weighted_naive_bayes} e \cite{zaidi2013alleviating}), possui fundamentos teóricos bem embasados, onde o \emph{Gain Ratio} de um atributo é utilizado como seu peso.
  
- \subsection{Weighted Naïve Bayes por Entropia}
+ \subsection{Weighted Naïve Bayes}
 
 Em Teoria da Informação, entropia é o valor esperado de informação contido em uma mensagem. Praticamente falando, a distribuição de probabilidade de eventos, junto com a quantidade de informação de cada evento, compõe uma variável aleatória cujo valor esperado é a quantidade média de informação, ou entropia, gerada por essa distribuição. Assim entropia $H$ é:
 
@@ -548,7 +548,7 @@ $precisao_\mu = \frac{\sum_{i=1}^{L} {tp_i}}{\sum_{i=1}^{L} {tp_i + fp_i}}$
 
 $abrangencia_\mu = \frac{\sum_{i=1}^{L} {tp_i}}{\sum_{i=1}^{L} {tp_i + fn_i}}$
 
-Com uma matemática simples da pra concluir que a precisão micro é numericamente igual à abrangência micro (basta notar que o numerador dos dois é igual e o numerador dos dois representa a soma de todos os elementos da matriz de confusão, um através da soma das linhas e o outro através da soma das colunas).
+Com uma matemática simples da pra concluir que a precisão micro é numericamente igual à abrangência micro (basta notar que o numerador dos dois é igual e o denominador dos dois representa a soma de todos os elementos da matriz de confusão, um através da soma das linhas e o outro através da soma das colunas).
 
 A média macro consiste em somar os valores finais das métricas calculadas em cada classe e dividir pelo total de classes (uma média aritmética simples). Seguem as fórmulas de precisão e abrangência macro.
 
@@ -598,7 +598,7 @@ A estatística Kappa é utilizada para comparar a Acurácia Observada com a Acuráci
 
 A Acurácia Observada é a mesma acurácia que já foi definida previamente na equação \ref{eq:accuracy_multi_class}. Ela representa a quantidade de objetos classificados corretamente em relação ao total.
 
-Define-se como Acurácia Observada, a porcentagem esperada de acertos que um classificador aleatório teria se ele classificar os objetos com a mesma proporção entre as classes que o classificador original. 
+Define-se como Acurácia Esperada, a porcentagem esperada de acertos que um classificador aleatório teria se ele classificar os objetos com a mesma proporção entre as classes que o classificador original. 
 
 Para se deduzir a fórmula da Acurácia Esperada primeiro calcula-se a quantidade de vezes que o classificador original escolheu a classe $c_i$. É fácil de ver que ele escolheu esta classe $tp_i + fp_i$ vezes. O valor esperado do número de acertos de um classificador aleatório que escolha a dada classe $tp_i + fp_i$ vezes é: 
 
@@ -616,11 +616,11 @@ acuracia\_esperada = \frac{E[c_1,c_2,...,c_L]}{N} =  \frac{\sum_{i=1}^{L}{(tp_i 
 \end{equation}
 
 
-Em termos da matriz de confusão, a acurácia esperada é a somatória dos produtos entre cada linha com a sua respectiva coluna (linha 1 com coluna 1, linha 2 com coluna 2 e assim por diante) dividida pela quantidade total de elementos ao quadrado.
+Em termos da matriz de confusão, a acurácia esperada é a somatória dos produtos entre cada linha com a sua respectiva coluna (linha 1 com coluna 1, linha 2 com coluna 2 e assim por diante) dividida pela soma total de elementos ao quadrado.
 
 A definição de Acurácia Esperada é importante pois um classificador de Acurácia Observada 80\% é muito mais impressionante se a Acurácia Esperada for de 1\% do que se ela for 79\%.
 
-A estatística $Kappa$ indica a porcentagem de melhoria que o classificador tem em relação à Acurácia Esperada \cite{viera2005understanding}. Um classificador com Acurácia Observada idêntica à Acurácia Esperada possui $Kappa=0$, enquanto que um classificador com Acurácia Observada de 100\% possui $Kappa=1$. Valores intermediários do $Kappa$ indicam a melhoria do classificador em relação ao aleatório. Desta forma, a fórmula para o $Kapp$ é:
+A estatística $Kappa$ indica a porcentagem de melhoria que o classificador tem em relação à Acurácia Esperada \cite{viera2005understanding}. Um classificador com Acurácia Observada idêntica à Acurácia Esperada possui $Kappa=0$, enquanto que um classificador com Acurácia Observada de 100\% possui $Kappa=1$. Valores intermediários do $Kappa$ indicam a melhoria do classificador em relação ao aleatório. Desta forma, a fórmula para o $Kappa$ é:
 
 $Kappa = \frac{acuracia\_observada - acuracia\_esperada}{1 - acuracia\_esperada}$
 
@@ -650,7 +650,7 @@ A interpretação do $Kappa$ é interessante pois permite a comparação de diversos 
 Estas divisões foram arbitradas pelos autores supracitados e elas criam um benchmark útil para a verificação da qualidade de um classificador, definindo uma nomeclatura que pode ser utilizada pelo meio acadêmico. Obviamente, dependendo da aplicação pode ser necessário e desejável que se tenha um $Kappa$ de 0.9. Em outras aplicações um $Kappa$ de 0.4 pode já ser suficiente.
 
 \section{Revisão Bibliográfica}
-Muito já foi estudado no meio acadêmico sobre a utilização de Naïve Bayes para classificação de textos. McCallum e Nigam estudaram as diferentes modelagens possíveis para classificação de textos utilizando Naïve Bayes, explorando as diferenças entre modelos Multinomiais e de Bernoulli \cite{mccallum1998comparison}. Lewis e Ringuette estudam as diferenças entre a abordagem Bayesiana e a abordagem por árvores de decisão na classificação de textos \cite{lewis1994comparison}. Zaidi, Cerquides e Carman estudaram formas de aliviar a hipótese de independência condicional das Naïve Bayes, utilizando pesos para as features \cite{zaidi2013alleviating}. Lee, Dou e Gutierrez estudaram porque a métrica de Kullback-Leibler pode ser utilizada como peso \cite{weighted_naive_bayes}. Nirmala, Kumar, Velligiri, Patel e Mistry estudam vantagens e desvantagens de diferentes métodos de classificação de texto em redes sociais \cite{onlinesocialnetworks} \cite{patelreview}.
+Muito já foi estudado no meio acadêmico sobre a utilização de Naïve Bayes para classificação de textos. McCallum e Nigam estudaram as diferentes modelagens possíveis para classificação de textos utilizando Naïve Bayes, explorando as diferenças entre modelos Multinomiais e de Bernoulli \cite{mccallum1998comparison}. Lewis e Ringuette estudam as diferenças entre a abordagem Bayesiana e a abordagem por árvores de decisão na classificação de textos \cite{lewis1994comparison}. Zaidi, Cerquides e Carman estudaram formas de aliviar a hipótese de independência condicional das Naïve Bayes, utilizando pesos para as features \cite{zaidi2013alleviating}. Lee, Dou e Gutierrez estudaram por que a métrica de Kullback-Leibler pode ser utilizada como peso \cite{weighted_naive_bayes}. Nirmala, Kumar, Velligiri, Patel e Mistry estudam vantagens e desvantagens de diferentes métodos de classificação de texto em redes sociais \cite{onlinesocialnetworks} \cite{patelreview}.
 
 Muito pouco foi encontrado com relação à utilização de Redes Bayesiana em classificação de postagens de rede social. Este problema tem uma complexidade adicional pelo fato dos textos serem mais informais e com poucas palavras. Os poucos trabalhos encontrados fizeram muitas análises teóricas, porém sem muitos resultados práticos. Além de estudar os resultados numéricos do classificador desenvolvido, este trabalho explora a influência da inclusão de features não textuais (como o autor da postagem, o tipo de postagem, etc) na classificação.
 
